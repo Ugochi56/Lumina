@@ -23,13 +23,14 @@
         }
     </script>
     <style>
-        /* === COMPARISON SLIDER STYLES (Adapted from index.html) === */
-        /* Full Screen Container */
+        /* === COMPARISON SLIDER STYLES === */
+        /* Split Screen: Slider takes left 50% */
         .slider-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 50%;
+            /* Left half only */
             height: 100%;
             overflow: hidden;
             user-select: none;
@@ -68,66 +69,66 @@
             /* Let clicks pass through to container */
         }
 
-        /* Ensure overlay images don't shrink */
+        /* Images must fill the container height */
         #img-before {
             max-width: none;
-            /* Crucial for preventing resize */
             height: 100%;
             object-fit: cover;
-            /* Width will be set by JS to match viewport width */
         }
 
         #img-after {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center;
         }
 
-        /* Content Overlay */
+        /* Content Overlay - Right half only */
         .content-overlay {
             position: relative;
             z-index: 30;
-            /* Above slider */
             height: 100vh;
             width: 100%;
             display: flex;
             pointer-events: none;
-            /* Let clicks pass through to slider where mostly empty */
         }
 
-        /* Right Side Panel - Glassmorphism */
+        /* Right Side Panel - Solid Color */
         .right-panel {
             width: 50%;
             margin-left: auto;
             /* Push to right */
-            background: linear-gradient(to right, transparent, rgba(3, 7, 30, 0.8) 20%, rgba(3, 7, 30, 0.95));
+            background-color: #03071e;
+            /* Solid background matching theme */
             height: 100%;
             display: flex;
             flex-direction: column;
             pointer-events: auto;
-            /* Re-enable clicks here */
+            /* Re-enable clicks */
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 
-<body class="font-sans antialiased h-screen overflow-hidden text-white">
+<body class="font-sans antialiased h-screen overflow-hidden text-white bg-lumina-bg">
 
-    <!-- BACKGROUND SLIDER -->
+    <!-- SPLIT SLIDER (Left 50%) -->
     <div class="slider-container" id="slider-box">
         <!-- After (Base) - High Quality -->
-        <img id="img-after" src="../images/lion.jpg" alt="After">
+        <img id="img-after" src="../images/after.jpg" alt="After">
 
         <!-- Before (Overlay) - Low Quality/Blurry -->
         <div class="img-comp-overlay" id="overlay">
-            <img id="img-before" src="../images/blurlion.jpg" alt="Before">
+            <img id="img-before" src="../images/before.jpg" alt="Before">
         </div>
 
         <!-- Labels -->
         <div
             class="absolute top-1/2 left-10 transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
             Before</div>
+        <!-- Adjust 'After' label position since container is smaller -->
         <div
-            class="absolute top-1/2 left-[calc(100%-100px)] transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
+            class="absolute top-1/2 right-10 transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
             After</div>
 
         <!-- Handle -->
