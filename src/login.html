@@ -37,23 +37,27 @@
 
         .img-comp-img {
             position: absolute;
-            width: auto;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
         }
 
         .img-comp-img img {
             display: block;
+            width: 100%;
             height: 100vh;
-            width: 100vw;
-            /* Cover full viewport width */
             object-fit: cover;
+            object-position: center;
+            /* Ensure perfectly aligned */
         }
 
         /* Overlay Mask for Before Image */
         .img-comp-overlay {
             width: 50%;
             /* Initial split */
+            z-index: 2;
+            border-right: 2px solid white;
+            /* The divider line */
         }
 
         .slider-handle {
@@ -71,18 +75,6 @@
             justify-content: center;
             cursor: ew-resize;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .slider-line {
-            position: absolute;
-            width: 2px;
-            height: 100vh;
-            background-color: white;
-            z-index: 19;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none;
         }
 
         /* Content Overlay */
@@ -105,7 +97,7 @@
             background: linear-gradient(to right, transparent, rgba(3, 7, 30, 0.8) 20%, rgba(3, 7, 30, 0.95));
             height: 100%;
             display: flex;
-            flex-col;
+            flex-direction: column;
             pointer-events: auto;
             /* Re-enable clicks here */
         }
@@ -133,8 +125,7 @@
             class="absolute top-1/2 left-[calc(100%-100px)] transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
             After</div>
 
-        <!-- Handle & Line -->
-        <div class="slider-line" id="slider-line"></div>
+        <!-- Handle -->
         <div class="slider-handle" id="slider-handle">
             <svg class="w-5 h-5 text-ink_black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4">
@@ -240,7 +231,6 @@
         const sliderContainer = document.getElementById('slider-container');
         const overlay = document.getElementById('overlay');
         const handle = document.getElementById('slider-handle');
-        const line = document.getElementById('slider-line');
         const imgBefore = document.getElementById('img-before');
         const imgAfter = document.getElementById('img-after');
 
@@ -253,16 +243,20 @@
 
             overlay.style.width = pos + "px";
             handle.style.left = pos + "px";
-            line.style.left = pos + "px";
         }
 
         // Initialize at center
-        /* NO RESIZE NEEDED for CSS based Cover */
+        window.addEventListener('load', () => {
+            // 50% start
+            slide(window.innerWidth / 2);
+        });
 
-        // Mouse events (Global window to catch dragging outside potentially)
+        window.addEventListener('resize', () => {
+            slide(window.innerWidth / 2);
+        });
+
+        // Mouse events
         window.addEventListener('mousemove', (e) => {
-            // Only slide if we are over the left side primarily or if dragging logic was more complex
-            // For now, let's keep it simple: if mouse is on screen, slide lines up with x
             slide(e.pageX);
         });
 
