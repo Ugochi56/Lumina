@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support | Lumina AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ink_black: '#03071e',
+                        night_bordeaux: '#370617',
+                        cayenne_red: '#e85d04',
+                        amber_flame: '#ffba08',
+                        lumina: { bg: "#03071e", card: "#150509" }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(3, 7, 30, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .glow-hover {
+            transition: all 0.3s ease;
+        }
+
+        .glow-hover:hover {
+            box-shadow: 0 0 30px rgba(232, 93, 4, 0.2);
+            border-color: rgba(232, 93, 4, 0.5);
+        }
+
+        /* === DROPDOWN === */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) translateX(-50%);
+            transition: all 0.2s ease-in-out;
+            left: 50%;
+        }
+
+        .group:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) translateX(-50%);
+        }
+    </style>
+</head>
+
+<body class="bg-lumina-bg text-white font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 top-0 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                    <span
+                        class="text-2xl font-extrabold tracking-tight text-white hover:text-cayenne_red transition">Lumina</span>
+                </div>
+                <div class="hidden md:flex gap-8 text-sm font-bold text-gray-300">
+                    <!-- Enhance Dropdown -->
+                    <div class="relative group cursor-pointer inline-flex items-center">
+                        <span class="hover:text-white transition flex items-center gap-1">
+                            Enhance
+                            <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                        <div
+                            class="dropdown-menu absolute top-8 w-64 bg-night_bordeaux border border-white/10 rounded-2xl shadow-2xl p-2 z-50">
+                            <div class="flex flex-col gap-1 p-1">
+                                <a href="unblur.html"
+                                    class="block px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 rounded-lg transition">Unblur
+                                    & Sharpener</a>
+                                <a href="denoiser.html"
+                                    class="block px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 rounded-lg transition">Denoiser</a>
+                                <a href="restorer.html"
+                                    class="block px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 rounded-lg transition">Old
+                                    Photos Restorer</a>
+                                <a href="lowquality.html"
+                                    class="block px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 rounded-lg transition">Low
+                                    Quality Enhancer</a>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="aiphotos.html" class="hover:text-white transition">AI Photos</a>
+                    <a href="support.html" class="text-white transition">Support</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SEARCH -->
+    <section
+        class="mt-20 py-20 bg-gradient-to-b from-night_bordeaux/50 to-lumina-bg border-b border-white/5 relative overflow-hidden">
+        <!-- Background Glow -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-cayenne_red/10 rounded-full blur-[100px] -z-10 pointer-events-none">
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-12">How can we help you?</h1>
+
+            <div class="relative max-w-2xl mx-auto group">
+                <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <svg class="w-6 h-6 text-gray-400 group-focus-within:text-cayenne_red transition" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" placeholder="Search for answers..."
+                    class="w-full bg-white text-ink_black rounded-full py-4 pl-14 pr-6 text-lg focus:outline-none focus:ring-4 focus:ring-cayenne_red/30 shadow-2xl transition hover:scale-[1.01]">
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-16 w-full">
+
+        <!-- CATEGORY CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+            <!-- Lumina App Card -->
+            <a href="#"
+                class="bg-lumina-card border border-white/10 rounded-2xl p-8 hover:bg-white/5 transition flex items-center gap-6 group">
+                <div
+                    class="w-16 h-16 rounded-xl bg-gradient-to-br from-cayenne_red to-amber_flame flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold mb-2 group-hover:text-cayenne_red transition">Lumina App</h2>
+                    <p class="text-gray-400">Manage subscriptions and features on mobile.</p>
+                </div>
+            </a>
+
+            <!-- Lumina Web Card -->
+            <a href="#"
+                class="bg-lumina-card border border-white/10 rounded-2xl p-8 hover:bg-white/5 transition flex items-center gap-6 group">
+                <div
+                    class="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-lg border border-white/10 group-hover:scale-110 transition">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold mb-2 group-hover:text-cayenne_red transition">Lumina Web</h2>
+                    <p class="text-gray-400">Enhance photos on your desktop browser.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- PROMOTED ARTICLES -->
+        <h3 class="text-2xl font-bold mb-8 text-white border-l-4 border-cayenne_red pl-4">Promoted articles</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <a href="#"
+                class="bg-lumina-card border border-white/5 rounded-xl p-6 hover:border-cayenne_red/50 hover:bg-white/5 transition group">
+                <h4 class="text-lg font-bold mb-2 group-hover:text-cayenne_red transition">Why isn't my photo enhancing?
+                </h4>
+                <p class="text-sm text-gray-500 line-clamp-2">If your photo upload is stuck or failing, it might be due
+                    to file size limits or server load. Check here for troubleshooting steps.</p>
+            </a>
+
+            <a href="#"
+                class="bg-lumina-card border border-white/5 rounded-xl p-6 hover:border-cayenne_red/50 hover:bg-white/5 transition group">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-cayenne_red flex-shrink-0 mt-1" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h4 class="text-lg font-bold mb-2 group-hover:text-cayenne_red transition">What tools are
+                            included in Pro?</h4>
+                        <p class="text-sm text-gray-500 line-clamp-2">The Pro plan includes unlimited access to Unblur,
+                            Denoise, and Restore features, plus priority processing.</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#"
+                class="bg-lumina-card border border-white/5 rounded-xl p-6 hover:border-cayenne_red/50 hover:bg-white/5 transition group">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-cayenne_red flex-shrink-0 mt-1" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h4 class="text-lg font-bold mb-2 group-hover:text-cayenne_red transition">How do I cancel my
+                            subscription?</h4>
+                        <p class="text-sm text-gray-500 line-clamp-2">You can cancel your subscription at any time from
+                            your account settings page. Access remains until the end of the billing period.</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#"
+                class="bg-lumina-card border border-white/5 rounded-xl p-6 hover:border-cayenne_red/50 hover:bg-white/5 transition group">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber_flame flex-shrink-0 mt-1" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h4 class="text-lg font-bold mb-2 group-hover:text-cayenne_red transition">Request a refund</h4>
+                        <p class="text-sm text-gray-500 line-clamp-2">Refunds are processed within 5-7 business days for
+                            eligible purchases. Review our full refund policy here.</p>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-8 border-t border-white/10 text-center text-gray-500 text-sm">
+        <p>&copy; 2024 Lumina AI. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
