@@ -97,14 +97,12 @@
         .right-panel {
             width: 50%;
             margin-left: auto;
-            /* Push to right */
-            background-color: rgba(3, 7, 30, 0.9);
-            /* Semi-transparent to show stars */
+            background-color: rgba(3, 7, 30, 0.6);
+            /* Increased transparency for brighter stars */
             height: 100%;
             display: flex;
             flex-direction: column;
             pointer-events: auto;
-            /* Re-enable clicks */
             border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
@@ -127,7 +125,6 @@
         <div
             class="absolute top-1/2 left-10 transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
             Before</div>
-        <!-- Adjust 'After' label position since container is smaller -->
         <div
             class="absolute top-1/2 right-10 transform -translate-y-1/2 bg-black/60 px-4 py-2 rounded-full text-white font-bold z-10 pointer-events-none">
             After</div>
@@ -175,11 +172,13 @@
                 </div>
 
                 <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-                    AI photo enhancer, in one click
-                    <svg class="w-32 h-3 text-cayenne_red inline-block align-bottom -ml-2" viewBox="0 0 100 10"
-                        preserveAspectRatio="none">
-                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
-                    </svg>
+                    AI photo and video<br>enhancer, in <span class="relative inline-block">
+                        one click
+                        <svg class="absolute w-full h-3 -bottom-2 left-0 text-cayenne_red" viewBox="0 0 100 10"
+                            preserveAspectRatio="none">
+                            <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
+                        </svg>
+                    </span>
                 </h1>
 
                 <p class="text-gray-400 text-lg mb-12 max-w-lg">
