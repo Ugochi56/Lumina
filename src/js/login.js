@@ -131,4 +131,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // === 4. LOGIN / SIGNUP TOGGLE LOGIC ===
+    const authForm = document.getElementById('auth-form');
+    const nameField = document.getElementById('name-field');
+    const submitBtn = document.getElementById('submit-btn');
+    const toggleAuthBtn = document.getElementById('toggle-auth');
+    const toggleText = document.getElementById('toggle-text');
+
+    let isLogin = true;
+
+    if (toggleAuthBtn && authForm) {
+        toggleAuthBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            isLogin = !isLogin;
+
+            if (isLogin) {
+                // Switch to Login
+                authForm.action = '/auth/login';
+                nameField.classList.add('hidden');
+                submitBtn.textContent = 'Log In';
+                toggleText.childNodes[0].nodeValue = "Don't have an account? ";
+                toggleAuthBtn.textContent = "Sign Up";
+
+                nameField.querySelector('input').removeAttribute('required');
+            } else {
+                // Switch to Signup
+                authForm.action = '/auth/signup';
+                nameField.classList.remove('hidden');
+                submitBtn.textContent = 'Sign Up';
+                toggleText.childNodes[0].nodeValue = "Already have an account? ";
+                toggleAuthBtn.textContent = "Log In";
+
+                nameField.querySelector('input').setAttribute('required', 'true');
+            }
+        });
+    }
 });

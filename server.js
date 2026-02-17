@@ -119,44 +119,81 @@ if (process.env.FACEBOOK_APP_ID) {
 }
 
 // --- APPLE STRATEGY ---
-if (process.env.APPLE_CLIENT_ID) {
-    passport.use(new AppleStrategy({
-        clientID: process.env.APPLE_CLIENT_ID,
-        teamID: process.env.APPLE_TEAM_ID,
-        keyID: process.env.APPLE_KEY_ID,
-        privateKeyLocation: process.env.APPLE_PRIVATE_KEY_PATH, // Path to .p8 file
-        callbackURL: process.env.APPLE_CALLBACK_URL || '/auth/apple/callback',
-        passReqToCallback: true
-    }, async (req, accessToken, refreshToken, idToken, profile, done) => {
+const bcrypt = require('bcrypt');
+const LocalStrategy = require('passport-local').Strategy;
+
+// --- LOCAL STRATEGY (Email/Password) ---
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+},
+    async (email, password, done) => {
         try {
-            // Apple only returns user info (name/email) on the FIRST login. 
-            // Logic here needs to handle that or use the idToken to decode email.
-            const providerId = idToken.sub;
-            let result = await pool.query('SELECT * FROM users WHERE provider = $1 AND provider_id = $2', ['apple', providerId]);
-
-            if (result.rows.length > 0) {
-                return done(null, result.rows[0]);
-            } else {
-                // Basic placeholder. Real implementation needs to decode JWT for email if profile is missing
-                const email = profile ? profile.email : `apple_${providerId}@placeholder.com`;
-                const name = profile && profile.name ? `${profile.name.firstName} ${profile.name.lastName}` : 'Apple User';
-
-                result = await pool.query(
-                    'INSERT INTO users (email, name, provider, provider_id) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [email, name, 'apple', providerId]
-                );
-                return done(null, result.rows[0]);
+            const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+            if (result.rows.length === 0) {
+                return done(null, false, { message: 'Incorrect email.' });
             }
+
+            const user = result.rows[0];
+
+            // If user logged in with OAuth before, they might not have a password
+            if (!user.password) {
+                return done(null, false, { message: 'Please log in with your social account.' });
+            }
+
+            const match = await bcrypt.compare(password, user.password);
+            if (!match) {
+                return done(null, false, { message: 'Incorrect password.' });
+            }
+
+            return done(null, user);
         } catch (err) {
             return done(err);
         }
-    }));
-}
-
+    }
+));
 
 // --- Routes ---
 
-// 1. Google
+// 1. Signup Route
+app.post('/auth/signup', async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert user
+        // Note: provider='local', provider_id can be null or 'local'
+        const result = await pool.query(
+            'INSERT INTO users (email, password, name, provider, provider_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [email, hashedPassword, name || 'User', 'local', 'local']
+        );
+
+        // Login immediately
+        req.login(result.rows[0], (err) => {
+            if (err) throw err;
+            res.redirect('/index.html'); // Redirect to home
+        });
+
+    } catch (err) {
+        if (err.code === '23505') { // Unique constraint violation (email exists)
+            return res.redirect('/login.html?error=Email already exists');
+        }
+        console.error(err);
+        res.redirect('/login.html?error=Registration failed');
+    }
+});
+
+// 2. Login Route
+app.post('/auth/login',
+    passport.authenticate('local', {
+        successRedirect: '/index.html',
+        failureRedirect: '/login.html?error=Invalid credentials'
+    })
+);
+
+// 3. Google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login.html' }),
