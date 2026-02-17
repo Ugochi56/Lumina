@@ -186,12 +186,20 @@ app.post('/auth/signup', async (req, res) => {
 });
 
 // 2. Login Route
-app.post('/auth/login',
-    passport.authenticate('local', {
-        successRedirect: '/index.html',
-        failureRedirect: '/login.html?error=Invalid credentials'
-    })
-);
+// 2. Login Route
+app.post('/auth/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) { return next(err); }
+        if (!user) {
+            // Redirect with the specific error message from LocalStrategy
+            return res.redirect('/login.html?error=' + encodeURIComponent(info.message));
+        }
+        req.logIn(user, (err) => {
+            if (err) { return next(err); }
+            return res.redirect('/index.html');
+        });
+    })(req, res, next);
+});
 
 // 3. Google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
