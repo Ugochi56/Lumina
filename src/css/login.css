@@ -1,0 +1,84 @@
+/* === COMPARISON SLIDER STYLES === */
+/* Split Screen: Slider takes left 50% */
+.slider-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50%;
+    /* Left half only */
+    height: 100%;
+    overflow: hidden;
+    user-select: none;
+    cursor: col-resize;
+    z-index: 0;
+}
+
+.img-comp-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    /* Default starting position */
+    height: 100%;
+    overflow: hidden;
+    border-right: 2px solid white;
+    z-index: 10;
+}
+
+.slider-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Matches overlay width */
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    /* Let clicks pass through to container */
+}
+
+/* Images must fill the container height */
+#img-before {
+    max-width: none;
+    height: 100%;
+    width: 50vw;
+    /* Fix: Match container width (50% of viewport) to prevent glitch */
+    object-fit: cover;
+}
+
+#img-after {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Content Overlay - Right half only */
+.content-overlay {
+    position: relative;
+    z-index: 30;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    pointer-events: none;
+}
+
+/* Right Side Panel - Solid Color */
+.right-panel {
+    width: 50%;
+    margin-left: auto;
+    background-color: rgba(3, 7, 30, 0.6);
+    /* Increased transparency for brighter stars */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
