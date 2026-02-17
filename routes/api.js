@@ -28,13 +28,6 @@ router.post('/enhance', async (req, res) => {
     }
 });
 
-// 2. Check Auth Status (Can be here or in auth routes, kept in auth for semantic reasons but good to have API status too)
-router.get('/me', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
-    } else {
-        res.json({ authenticated: false });
-    }
-});
+
 
 module.exports = router;

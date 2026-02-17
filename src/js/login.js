@@ -167,4 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // === 5. ERROR HANDLING LOGIC ===
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMsg = urlParams.get('error');
+    const errorContainer = document.getElementById('error-container');
+    const errorMessageSpan = document.getElementById('error-message');
+
+    if (errorMsg && authModal) {
+        // 1. Open Modal
+        authModal.classList.remove('hidden');
+        authModal.classList.add('flex');
+
+        // 2. Show Error
+        if (errorContainer && errorMessageSpan) {
+            errorMessageSpan.textContent = decodeURIComponent(errorMsg);
+            errorContainer.classList.remove('hidden');
+        }
+
+        // 3. Clean URL (optional, to prevent showing error on refresh)
+        // window.history.replaceState({}, document.title, window.location.pathname);
+    }
 });
