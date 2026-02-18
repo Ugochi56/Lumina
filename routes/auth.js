@@ -73,7 +73,7 @@ router.post('/apple/callback', // Apple uses POST
 router.get('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) return next(err);
-        res.redirect('/index.html');
+        res.redirect('/login.html'); // Redirect to login page
     });
 });
 
