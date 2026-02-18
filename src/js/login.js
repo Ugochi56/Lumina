@@ -40,10 +40,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // === 6. AUTH STATUS CHECK ===
+    let isAuthenticated = false;
+
+    function checkAuth() {
+        fetch('/auth/status')
+            .then(res => res.json())
+            .then(data => {
+                const navGuest = document.getElementById('nav-guest');
+                const navAuth = document.getElementById('nav-auth');
+
+                isAuthenticated = data.authenticated;
+
+                if (data.authenticated) {
+                    if (navGuest) navGuest.classList.add('hidden');
+                    if (navAuth) navAuth.classList.remove('hidden');
+                    if (navAuth) navAuth.classList.add('flex');
+                    console.log("User is authenticated:", data.user.name);
+                } else {
+                    if (navGuest) navGuest.classList.remove('hidden');
+                    if (navAuth) navAuth.classList.add('hidden');
+                    if (navAuth) navAuth.classList.remove('flex');
+                    console.log("User is guest");
+                }
+            })
+            .catch(err => console.error("Auth check failed:", err));
+    }
+
     // === 2. FILE UPLOAD LOGIC ===
     const fileInput = document.getElementById('file-upload');
     const chooseBtn = document.getElementById('choose-files-btn');
     const dropZone = document.getElementById('drop-zone');
+    const loaderOverlay = document.getElementById('loader-overlay');
+
+    function handleFileSelection(files) {
+        if (files.length > 0) {
+            if (isAuthenticated) {
+                // Show Loader
+                if (loaderOverlay) {
+                    loaderOverlay.classList.remove('hidden');
+                    loaderOverlay.classList.add('flex');
+                }
+                console.log("Files selected (Auth):", files);
+                // Future: Actual upload logic will go here
+            } else {
+                // Show Auth Modal
+                const authModal = document.getElementById('auth-modal');
+                if (authModal) {
+                    authModal.classList.remove('hidden');
+                    authModal.classList.add('flex');
+                }
+            }
+        }
+    }
 
     if (chooseBtn && fileInput) {
         chooseBtn.addEventListener('click', () => {
@@ -51,10 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                console.log("Files selected:", e.target.files);
-                // Future: Handle files
-            }
+            handleFileSelection(e.target.files);
         });
     }
 
@@ -92,122 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            console.log("Files dropped:", files);
-            // Future: Handle files
+            handleFileSelection(files);
         }
-    }
-
-
-    // === 3. AUTH MODAL LOGIC ===
-    const authModal = document.getElementById('auth-modal');
-    const loginBtns = document.querySelectorAll('.login-trigger');
-    const closeModalBtn = document.getElementById('close-auth-modal');
-
-    // Open Modal
-    loginBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            authModal.classList.remove('hidden');
-            authModal.classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-    });
-
-    // Close Modal Function
-    function closeModal() {
-        authModal.classList.add('hidden');
-        authModal.classList.remove('flex');
-        document.body.style.overflow = ''; // Restore scrolling
-    }
-
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
-    }
-
-    // Close on click outside
-    if (authModal) {
-        authModal.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                closeModal();
-            }
-        });
-    }
-    // === 4. LOGIN / SIGNUP TOGGLE LOGIC ===
-    const authForm = document.getElementById('auth-form');
-    const nameField = document.getElementById('name-field');
-    const submitBtn = document.getElementById('submit-btn');
-    const toggleAuthBtn = document.getElementById('toggle-auth');
-    const toggleText = document.getElementById('toggle-text');
-
-    let isLogin = true;
-
-    if (toggleAuthBtn && authForm) {
-        toggleAuthBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            isLogin = !isLogin;
-
-            if (isLogin) {
-                // Switch to Login
-                authForm.action = '/auth/login';
-                nameField.classList.add('hidden');
-                submitBtn.textContent = 'Log In';
-                toggleText.childNodes[0].nodeValue = "Don't have an account? ";
-                toggleAuthBtn.textContent = "Sign Up";
-
-                nameField.querySelector('input').removeAttribute('required');
-            } else {
-                // Switch to Signup
-                authForm.action = '/auth/signup';
-                nameField.classList.remove('hidden');
-                submitBtn.textContent = 'Sign Up';
-                toggleText.childNodes[0].nodeValue = "Already have an account? ";
-                toggleAuthBtn.textContent = "Log In";
-
-                nameField.querySelector('input').setAttribute('required', 'true');
-            }
-        });
-    }
-    // === 5. ERROR HANDLING LOGIC ===
-    const urlParams = new URLSearchParams(window.location.search);
-    const errorMsg = urlParams.get('error');
-    const errorContainer = document.getElementById('error-container');
-    const errorMessageSpan = document.getElementById('error-message');
-
-    if (errorMsg && authModal) {
-        // 1. Open Modal
-        authModal.classList.remove('hidden');
-        authModal.classList.add('flex');
-
-        // 2. Show Error
-        if (errorContainer && errorMessageSpan) {
-            errorMessageSpan.textContent = decodeURIComponent(errorMsg);
-            errorContainer.classList.remove('hidden');
-        }
-
-        // 3. Clean URL (optional, to prevent showing error on refresh)
-        // window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    // === 6. AUTH STATUS CHECK ===
-    function checkAuth() {
-        fetch('/auth/status')
-            .then(res => res.json())
-            .then(data => {
-                const navGuest = document.getElementById('nav-guest');
-                const navAuth = document.getElementById('nav-auth');
-
-                if (data.authenticated) {
-                    if (navGuest) navGuest.classList.add('hidden');
-                    if (navAuth) navAuth.classList.remove('hidden');
-                    if (navAuth) navAuth.classList.add('flex');
-                    console.log("User is authenticated:", data.user.name);
-                } else {
-                    if (navGuest) navGuest.classList.remove('hidden');
-                    if (navAuth) navAuth.classList.add('hidden');
-                    if (navAuth) navAuth.classList.remove('flex');
-                    console.log("User is guest");
-                }
-            })
-            .catch(err => console.error("Auth check failed:", err));
     }
 
     // === 7. ACCOUNT MODAL LOGIC ===
