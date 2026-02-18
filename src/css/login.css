@@ -81,4 +81,6 @@
     flex-direction: column;
     pointer-events: auto;
     border-left: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+    /* Enable scrolling if content overflows */
 }
