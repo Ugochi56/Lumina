@@ -21,7 +21,7 @@ router.post('/signup', async (req, res) => {
         // Login immediately
         req.login(result.rows[0], (err) => {
             if (err) throw err;
-            res.redirect('/index.html'); // Redirect to home
+            res.redirect('/login.html'); // Redirect to app
         });
 
     } catch (err) {
@@ -43,7 +43,7 @@ router.post('/login', (req, res, next) => {
         }
         req.logIn(user, (err) => {
             if (err) { return next(err); }
-            return res.redirect('/index.html');
+            return res.redirect('/login.html');
         });
     })(req, res, next);
 });
@@ -52,21 +52,21 @@ router.post('/login', (req, res, next) => {
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback',
     passport.authenticate('google', { failureRedirect: '/login.html' }),
-    (req, res) => res.redirect('/index.html') // Successful auth
+    (req, res) => res.redirect('/login.html') // Successful auth: go to app
 );
 
 // 4. Facebook
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 router.get('/facebook/callback',
     passport.authenticate('facebook', { failureRedirect: '/login.html' }),
-    (req, res) => res.redirect('/index.html')
+    (req, res) => res.redirect('/login.html')
 );
 
 // 5. Apple
 router.get('/apple', passport.authenticate('apple'));
 router.post('/apple/callback', // Apple uses POST
     passport.authenticate('apple', { failureRedirect: '/login.html' }),
-    (req, res) => res.redirect('/index.html')
+    (req, res) => res.redirect('/login.html')
 );
 
 // 6. Logout

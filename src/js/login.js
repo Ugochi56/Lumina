@@ -187,4 +187,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Clean URL (optional, to prevent showing error on refresh)
         // window.history.replaceState({}, document.title, window.location.pathname);
     }
+    // === 6. AUTH STATUS CHECK ===
+    function checkAuth() {
+        fetch('/auth/status')
+            .then(res => res.json())
+            .then(data => {
+                const navGuest = document.getElementById('nav-guest');
+                const navAuth = document.getElementById('nav-auth');
+
+                if (data.authenticated) {
+                    if (navGuest) navGuest.classList.add('hidden');
+                    if (navAuth) navAuth.classList.remove('hidden');
+                    if (navAuth) navAuth.classList.add('flex');
+                    console.log("User is authenticated:", data.user.name);
+                } else {
+                    if (navGuest) navGuest.classList.remove('hidden');
+                    if (navAuth) navAuth.classList.add('hidden');
+                    if (navAuth) navAuth.classList.remove('flex');
+                    console.log("User is guest");
+                }
+            })
+            .catch(err => console.error("Auth check failed:", err));
+    }
+
+    checkAuth();
 });
