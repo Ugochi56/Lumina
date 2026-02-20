@@ -365,9 +365,10 @@
     <div id="account-modal"
         class="fixed inset-0 bg-black/80 z-[100] hidden justify-center items-center backdrop-blur-sm p-4 font-sans">
         <div
-            class="bg-white text-gray-900 rounded-3xl overflow-hidden flex max-w-4xl w-full h-[600px] shadow-2xl relative animate-fade-in">
+            class="bg-white text-gray-900 rounded-3xl overflow-hidden flex flex-col md:flex-row max-w-4xl w-full h-auto max-h-[90vh] md:h-[600px] shadow-2xl relative animate-fade-in">
             <!-- Close Button -->
-            <button id="close-account-modal" class="absolute top-6 right-6 text-gray-400 hover:text-gray-800 z-10 p-2">
+            <button id="close-account-modal"
+                class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-400 hover:text-gray-800 z-10 p-2 bg-white/50 md:bg-transparent rounded-full backdrop-blur-sm">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
@@ -375,28 +376,29 @@
             </button>
 
             <!-- LEFT SIDEBAR -->
-            <div class="w-1/3 bg-gray-50 flex flex-col p-8 border-r border-gray-100">
-                <div class="space-y-2 mt-12">
+            <div
+                class="w-full md:w-1/3 bg-gray-50 flex md:flex-col p-4 md:p-8 border-b md:border-b-0 md:border-r border-gray-100 overflow-x-auto shrink-0 hide-scrollbar">
+                <div class="flex md:flex-col space-x-2 md:space-x-0 space-y-0 md:space-y-2 mt-2 md:mt-12 w-full">
                     <button id="tab-subscription"
-                        class="w-full text-left px-6 py-3 rounded-full font-bold text-gray-500 hover:bg-gray-200 transition">Subscription</button>
+                        class="whitespace-nowrap flex-1 md:w-full text-center md:text-left px-6 py-3 rounded-full font-bold text-gray-500 hover:bg-gray-200 transition">Subscription</button>
                     <button id="tab-general"
-                        class="w-full text-left px-6 py-3 rounded-full font-bold bg-white shadow-sm text-black border border-gray-200 transition">General</button>
+                        class="whitespace-nowrap flex-1 md:w-full text-center md:text-left px-6 py-3 rounded-full font-bold bg-white shadow-sm text-black border border-gray-200 transition">General</button>
                 </div>
             </div>
 
             <!-- RIGHT CONTENT -->
-            <div class="w-2/3 p-12 overflow-y-auto">
+            <div class="w-full md:w-2/3 p-6 md:p-12 overflow-y-auto">
                 <!-- GENERAL TAB CONTENT -->
                 <div id="content-general" class="block">
-                    <h2 class="text-3xl font-bold mb-8">General</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">General</h2>
 
                     <h3 class="text-gray-500 font-bold mb-4">Account</h3>
 
                     <!-- Account Card -->
                     <div
-                        class="bg-[#4285F4] text-white rounded-2xl p-6 mb-8 flex items-center justify-between shadow-lg relative overflow-hidden">
-                        <div class="flex items-center gap-4 relative z-10">
-                            <div class="bg-white p-2 rounded-full">
+                        class="bg-[#4285F4] text-white rounded-2xl p-4 md:p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden gap-4">
+                        <div class="flex items-center gap-4 relative z-10 w-full sm:w-auto overflow-hidden">
+                            <div class="bg-white p-2 rounded-full shrink-0">
                                 <svg class="w-6 h-6" viewBox="0 0 24 24">
                                     <path
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -412,9 +414,10 @@
                                         fill="#EA4335" />
                                 </svg>
                             </div>
-                            <div>
-                                <h4 class="font-bold text-lg" id="account-provider">Google Account</h4>
-                                <p class="text-white/90 text-sm" id="account-email">user@example.com</p>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="font-bold text-base md:text-lg truncate" id="account-provider">Google Account
+                                </h4>
+                                <p class="text-white/90 text-sm truncate" id="account-email">user@example.com</p>
                                 <p class="text-white/70 text-xs mt-1">Created on <span
                                         id="account-created">01/01/2026</span></p>
                                 <p class="text-white/70 text-xs text-[10px] break-all">User ID: <span
@@ -422,73 +425,85 @@
                             </div>
                         </div>
                         <a href="/auth/logout"
-                            class="border border-white/40 hover:bg-white/10 text-white px-4 py-2 rounded-full text-sm font-bold transition">Logout
+                            class="border border-white/40 hover:bg-white/10 text-white px-4 py-2 rounded-full text-sm font-bold transition whitespace-nowrap text-center sm:w-auto w-full">Logout
                             ↗</a>
                     </div>
 
                     <!-- Links List -->
-                    <div class="space-y-6">
+                    <div class="space-y-4 md:space-y-6">
                         <div
                             class="flex justify-between items-center border-b border-gray-100 pb-4 cursor-pointer hover:opacity-70">
-                            <span class="font-medium text-gray-700">Terms of Service</span>
+                            <span class="font-medium text-gray-700 text-sm md:text-base">Terms of Service</span>
                             <span class="text-gray-400">↗</span>
                         </div>
                         <div
                             class="flex justify-between items-center border-b border-gray-100 pb-4 cursor-pointer hover:opacity-70">
-                            <span class="font-medium text-gray-700">Privacy and Cookie Policy</span>
+                            <span class="font-medium text-gray-700 text-sm md:text-base">Privacy and Cookie
+                                Policy</span>
                             <span class="text-gray-400">↗</span>
                         </div>
                         <div
                             class="flex justify-between items-center border-b border-gray-100 pb-4 cursor-pointer hover:opacity-70">
-                            <span class="font-medium text-gray-700">Send a Privacy Request</span>
+                            <span class="font-medium text-gray-700 text-sm md:text-base">Send a Privacy Request</span>
                             <span class="text-gray-400">↗</span>
                         </div>
                         <div
                             class="flex justify-between items-center border-b border-gray-100 pb-4 cursor-pointer hover:opacity-70">
-                            <span class="font-medium text-gray-700">Privacy Settings</span>
+                            <span class="font-medium text-gray-700 text-sm md:text-base">Privacy Settings</span>
                             <span class="text-gray-400">></span>
                         </div>
                     </div>
-                    <p class="text-center text-xs text-gray-500 mt-8 font-bold">Are you experiencing any issue? <a
+                    <p class="text-center text-xs text-gray-500 mt-8 font-bold pb-4">Are you experiencing any issue? <a
                             href="#" class="text-black">Contact us.</a></p>
                 </div>
 
                 <!-- SUBSCRIPTION TAB CONTENT -->
                 <div id="content-subscription" class="hidden">
-                    <h2 class="text-3xl font-bold mb-2">Subscription</h2>
-                    <p class="text-gray-500 mb-8">Your plan</p>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">Subscription</h2>
+                    <p class="text-gray-500 mb-6 md:mb-8">Your plan</p>
 
                     <div
-                        class="bg-gradient-to-r from-purple-800 to-indigo-600 rounded-3xl p-8 text-white flex justify-between items-center shadow-xl">
-                        <div>
-                            <h3 class="text-2xl font-bold mb-4">Join the Lumina World</h3>
+                        class="relative rounded-3xl p-6 md:p-8 text-white flex justify-between items-center shadow-xl overflow-hidden min-h-[250px] bg-black">
+                        <!-- Background Image & Gradient Blend -->
+                        <div class="absolute inset-0 z-0">
+                            <img src="../images/after.jpg" alt="Background"
+                                class="w-full h-full object-cover opacity-60 mix-blend-overlay">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-purple-900/90 via-indigo-900/70 to-transparent">
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent">
+                            </div>
+                        </div>
+
+                        <!-- Content over image -->
+                        <div class="relative z-10 w-full sm:w-2/3">
+                            <h3 class="text-xl md:text-2xl font-bold mb-4 drop-shadow-md">Join the Lumina World</h3>
                             <ul class="space-y-2 mb-6">
-                                <li class="flex items-center gap-2"><svg class="w-5 h-5 text-green-400"
-                                        fill="currentColor" viewBox="0 0 20 20">
+                                <li class="flex items-center gap-2 text-sm md:text-base drop-shadow-sm"><svg
+                                        class="w-5 h-5 text-green-400 shadow-sm" fill="currentColor"
+                                        viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd"></path>
                                     </svg> Remove Watermark</li>
-                                <li class="flex items-center gap-2"><svg class="w-5 h-5 text-green-400"
-                                        fill="currentColor" viewBox="0 0 20 20">
+                                <li class="flex items-center gap-2 text-sm md:text-base drop-shadow-sm"><svg
+                                        class="w-5 h-5 text-green-400 shadow-sm" fill="currentColor"
+                                        viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd"></path>
                                     </svg> Unlimited Enhancements</li>
-                                <li class="flex items-center gap-2"><svg class="w-5 h-5 text-green-400"
-                                        fill="currentColor" viewBox="0 0 20 20">
+                                <li class="flex items-center gap-2 text-sm md:text-base drop-shadow-sm"><svg
+                                        class="w-5 h-5 text-green-400 shadow-sm" fill="currentColor"
+                                        viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd"></path>
                                     </svg> Cancel Anytime</li>
                             </ul>
                             <button
-                                class="bg-white/20 hover:bg-white/30 text-white border border-white/50 px-8 py-3 rounded-full font-bold transition">Get
+                                class="bg-white text-indigo-900 border hover:bg-gray-100 px-8 py-3 w-full sm:w-auto rounded-full font-bold transition shadow-lg">Get
                                 Started</button>
-                        </div>
-                        <div class="hidden md:block">
-                            <!-- Placeholder for subscription image -->
-                            <div class="w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
                         </div>
                     </div>
                 </div>
