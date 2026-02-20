@@ -577,18 +577,18 @@
 
 /* === SUBSCRIPTION MODAL TIERS === */
 .tier-card.selected {
-    background-color: rgba(26, 5, 8, 0.9);
-    border-color: #e85d04;
-    box-shadow: 0 0 40px rgba(232, 93, 4, 0.2);
-    transform: translateY(-4px);
+    background-color: #fffaf5 !important;
+    border-color: #e85d04 !important;
+    box-shadow: 0 0 40px rgba(232, 93, 4, 0.15) !important;
+    transform: translateY(-4px) !important;
 }
 
 .tier-card.selected .radio-indicator {
-    border-color: #e85d04;
+    border-color: #e85d04 !important;
 }
 
 .tier-card.selected .inner-circle {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 /* Base transition for smooth hovering */
@@ -597,6 +597,6 @@
 }
 
 .tier-card:hover:not(.selected) {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(0, 0, 0, 0.2) !important;
     transform: translateY(-2px);
 }
