@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (proceedCheckoutBtn) {
                 proceedCheckoutBtn.disabled = false;
                 proceedCheckoutBtn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed', 'border', 'border-gray-300');
-                proceedCheckoutBtn.classList.add('bg-gradient-to-r', 'from-orange', 'to-cayenne_red', 'text-white', 'hover:opacity-90', 'border-transparent');
+                proceedCheckoutBtn.classList.add('bg-gradient-to-r', 'from-amber_flame', 'to-cayenne_red', 'text-white', 'hover:opacity-90', 'border-transparent');
             }
         });
     });
