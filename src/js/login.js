@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSubscriptionModalBtn = document.getElementById('close-subscription-modal');
 
     // Buttons that open the modal
-    const headerSubscribeBtns = document.querySelectorAll('a[href="#subscribe"], button:contains("Subscribe"), #open-subscription'); // Broad selectors for any subscribe buttons
+    const headerSubscribeBtns = document.querySelectorAll('a[href="#subscribe"], #open-subscription'); // Broad selectors for any subscribe buttons
     // The specific ones from the DOM:
     const headerSubscribeBtn = document.querySelector('nav button:nth-child(2)'); // "Subscribe" next to My Account
     const getStartedBtn = document.querySelector('#content-subscription button'); // "Get Started" in Account Modal
