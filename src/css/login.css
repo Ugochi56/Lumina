@@ -574,3 +574,29 @@
     scrollbar-width: none;
     /* Firefox */
 }
+
+/* === SUBSCRIPTION MODAL TIERS === */
+.tier-card.selected {
+    background-color: rgba(26, 5, 8, 0.9);
+    border-color: #e85d04;
+    box-shadow: 0 0 40px rgba(232, 93, 4, 0.2);
+    transform: translateY(-4px);
+}
+
+.tier-card.selected .radio-indicator {
+    border-color: #e85d04;
+}
+
+.tier-card.selected .inner-circle {
+    opacity: 1;
+}
+
+/* Base transition for smooth hovering */
+.tier-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tier-card:hover:not(.selected) {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}

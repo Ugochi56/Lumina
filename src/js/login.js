@@ -388,5 +388,95 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === 8. SUBSCRIPTION MODAL LOGIC ===
+    const subscriptionModal = document.getElementById('subscription-modal');
+    const closeSubscriptionModalBtn = document.getElementById('close-subscription-modal');
+
+    // Buttons that open the modal
+    const headerSubscribeBtns = document.querySelectorAll('a[href="#subscribe"], button:contains("Subscribe"), #open-subscription'); // Broad selectors for any subscribe buttons
+    // The specific ones from the DOM:
+    const headerSubscribeBtn = document.querySelector('nav button:nth-child(2)'); // "Subscribe" next to My Account
+    const getStartedBtn = document.querySelector('#content-subscription button'); // "Get Started" in Account Modal
+
+    // Tiers and Checkout
+    const tierCards = document.querySelectorAll('.tier-card');
+    const proceedCheckoutBtn = document.getElementById('proceed-checkout-btn');
+    let selectedTier = null;
+
+    function openSubscriptionModal() {
+        if (!subscriptionModal) return;
+        subscriptionModal.classList.remove('hidden');
+        subscriptionModal.classList.add('flex');
+
+        // Ensure scroll is prevented on body
+        document.body.style.overflow = 'hidden';
+
+        // Close account modal if open
+        if (accountModal && !accountModal.classList.contains('hidden')) {
+            accountModal.classList.add('hidden');
+            accountModal.classList.remove('flex');
+        }
+    }
+
+    function closeSubscriptionModal() {
+        if (!subscriptionModal) return;
+        subscriptionModal.classList.add('hidden');
+        subscriptionModal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    // Attach Open Events
+    if (getStartedBtn) getStartedBtn.addEventListener('click', openSubscriptionModal);
+
+    // Specific check for the top right subscribe button (assumes it has text "Subscribe")
+    const navButtons = document.querySelectorAll('nav button');
+    navButtons.forEach(btn => {
+        if (btn.textContent.trim() === 'Subscribe') {
+            btn.addEventListener('click', openSubscriptionModal);
+        }
+    });
+
+    // Attach Close Events
+    if (closeSubscriptionModalBtn) closeSubscriptionModalBtn.addEventListener('click', closeSubscriptionModal);
+    if (subscriptionModal) {
+        subscriptionModal.addEventListener('click', (e) => {
+            if (e.target === subscriptionModal) {
+                closeSubscriptionModal();
+            }
+        });
+    }
+
+    // Tier Selection Logic
+    tierCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Remove selected class from all
+            tierCards.forEach(c => c.classList.remove('selected'));
+
+            // Add selected class to clicked
+            card.classList.add('selected');
+
+            // Get tier name
+            selectedTier = card.getAttribute('data-tier');
+
+            // Enable checkout button
+            if (proceedCheckoutBtn) {
+                proceedCheckoutBtn.disabled = false;
+                proceedCheckoutBtn.classList.remove('bg-white/10', 'text-white/50', 'cursor-not-allowed');
+                proceedCheckoutBtn.classList.add('bg-white', 'text-ink_black', 'hover:bg-gray-200');
+                proceedCheckoutBtn.textContent = `Proceed to Checkout (${selectedTier})`;
+            }
+        });
+    });
+
+    // Checkout Routing
+    if (proceedCheckoutBtn) {
+        proceedCheckoutBtn.addEventListener('click', () => {
+            if (selectedTier) {
+                // Simulate routing to backend checkout endpoint
+                window.location.href = `/api/checkout?tier=${selectedTier}`;
+            }
+        });
+    }
+
     checkAuth();
 });

@@ -25,3 +25,4 @@ yarn-error.log*
 # Auth Keys (Apple)
 *.p8
 auth/
+ngrok.exe
