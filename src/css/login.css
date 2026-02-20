@@ -95,25 +95,14 @@
 
     .slider-container {
         width: 100%;
-        height: 55vh;
-        /* Top half */
+        height: 60vh;
+        /* Top part */
         position: relative;
         z-index: 10;
-        pointer-events: none;
+        pointer-events: auto;
         /* Let touches optionally pass through, or just keep slider */
-    }
-
-    /* Fade out bottom of slider to match body bg */
-    .slider-container::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 150px;
-        background: linear-gradient(to bottom, transparent, #03071e);
-        z-index: 100;
-        pointer-events: none;
+        -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
     }
 
     /* Make images fill screen width */
@@ -157,14 +146,15 @@
 
     /* Main content below the slider */
     main {
-        margin-top: calc(55vh - 80px);
+        margin-top: calc(60vh - 120px);
         /* Push down below slider */
-        background-color: #03071e;
+        background-color: transparent;
         position: relative;
         z-index: 20;
         pointer-events: auto;
         padding-top: 40px;
         padding-bottom: 40px;
+        background: linear-gradient(to bottom, transparent, rgba(3, 7, 30, 0.4) 20%, rgba(3, 7, 30, 0.8) 100%);
     }
 }
 
