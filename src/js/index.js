@@ -116,25 +116,4 @@ document.addEventListener('DOMContentLoaded', () => {
             window.event.currentTarget.classList.add('border-cayenne_red', 'opacity-100');
         }
     };
-
-    // --- D. Mobile Menu Toggle ---
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('hidden');
-            mobileMenu.classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-    }
-
-    if (closeMobileMenuBtn && mobileMenu) {
-        closeMobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            mobileMenu.classList.remove('flex');
-            document.body.style.overflow = 'auto'; // Restore scrolling
-        });
-    }
 });
