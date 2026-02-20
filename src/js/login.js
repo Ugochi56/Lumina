@@ -286,7 +286,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tabs
     const tabGeneral = document.getElementById('tab-general');
     const tabSubscription = document.getElementById('tab-subscription');
+
+    const wrapperGeneral = document.getElementById('wrapper-general');
     const contentGeneral = document.getElementById('content-general');
+
+    const wrapperSubscription = document.getElementById('wrapper-subscription');
     const contentSubscription = document.getElementById('content-subscription');
 
     // Data Fields
@@ -338,6 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tab Switching
     function setTab(tab) {
+        if (!wrapperGeneral || !wrapperSubscription || !contentGeneral || !contentSubscription) return;
+
         if (tab === 'general') {
             tabGeneral.classList.add('bg-white', 'shadow-sm', 'text-black', 'border', 'border-gray-200');
             tabGeneral.classList.remove('text-gray-500', 'hover:bg-gray-200');
@@ -345,8 +351,13 @@ document.addEventListener('DOMContentLoaded', () => {
             tabSubscription.classList.remove('bg-white', 'shadow-sm', 'text-black', 'border', 'border-gray-200');
             tabSubscription.classList.add('text-gray-500', 'hover:bg-gray-200');
 
-            contentGeneral.classList.remove('hidden');
-            contentSubscription.classList.add('hidden');
+            wrapperGeneral.style.gridTemplateRows = "1fr";
+            contentGeneral.classList.remove('opacity-0', 'pointer-events-none');
+            contentGeneral.classList.add('opacity-100');
+
+            wrapperSubscription.style.gridTemplateRows = "0fr";
+            contentSubscription.classList.remove('opacity-100');
+            contentSubscription.classList.add('opacity-0', 'pointer-events-none');
         } else {
             tabSubscription.classList.add('bg-white', 'shadow-sm', 'text-black', 'border', 'border-gray-200');
             tabSubscription.classList.remove('text-gray-500', 'hover:bg-gray-200');
@@ -354,8 +365,13 @@ document.addEventListener('DOMContentLoaded', () => {
             tabGeneral.classList.remove('bg-white', 'shadow-sm', 'text-black', 'border', 'border-gray-200');
             tabGeneral.classList.add('text-gray-500', 'hover:bg-gray-200');
 
-            contentSubscription.classList.remove('hidden');
-            contentGeneral.classList.add('hidden');
+            wrapperSubscription.style.gridTemplateRows = "1fr";
+            contentSubscription.classList.remove('opacity-0', 'pointer-events-none');
+            contentSubscription.classList.add('opacity-100');
+
+            wrapperGeneral.style.gridTemplateRows = "0fr";
+            contentGeneral.classList.remove('opacity-100');
+            contentGeneral.classList.add('opacity-0', 'pointer-events-none');
         }
     }
 

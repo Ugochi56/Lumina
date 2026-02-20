@@ -112,11 +112,18 @@
                         class="text-gray-300 hover:text-white font-bold text-lg transition flex items-center">Support</a>
                 </div>
 
-                <!-- Right: CTA Button -->
+                <!-- Right: CTA Button & Hamburger -->
                 <div class="flex items-center justify-end w-1/4 gap-4">
                     <button onclick="window.location.href='login.html'"
-                        class="bg-white text-ink_black hover:bg-gray-200 px-8 py-3 rounded-full text-base font-bold transition shadow-lg transform hover:scale-105">
-                        Try Lumina
+                        class="hidden md:block bg-white text-ink_black hover:bg-gray-200 px-8 py-3 rounded-full text-base font-bold transition shadow-lg transform hover:scale-105 whitespace-nowrap">
+                        Try Lumina <span class="ml-1">↗</span>
+                    </button>
+                    <!-- Mobile Hamburger -->
+                    <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none p-2 ml-auto">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -133,15 +140,27 @@
         </div>
 
         <!-- Headline -->
-        <h1 class="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 text-white max-w-4xl leading-tight">
-            The only photo enhancer you'll ever need
+        <h1
+            class="text-[2.5rem] leading-[1.1] sm:text-7xl font-extrabold tracking-tight mb-6 text-white max-w-4xl mx-auto">
+            The only photo and video enhancer you'll ever need
         </h1>
 
         <!-- Subheadline -->
-        <p class="text-lg text-gray-400 max-w-3xl mx-auto mb-16 leading-relaxed">
+        <p class="text-base sm:text-lg text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed px-2">
             Transformative technology gives your low-quality visuals a stunning HD upgrade. Restore old photos to
             incredible detail and elevate your content to a professional level.
         </p>
+
+        <!-- Mobile CTA (Visible only on mobile) -->
+        <button onclick="window.location.href='login.html'"
+            class="md:hidden bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 mb-20 rounded-full text-lg font-bold transition shadow-lg backdrop-blur-sm self-center sm:self-auto flex items-center justify-center gap-2 mx-auto">
+            Try Lumina <span>↗</span>
+        </button>
+
+        <!-- PRODUCT DEMO SECTION TITLE -->
+        <div class="w-full max-w-6xl mx-auto text-left mb-4 px-4 font-bold text-white/80">
+            Product Demo
+        </div>
 
         <!-- PRODUCT DEMO CONTAINER -->
         <div
@@ -149,18 +168,18 @@
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cayenne_red to-amber_flame opacity-50">
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="flex flex-col-reverse lg:flex-row gap-6">
                 <!-- LEFT: COMPARISON SLIDER -->
                 <div class="w-full lg:w-2/3 flex flex-col gap-4">
-                    <div class="relative w-full h-[500px] rounded-2xl overflow-hidden slider-container group"
+                    <div class="relative w-full h-[350px] sm:h-[500px] rounded-2xl overflow-hidden slider-container group"
                         id="slider-box">
                         <!-- Before Label -->
                         <div
-                            class="absolute top-6 left-6 bg-black/70 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold z-30 border border-white/10">
+                            class="absolute top-4 left-4 sm:top-6 sm:left-6 bg-black/70 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold z-30 border border-white/10">
                             Before</div>
                         <!-- After Label -->
                         <div
-                            class="absolute top-6 right-6 bg-black/70 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold z-30 border border-white/10">
+                            class="absolute top-4 right-4 sm:top-6 sm:right-6 bg-black/70 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold z-30 border border-white/10">
                             After</div>
 
                         <!-- After Image (Base) - REPLACE 'after.jpg' with your enhanced image -->
@@ -181,9 +200,14 @@
                             </svg>
                         </div>
                     </div>
+                </div>
+
+                <!-- RIGHT: FEATURES & THUMBNAILS -->
+                <div class="w-full lg:w-1/3 flex flex-col justify-start">
 
                     <!-- THUMBNAILS -->
-                    <div class="flex gap-4 overflow-x-auto pb-2">
+                    <div
+                        class="flex lg:flex-wrap gap-3 sm:gap-4 overflow-x-auto pb-2 justify-center lg:justify-start lg:mt-8">
                         <button onclick="changeDemo('portrait')"
                             class="flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden border-2 border-cayenne_red relative group">
                             <!-- Thumb 1 -->
@@ -288,6 +312,69 @@
             </div>
         </div>
     </main>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu"
+        class="fixed inset-0 bg-lumina-bg z-[100] hidden flex-col transition-transform duration-300 font-sans">
+        <!-- Top Nav Header in Menu -->
+        <div class="flex items-center justify-between h-20 px-4 sm:px-6 w-full border-b border-white/5 shrink-0">
+            <span class="text-2xl font-extrabold tracking-tight text-white cursor-pointer"
+                onclick="window.location.href='index.html'">Lumina</span>
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='login.html'"
+                    class="bg-white text-ink_black px-4 py-2 rounded-full text-sm font-bold transition whitespace-nowrap shadow-lg">
+                    Try Lumina <span class="ml-1">↗</span>
+                </button>
+                <button id="close-mobile-menu" class="text-white hover:text-gray-300 p-2 focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="flex flex-col flex-grow px-6 py-6 overflow-y-auto">
+
+            <div class="border-b border-white/10 w-full py-4 text-left">
+                <div class="flex justify-between items-center cursor-pointer group"
+                    onclick="document.getElementById('mobile-enhance-dropdown').classList.toggle('hidden')">
+                    <span class="text-xl font-bold text-white group-hover:text-gray-300">Enhance</span>
+                    <svg class="w-5 h-5 text-white transition-transform transform" id="mobile-enhance-icon" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <!-- Dropdown items -->
+                <div id="mobile-enhance-dropdown" class="hidden flex-col gap-3 pt-4 pl-4 text-lg">
+                    <a href="unblur.html" class="text-gray-400 hover:text-white transition">Unblur & Sharpener</a>
+                    <a href="denoiser.html" class="text-gray-400 hover:text-white transition">Denoiser</a>
+                    <a href="restorer.html" class="text-gray-400 hover:text-white transition">Old Photos Restorer</a>
+                    <a href="lowquality.html" class="text-gray-400 hover:text-white transition">Low Quality Enhancer</a>
+                </div>
+            </div>
+
+            <div class="border-b border-white/10 w-full py-4 text-left">
+                <a href="aiphotos.html" class="text-xl font-bold text-white hover:text-gray-300 transition block">AI
+                    Photos</a>
+            </div>
+
+            <div class="border-b border-white/10 w-full py-4 text-left">
+                <a href="support.html"
+                    class="text-xl font-bold text-white hover:text-gray-300 transition block">Support</a>
+            </div>
+
+        </div>
+
+        <!-- Bottom CTA -->
+        <div class="mt-auto p-6 w-full shrink-0">
+            <button onclick="window.location.href='login.html'"
+                class="w-full bg-white text-ink_black hover:bg-gray-200 py-4 rounded-full text-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
+                Try Lumina <span class="ml-1">↗</span>
+            </button>
+        </div>
+    </div>
 
     <!-- 4. BUSINESS POSSIBILITIES SECTION -->
     <section class="py-24 bg-lumina-bg relative overflow-hidden">
