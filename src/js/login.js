@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // === 6. AUTH STATUS CHECK ===
+    // === 6. AUTH STATUS CHECK & MOBILE MENU ===
     let isAuthenticated = false;
 
     function checkAuth() {
@@ -49,22 +49,59 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 const navGuest = document.getElementById('nav-guest');
                 const navAuth = document.getElementById('nav-auth');
+                const navGuestMobile = document.getElementById('nav-guest-mobile');
+                const navAuthMobile = document.getElementById('nav-auth-mobile');
 
                 isAuthenticated = data.authenticated;
 
                 if (data.authenticated) {
+                    // Desktop
                     if (navGuest) navGuest.classList.add('hidden');
                     if (navAuth) navAuth.classList.remove('hidden');
                     if (navAuth) navAuth.classList.add('flex');
+
+                    // Mobile
+                    if (navGuestMobile) navGuestMobile.classList.add('hidden');
+                    if (navGuestMobile) navGuestMobile.classList.remove('flex'); // Remove flex if it was there
+                    if (navAuthMobile) navAuthMobile.classList.remove('hidden');
+                    if (navAuthMobile) navAuthMobile.classList.add('flex');
+
                     console.log("User is authenticated:", data.user.name);
                 } else {
+                    // Desktop
                     if (navGuest) navGuest.classList.remove('hidden');
                     if (navAuth) navAuth.classList.add('hidden');
                     if (navAuth) navAuth.classList.remove('flex');
+
+                    // Mobile
+                    if (navGuestMobile) navGuestMobile.classList.remove('hidden');
+                    if (navGuestMobile) navGuestMobile.classList.add('flex');
+                    if (navAuthMobile) navAuthMobile.classList.add('hidden');
+                    if (navAuthMobile) navAuthMobile.classList.remove('flex');
+
                     console.log("User is guest");
                 }
             })
             .catch(err => console.error("Auth check failed:", err));
+    }
+
+    // Mobile Menu Toggling
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+        });
+    }
+
+    if (closeMobileMenuBtn && mobileMenu) {
+        closeMobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        });
     }
 
     // === 2. FILE UPLOAD LOGIC ===
@@ -236,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === 7. ACCOUNT MODAL LOGIC ===
     const accountModal = document.getElementById('account-modal');
     const myAccountBtn = document.querySelector('#nav-auth button:first-child'); // First button in nav-auth is "My account"
+    const mobileMyAccountBtn = document.getElementById('mobile-my-account-btn');
     const closeAccountBtn = document.getElementById('close-account-modal');
 
     // Tabs
@@ -250,25 +288,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const accountCreated = document.getElementById('account-created');
     const accountId = document.getElementById('account-id');
 
-    if (myAccountBtn && accountModal) {
-        myAccountBtn.addEventListener('click', () => {
-            accountModal.classList.remove('hidden');
-            accountModal.classList.add('flex');
-            // Fetch latest user data when opening
-            fetch('/auth/status')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.authenticated) {
-                        accountEmail.textContent = data.user.email;
-                        accountProvider.textContent = data.user.provider === 'local' ? 'Lumina Account' : (data.user.provider.charAt(0).toUpperCase() + data.user.provider.slice(1) + ' Account');
-                        // accountCreated.textContent = new Date(data.user.created_at).toLocaleDateString(); // Assuming DB has this
-                        // accountId.textContent = data.user.id;
-                        // Mock data if DB fields missing
-                        accountCreated.textContent = "18/02/2026";
-                        accountId.textContent = "u-" + (data.user.id || "12345");
-                    }
-                });
-        });
+    function openAccountModal() {
+        if (!accountModal) return;
+        accountModal.classList.remove('hidden');
+        accountModal.classList.add('flex');
+
+        // Close mobile menu if open
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        }
+
+        // Fetch latest user data when opening
+        fetch('/auth/status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.authenticated) {
+                    accountEmail.textContent = data.user.email;
+                    accountProvider.textContent = data.user.provider === 'local' ? 'Lumina Account' : (data.user.provider.charAt(0).toUpperCase() + data.user.provider.slice(1) + ' Account');
+                    // Mock data if DB fields missing
+                    accountCreated.textContent = "18/02/2026";
+                    accountId.textContent = "u-" + (data.user.id || "12345");
+                }
+            });
+    }
+
+    if (myAccountBtn) {
+        myAccountBtn.addEventListener('click', openAccountModal);
+    }
+
+    if (mobileMyAccountBtn) {
+        mobileMyAccountBtn.addEventListener('click', openAccountModal);
     }
 
     if (closeAccountBtn) {
