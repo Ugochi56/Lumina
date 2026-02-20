@@ -187,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Open Modal
     loginBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Close mobile menu if it is open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('flex');
+            }
+
             authModal.classList.remove('hidden');
             authModal.classList.add('flex');
             document.body.style.overflow = 'hidden'; // Prevent scrolling

@@ -85,6 +85,89 @@
     /* Enable scrolling if content overflows */
 }
 
+/* === MOBILE RESPONSIVENESS === */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto !important;
+        /* Allow scroll on mobile */
+        height: auto;
+    }
+
+    .slider-container {
+        width: 100%;
+        height: 55vh;
+        /* Top half */
+        position: relative;
+        z-index: 10;
+        pointer-events: none;
+        /* Let touches optionally pass through, or just keep slider */
+    }
+
+    /* Fade out bottom of slider to match body bg */
+    .slider-container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 150px;
+        background: linear-gradient(to bottom, transparent, #03071e);
+        z-index: 100;
+        pointer-events: none;
+    }
+
+    /* Make images fill screen width */
+    #img-before {
+        width: 100vw;
+    }
+
+    /* Put overlay inside normal flow below slider */
+    .content-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        z-index: 30;
+        pointer-events: none;
+    }
+
+    .right-panel {
+        width: 100%;
+        margin-left: 0;
+        border-left: none;
+        background-color: transparent;
+        /* Main has the bg */
+        overflow-y: visible;
+        margin-top: 0;
+        /* Header at top */
+    }
+
+    /* Header stays at top over the slider */
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        background: transparent;
+        pointer-events: auto;
+    }
+
+    /* Main content below the slider */
+    main {
+        margin-top: calc(55vh - 80px);
+        /* Push down below slider */
+        background-color: #03071e;
+        position: relative;
+        z-index: 20;
+        pointer-events: auto;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+}
+
 /* === LOADER STYLES === */
 .wheel-and-hamster {
     --dur: 1s;
