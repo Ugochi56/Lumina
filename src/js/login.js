@@ -441,45 +441,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NeonVerse Glow effect on card hover
-    const pricingCards = document.querySelectorAll('.pricing-card');
-    pricingCards.forEach(card => {
-        const glowEffect = card.querySelector('.glow-effect');
-        if (glowEffect) {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+    // Tier Selection Logic
+    tierCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Remove selected class from all cards
+            tierCards.forEach(c => c.classList.remove('selected'));
 
-                glowEffect.style.left = x + 'px';
-                glowEffect.style.top = y + 'px';
-                glowEffect.style.opacity = '1';
-            });
+            // Add selected to clicked card
+            card.classList.add('selected');
 
-            card.addEventListener('mouseleave', () => {
-                glowEffect.style.opacity = '0';
-            });
-        }
-    });
+            // Set selected tier
+            selectedTier = card.getAttribute('data-tier');
 
-    // Neonverse Checkout Routing
-    const neonButtons = document.querySelectorAll('.card-button');
-    neonButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // Add a click effect
-            button.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                button.style.transform = '';
-            }, 200);
-
-            const tier = button.getAttribute('data-tier');
-            if (tier) {
-                window.location.href = `/api/checkout?tier=${tier}`;
+            // Enable the checkout button
+            if (proceedCheckoutBtn) {
+                proceedCheckoutBtn.disabled = false;
+                proceedCheckoutBtn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed', 'border', 'border-gray-300');
+                proceedCheckoutBtn.classList.add('bg-gradient-to-r', 'from-orange', 'to-cayenne_red', 'text-white', 'hover:opacity-90', 'border-transparent');
             }
         });
     });
+
+    // Checkout Routing
+    if (proceedCheckoutBtn) {
+        proceedCheckoutBtn.addEventListener('click', () => {
+            if (selectedTier) {
+                // Visual feedback
+                const originalText = proceedCheckoutBtn.innerText;
+                proceedCheckoutBtn.innerText = 'Processing...';
+                proceedCheckoutBtn.disabled = true;
+                proceedCheckoutBtn.classList.add('opacity-70');
+
+                // Route
+                setTimeout(() => {
+                    window.location.href = `/api/checkout?tier=${selectedTier}`;
+                }, 400);
+            }
+        });
+    }
 
     checkAuth();
 });

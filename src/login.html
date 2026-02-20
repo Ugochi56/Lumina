@@ -532,80 +532,180 @@
     <!-- SUBSCRIPTION MODAL -->
     <div id="subscription-modal"
         class="fixed inset-0 bg-black/60 z-[200] hidden justify-center items-center backdrop-blur-sm p-4 font-sans text-left overflow-y-auto">
-        <div class="pricing-container neon-pricing-modal relative animate-fade-in shadow-2xl my-auto">
+        <div
+            class="bg-white border border-gray-200 text-gray-900 rounded-3xl flex flex-col w-full max-w-6xl my-auto shadow-2xl relative animate-fade-in p-6 md:p-10 lg:p-12">
+
             <!-- Close Button -->
             <button id="close-subscription-modal"
-                class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-white z-[100] p-2 bg-transparent rounded-full transition">
+                class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-400 hover:text-black z-10 p-2 bg-gray-100 md:bg-transparent rounded-full transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
                 </svg>
             </button>
 
-            <div class="pricing-header">
-                <h1>Lumina AI</h1>
-                <p>Professional enhancement tools. Choose the plan that illuminates your creative journey.</p>
+            <!-- Header -->
+            <div class="text-center mb-8 md:mb-12 shrink-0">
+                <h2
+                    class="text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange to-cayenne_red">
+                    Choose Your Plan</h2>
+                <p class="text-gray-500 text-base md:text-lg font-medium">Unlock professional enhancement tools and
+                    <span class="text-gray-900 font-bold">unlimited possibilities.</span></p>
             </div>
 
-            <div class="pricing-cards">
+            <!-- Tiers Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full" id="subscription-tiers">
+
                 <!-- WEEKLY TIER -->
-                <div class="pricing-card card-starter">
-                    <div class="glow-effect"></div>
-                    <h3 class="card-tier">Weekly</h3>
-                    <p class="card-description">Perfect for short-term projects and trying out our tools.</p>
-                    <div class="card-price">$4.99</div>
-                    <div class="price-cycle">per week</div>
-                    <ul class="card-features">
-                        <li>Short-term access</li>
-                        <li>All Pro tools included</li>
+                <div class="tier-card w-full bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 flex flex-col cursor-pointer transition-all duration-300 hover:bg-gray-100 relative"
+                    data-tier="weekly">
+                    <div
+                        class="absolute inset-x-0 -top-px h-px w-1/2 mx-auto bg-gradient-to-r from-transparent via-gray-300 to-transparent">
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">Weekly</h3>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-4xl md:text-5xl font-extrabold text-gray-900">$4.99</span>
+                        <span class="text-gray-500 font-medium">/week</span>
+                    </div>
+                    <ul class="space-y-4 mb-8 flex-grow">
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Short-term access
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            All Pro tools
+                        </li>
                     </ul>
-                    <button class="card-button" data-tier="weekly">Select Weekly</button>
+                    <div
+                        class="radio-indicator w-6 h-6 rounded-full border-2 border-gray-300 mx-auto flex items-center justify-center transition-colors bg-white mt-auto">
+                        <div class="inner-circle w-3 h-3 rounded-full bg-orange opacity-0 transition-opacity"></div>
+                    </div>
                 </div>
 
-                <!-- MONTHLY TIER -->
-                <div class="pricing-card card-pro card-popular">
-                    <div class="popular-tag">Popular</div>
-                    <div class="glow-effect"></div>
-                    <h3 class="card-tier">Monthly</h3>
-                    <p class="card-description">Advanced tools for professionals seeking creative excellence.</p>
-                    <div class="card-price">$14.99</div>
-                    <div class="price-cycle">per month</div>
-                    <ul class="card-features">
-                        <li>Up to 20 images at once</li>
-                        <li>Limited AI features</li>
-                        <li>No watermark</li>
+                <!-- MONTHLY TIER (POPULAR) -->
+                <div class="tier-card w-full bg-orange/5 border-2 border-orange/40 rounded-2xl p-6 md:p-8 flex flex-col cursor-pointer transition-all duration-300 hover:bg-orange/10 relative transform lg:-translate-y-4 shadow-[0_0_40px_rgba(232,93,4,0.15)] lg:scale-105 z-10"
+                    data-tier="monthly">
+                    <!-- Popular Badge -->
+                    <div class="absolute -top-4 inset-x-0 flex justify-center z-10">
+                        <span
+                            class="bg-gradient-to-r from-orange to-cayenne_red px-6 py-1.5 text-xs font-black uppercase tracking-widest rounded-full shadow-lg text-white">Most
+                            Popular</span>
+                    </div>
+
+                    <h3
+                        class="text-xl font-black text-cayenne_red mb-2 text-center lg:text-left mt-2 lg:mt-0 uppercase tracking-wide">
+                        Monthly</h3>
+                    <div class="flex items-baseline justify-center lg:justify-start gap-1 mb-6">
+                        <span class="text-5xl md:text-6xl font-black text-gray-900">$14.99</span>
+                        <span class="text-gray-600 font-medium">/mo</span>
+                    </div>
+                    <ul class="space-y-4 mb-8 flex-grow text-left">
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800">
+                            <svg class="w-6 h-6 text-orange shrink-0 mt-0.5 drop-shadow-sm" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span><span class="font-extrabold text-cayenne_red bg-orange/10 px-1 rounded">Up to 20
+                                    images</span> at once</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800 font-medium">
+                            <svg class="w-6 h-6 text-orange shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Limited AI features
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800 font-medium">
+                            <svg class="w-6 h-6 text-orange shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            No watermark
+                        </li>
                     </ul>
-                    <button class="card-button" data-tier="monthly">Select Monthly</button>
+                    <div
+                        class="radio-indicator w-6 h-6 rounded-full border-2 border-orange mx-auto flex items-center justify-center transition-colors bg-white mt-auto">
+                        <div class="inner-circle w-3 h-3 rounded-full bg-orange opacity-0 transition-opacity"></div>
+                    </div>
                 </div>
 
                 <!-- YEARLY TIER -->
-                <div class="pricing-card card-enterprise">
-                    <div class="glow-effect"></div>
-                    <h3 class="card-tier">Yearly</h3>
-                    <p class="card-description">The complete creative solution for power users and creators.</p>
-                    <div class="card-price">$99.99</div>
-                    <div class="price-cycle flex items-center gap-2">per year <span class="savings-badge">Save
-                            44%</span></div>
-                    <ul class="card-features">
-                        <li>Unlimited uploads</li>
-                        <li class="highlight-feature">All AI features & enhancements<span class="tooltip">Includes
-                                generation & restoration</span></li>
-                        <li>Bulk downloads</li>
-                        <li>No watermark</li>
+                <div class="tier-card w-full bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 flex flex-col cursor-pointer transition-all duration-300 hover:bg-gray-100 relative"
+                    data-tier="yearly">
+                    <div
+                        class="absolute inset-x-0 -top-px h-px w-1/2 mx-auto bg-gradient-to-r from-transparent via-gray-300 to-transparent">
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">Yearly</h3>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-4xl md:text-5xl font-extrabold text-gray-900">$99.99</span>
+                        <span class="text-gray-500 font-medium">/year</span>
+                    </div>
+                    <div
+                        class="mb-4 inline-block bg-green-100 border border-green-200 text-green-800 px-3 py-1 font-black uppercase tracking-wider rounded-lg self-start shadow-sm text-sm">
+                        Save 44%</div>
+                    <ul class="space-y-4 mb-8 flex-grow mt-2">
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800">
+                            <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-extrabold text-green-700 bg-green-50 px-1 rounded">Unlimited</span>
+                            uploads
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800">
+                            <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-bold">All</span> AI features & enhancements
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800 font-medium">
+                            <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Bulk downloads
+                        </li>
+                        <li class="flex items-start gap-3 text-sm md:text-base text-gray-800 font-medium">
+                            <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            No watermark
+                        </li>
                     </ul>
-                    <button class="card-button" data-tier="yearly">Select Yearly</button>
+                    <div
+                        class="radio-indicator w-6 h-6 rounded-full border-2 border-gray-300 mx-auto flex items-center justify-center transition-colors bg-white mt-auto">
+                        <div class="inner-circle w-3 h-3 rounded-full bg-orange opacity-0 transition-opacity"></div>
+                    </div>
                 </div>
+
             </div>
 
-            <div class="pricing-guarantee">
-                <svg class="guarantee-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-                14-day money-back guarantee. No questions asked.
+            <!-- Footer Action -->
+            <div class="mt-8 md:mt-12 text-center shrink-0">
+                <button id="proceed-checkout-btn" disabled
+                    class="bg-gray-200 text-gray-400 border border-gray-300 px-10 py-4 w-full sm:w-auto rounded-full font-bold transition-all shadow-lg text-lg cursor-not-allowed">
+                    Select a Plan & Checkout
+                </button>
+                <p class="text-xs text-gray-500 mt-4 font-medium">Secure payment powered by Stripe. Cancel anytime.</p>
             </div>
-
-            <a href="#" class="faq-link">Have questions? View our FAQ</a>
         </div>
     </div>
 </body>
