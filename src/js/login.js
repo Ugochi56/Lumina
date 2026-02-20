@@ -441,37 +441,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NeonVerse Pricing Toggle Logic
-    const billingToggle = document.getElementById('billing-toggle');
-    const monthlyPrices = document.querySelectorAll('.monthly-price');
-    const annualPrices = document.querySelectorAll('.annual-price');
-    const monthlyCycles = document.querySelectorAll('.monthly-cycle');
-    const annualCycles = document.querySelectorAll('.annual-cycle');
-    const monthlyText = document.querySelector('.toggle-text.monthly');
-    const annualText = document.querySelector('.toggle-text.annually');
-
-    if (billingToggle) {
-        billingToggle.addEventListener('change', function () {
-            if (this.checked) {
-                // Annual
-                monthlyPrices.forEach(price => price.style.display = 'none');
-                annualPrices.forEach(price => price.style.display = 'block');
-                monthlyCycles.forEach(cycle => cycle.style.display = 'none');
-                annualCycles.forEach(cycle => cycle.style.display = 'block');
-                monthlyText.classList.remove('active');
-                annualText.classList.add('active');
-            } else {
-                // Monthly
-                monthlyPrices.forEach(price => price.style.display = 'block');
-                annualPrices.forEach(price => price.style.display = 'none');
-                monthlyCycles.forEach(cycle => cycle.style.display = 'block');
-                annualCycles.forEach(cycle => cycle.style.display = 'none');
-                monthlyText.classList.add('active');
-                annualText.classList.remove('active');
-            }
-        });
-    }
-
     // NeonVerse Glow effect on card hover
     const pricingCards = document.querySelectorAll('.pricing-card');
     pricingCards.forEach(card => {
@@ -506,9 +475,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 200);
 
             const tier = button.getAttribute('data-tier');
-            const cycle = billingToggle && billingToggle.checked ? 'annual' : 'monthly';
             if (tier) {
-                window.location.href = `/api/checkout?tier=${tier}&cycle=${cycle}`;
+                window.location.href = `/api/checkout?tier=${tier}`;
             }
         });
     });
