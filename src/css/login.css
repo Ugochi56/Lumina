@@ -600,3 +600,497 @@
     border-color: rgba(0, 0, 0, 0.2) !important;
     transform: translateY(-2px);
 }
+
+/* === NEONVERSE PRICING MODAL === */
+.neon-pricing-modal {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --accent-blue: #58a6ff;
+    --accent-purple: #bc8cff;
+    --accent-pink: #ff79c6;
+    --accent-green: #26cb7c;
+    --border-color: rgba(128, 128, 128, 0.1);
+    --hover-color: rgba(255, 255, 255, 0.03);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    background-color: rgba(13, 17, 23, 0.85);
+    /* Transparent to let starfield show */
+    backdrop-filter: blur(12px);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 900px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.pricing-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.pricing-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.pricing-header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    border-radius: 2px;
+}
+
+.pricing-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 1rem auto;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.toggle-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.toggle-text.active {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background-color: var(--accent-purple);
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 1px rgba(188, 140, 255, 0.4);
+}
+
+.toggle-switch input:checked+.toggle-slider:before {
+    transform: translateX(26px);
+    background-color: var(--accent-pink);
+    box-shadow: 0 0 10px 1px rgba(255, 121, 198, 0.4);
+}
+
+.pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: stretch;
+}
+
+.pricing-card {
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    /* Keep above glowing effect */
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-popular {
+    position: relative;
+}
+
+.card-popular::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    z-index: 10;
+}
+
+.popular-tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+.card-tier {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.card-starter .card-tier {
+    color: var(--accent-blue);
+}
+
+.card-pro .card-tier {
+    color: var(--accent-purple);
+}
+
+.card-enterprise .card-tier {
+    color: var(--accent-pink);
+}
+
+.card-description {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.card-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.price-cycle {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.card-features {
+    list-style-type: none;
+    margin-bottom: 25px;
+    flex-grow: 1;
+    padding: 0;
+}
+
+.card-features li {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.card-features li::before {
+    content: "✓";
+    margin-right: 10px;
+    font-size: 0.8rem;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.card-starter .card-features li::before {
+    color: var(--accent-blue);
+}
+
+.card-pro .card-features li::before {
+    color: var(--accent-purple);
+}
+
+.card-enterprise .card-features li::before {
+    color: var(--accent-pink);
+}
+
+.card-button {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 1px solid;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    width: 100%;
+}
+
+.card-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    z-index: -1;
+    transition: width 0.3s ease;
+}
+
+.card-starter .card-button {
+    border-color: var(--accent-blue);
+}
+
+.card-starter .card-button::before {
+    background-color: var(--accent-blue);
+}
+
+.card-pro .card-button {
+    border-color: var(--accent-purple);
+}
+
+.card-pro .card-button::before {
+    background-color: var(--accent-purple);
+}
+
+.card-enterprise .card-button {
+    border-color: var(--accent-pink);
+}
+
+.card-enterprise .card-button::before {
+    background-color: var(--accent-pink);
+}
+
+.card-button:hover::before {
+    width: 100%;
+}
+
+.card-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.savings-badge {
+    display: inline-block;
+    background-color: rgba(38, 203, 124, 0.1);
+    color: var(--accent-green);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    opacity: 0.5;
+    font-size: 1rem;
+    margin-right: 5px;
+}
+
+.faq-link {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 30px;
+    display: block;
+    text-decoration: none;
+}
+
+.faq-link:hover {
+    color: var(--accent-purple);
+}
+
+.highlight-feature {
+    color: var(--text-primary) !important;
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--border-color);
+}
+
+.highlight-feature:hover .tooltip {
+    opacity: 1;
+}
+
+.glow-effect {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(188, 140, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.pricing-card:hover .glow-effect {
+    opacity: 1;
+}
+
+.pricing-guarantee {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.guarantee-icon {
+    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    fill: var(--accent-green);
+}
+
+@media (max-width: 700px) {
+    .pricing-cards {
+        grid-template-columns: 1fr;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+
+    .pricing-header h1 {
+        font-size: 2rem;
+    }
+
+    .pricing-header p {
+        font-size: 0.9rem;
+        padding: 0 10px;
+    }
+}
+
+@keyframes pulse-neon {
+    0% {
+        box-shadow: 0 0 0 0 rgba(188, 140, 255, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(188, 140, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(188, 140, 255, 0);
+    }
+}
+
+.card-popular .card-button {
+    animation: pulse-neon 2s infinite;
+}
+
+@keyframes float-card {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.card-popular {
+    animation: float-card 3s ease-in-out infinite;
+}

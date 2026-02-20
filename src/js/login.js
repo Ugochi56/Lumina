@@ -441,37 +441,77 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Tier Selection Logic
-    tierCards.forEach(card => {
-        card.addEventListener('click', () => {
-            // Remove selected class from all
-            tierCards.forEach(c => c.classList.remove('selected'));
+    // NeonVerse Pricing Toggle Logic
+    const billingToggle = document.getElementById('billing-toggle');
+    const monthlyPrices = document.querySelectorAll('.monthly-price');
+    const annualPrices = document.querySelectorAll('.annual-price');
+    const monthlyCycles = document.querySelectorAll('.monthly-cycle');
+    const annualCycles = document.querySelectorAll('.annual-cycle');
+    const monthlyText = document.querySelector('.toggle-text.monthly');
+    const annualText = document.querySelector('.toggle-text.annually');
 
-            // Add selected class to clicked
-            card.classList.add('selected');
-
-            // Get tier name
-            selectedTier = card.getAttribute('data-tier');
-
-            // Enable checkout button
-            if (proceedCheckoutBtn) {
-                proceedCheckoutBtn.disabled = false;
-                proceedCheckoutBtn.classList.remove('bg-white/10', 'text-white/50', 'cursor-not-allowed');
-                proceedCheckoutBtn.classList.add('bg-white', 'text-ink_black', 'hover:bg-gray-200');
-                proceedCheckoutBtn.textContent = `Proceed to Checkout (${selectedTier})`;
-            }
-        });
-    });
-
-    // Checkout Routing
-    if (proceedCheckoutBtn) {
-        proceedCheckoutBtn.addEventListener('click', () => {
-            if (selectedTier) {
-                // Simulate routing to backend checkout endpoint
-                window.location.href = `/api/checkout?tier=${selectedTier}`;
+    if (billingToggle) {
+        billingToggle.addEventListener('change', function () {
+            if (this.checked) {
+                // Annual
+                monthlyPrices.forEach(price => price.style.display = 'none');
+                annualPrices.forEach(price => price.style.display = 'block');
+                monthlyCycles.forEach(cycle => cycle.style.display = 'none');
+                annualCycles.forEach(cycle => cycle.style.display = 'block');
+                monthlyText.classList.remove('active');
+                annualText.classList.add('active');
+            } else {
+                // Monthly
+                monthlyPrices.forEach(price => price.style.display = 'block');
+                annualPrices.forEach(price => price.style.display = 'none');
+                monthlyCycles.forEach(cycle => cycle.style.display = 'block');
+                annualCycles.forEach(cycle => cycle.style.display = 'none');
+                monthlyText.classList.add('active');
+                annualText.classList.remove('active');
             }
         });
     }
+
+    // NeonVerse Glow effect on card hover
+    const pricingCards = document.querySelectorAll('.pricing-card');
+    pricingCards.forEach(card => {
+        const glowEffect = card.querySelector('.glow-effect');
+        if (glowEffect) {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                glowEffect.style.left = x + 'px';
+                glowEffect.style.top = y + 'px';
+                glowEffect.style.opacity = '1';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                glowEffect.style.opacity = '0';
+            });
+        }
+    });
+
+    // Neonverse Checkout Routing
+    const neonButtons = document.querySelectorAll('.card-button');
+    neonButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Add a click effect
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 200);
+
+            const tier = button.getAttribute('data-tier');
+            const cycle = billingToggle && billingToggle.checked ? 'annual' : 'monthly';
+            if (tier) {
+                window.location.href = `/api/checkout?tier=${tier}&cycle=${cycle}`;
+            }
+        });
+    });
 
     checkAuth();
 });
