@@ -103,17 +103,42 @@ router.post('/upload', uploadSingle, async (req, res) => {
         // --- PHASE 2: Asynchronous Background Processing ---
         setImmediate(async () => {
             try {
-                // TODO: Implement Replicate Auto-Tagging (e.g., salesforce/blip)
-                // TODO: Implement Recommendation Engine (Upscale vs Restore vs Edit)
-                // TODO: Implement Smart Albums matching
-                // TODO: Update DB photo status to 'ready'
                 console.log(`Phase 2 started for photo ${photoId}`);
 
-                // Temporary mock update until AI logic is wired in
-                setTimeout(async () => {
-                    await db.query(`UPDATE photos SET status = 'ready', recommended_tool = 'upscale' WHERE id = $1`, [photoId]);
-                    console.log(`Phase 2 completed for photo ${photoId}`);
-                }, 3000);
+                // 1. Replicate Auto-Tagging (salesforce/blip)
+                const output = await replicate.run(
+                    "salesforce/blip:2e1dddc8621f72155f24cf2e0adbde548458d3cab9f00c0139eea840d6a40d61",
+                    {
+                        input: {
+                            image: imageUrl,
+                            task: "image_captioning"
+                        }
+                    }
+                );
+
+                const caption = String(output).toLowerCase().trim();
+                console.log(`Generated caption for photo ${photoId}: ${caption}`);
+
+                // 2. Recommendation Engine (Upscale vs Restore vs Edit)
+                let recommendedTool = 'upscale'; // default
+                if (caption.includes('old') || caption.includes('scratch') || caption.includes('damage') || caption.includes('black and white') || caption.includes('sepia')) {
+                    recommendedTool = 'restore';
+                } else if (caption.includes('clear') || caption.includes('modern') || caption.includes('bright') || caption.includes('beautiful')) {
+                    recommendedTool = 'edit';
+                } else if (caption.includes('blur') || caption.includes('low') || caption.includes('pixel')) {
+                    recommendedTool = 'upscale';
+                }
+
+                // 3. Smart Albums (Store tags array)
+                const tagsArray = caption.split(' ').filter(word => word.length > 2);
+                const tagsJson = JSON.stringify(tagsArray);
+
+                // 4. Update DB photo status to 'ready'
+                await db.query(
+                    `UPDATE photos SET status = 'ready', recommended_tool = $1, tags = $2 WHERE id = $3`,
+                    [recommendedTool, tagsJson, photoId]
+                );
+                console.log(`Phase 2 completed successfully for photo ${photoId}`);
 
             } catch (bgError) {
                 console.error(`Background processing failed for photo ${photoId}:`, bgError);
