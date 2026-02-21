@@ -31,3 +31,4 @@ test_upload_endpoint.js
 test_db_insert.js
 test_cloudinary.js
 rebuild_enhance.js
+test_replicate.js
