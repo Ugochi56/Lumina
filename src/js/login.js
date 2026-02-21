@@ -92,17 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropZone = document.getElementById('drop-zone');
     const loaderOverlay = document.getElementById('loader-overlay');
 
-    // New UI Elements
-    const aiRecommendationUI = document.getElementById('ai-recommendation-ui');
-    const aiStatusIndicator = document.getElementById('ai-status-indicator');
-    const enhancementActions = document.getElementById('enhancement-actions');
-    const mainEnhanceBtn = document.getElementById('main-enhance-btn');
-    const mainEnhanceText = document.getElementById('main-enhance-text');
-    const manualToolOverride = document.getElementById('manual-tool-override');
-
-    let currentPhotoId = null;
-    let currentImageUrl = null;
-    let isProcessing = false;
+    // New UI Elements (Simplified for Login Page)
+    let isUploading = false;
 
     async function handleFileSelection(files) {
         if (files.length === 0) return;
@@ -116,23 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (isUploading) return;
+        isUploading = true;
+
         const file = files[0]; // Process single file for now
 
-        // 1. Show pre-upload preview immediately
-        const objectUrl = URL.createObjectURL(file);
-        document.getElementById('img-before').src = objectUrl;
-        document.getElementById('img-after').src = objectUrl; // Same until enhanced
+        // Show Loader immediately
+        if (loaderOverlay) {
+            loaderOverlay.classList.remove('hidden');
+            loaderOverlay.classList.add('flex');
+        }
 
-        // Hide dropzone, show AI UI in "analyzing" state
-        dropZone.classList.add('hidden');
-        aiRecommendationUI.classList.remove('hidden');
-        aiRecommendationUI.classList.add('flex');
-        aiStatusIndicator.classList.remove('hidden');
-        aiStatusIndicator.classList.add('flex');
-        enhancementActions.classList.add('hidden');
-        enhancementActions.classList.remove('flex');
-
-        // 2. Perform Phase 1 Upload (Sync)
         const formData = new FormData();
         formData.append('image', file);
 
@@ -147,149 +132,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(uploadData.error || 'Upload failed');
             }
 
-            currentPhotoId = uploadData.photoId;
-            currentImageUrl = uploadData.imageUrl;
-
-            // Update preview to use Cloudinary URL instead of local ObjectURL
-            document.getElementById('img-before').src = currentImageUrl;
-            document.getElementById('img-after').src = currentImageUrl;
-
-            // 3. Start Polling for Phase 2 (Async Tagging & Recommendation)
-            pollRecommendationStatus();
+            // Redirect to Dedicated Enhance Page with the new Photo ID
+            window.location.href = `/enhance.html?id=${uploadData.photoId}`;
 
         } catch (error) {
             console.error("Upload Error:", error);
             alert(error.message);
-            // Reset UI on error
-            dropZone.classList.remove('hidden');
-            aiRecommendationUI.classList.add('hidden');
-            aiRecommendationUI.classList.remove('flex');
-        }
-    }
-
-    async function pollRecommendationStatus() {
-        if (!currentPhotoId) return;
-
-        try {
-            const statusRes = await fetch(`/api/photos/${currentPhotoId}/status`);
-            if (!statusRes.ok) {
-                // Stop polling on HTTP error (e.g., 401, 404)
-                console.error("Stopping polling due to error status:", statusRes.status);
-                return;
-            }
-
-            const statusData = await statusRes.json();
-
-            if (statusData.status === 'ready') {
-                // Phase 2 complete! Update UI with recommendation
-                const tool = statusData.recommended_tool || 'upscale';
-
-                // Map tool to human readable name
-                const toolNames = {
-                    'upscale': 'Upscaler',
-                    'restore': 'Restorer',
-                    'edit': 'Editor'
-                };
-
-                // Update Button UI
-                mainEnhanceText.textContent = `Enhance with ${toolNames[tool]}`;
-                mainEnhanceBtn.dataset.tool = tool;
-                manualToolOverride.value = tool; // Sync dropdown
-
-                // Transition UI state
-                aiStatusIndicator.classList.add('hidden');
-                aiStatusIndicator.classList.remove('flex');
-                enhancementActions.classList.remove('hidden');
-                enhancementActions.classList.add('flex');
-
-            } else if (statusData.status === 'failed') {
-                // Handle background failure
-                aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold">AI analysis failed. You can still manually select a tool.</span>`;
-                enhancementActions.classList.remove('hidden');
-                enhancementActions.classList.add('flex');
-            } else {
-                // Still processing, poll again in 1.5s
-                setTimeout(pollRecommendationStatus, 1500);
-            }
-        } catch (error) {
-            console.error("Polling Error:", error);
-            // On network error during polling, gracefully degrade to manual selection
-            aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold">Connection lost. Manual selection enabled.</span>`;
-            enhancementActions.classList.remove('hidden');
-            enhancementActions.classList.add('flex');
-        }
-    }
-
-    // Manual Tool Override Sync
-    if (manualToolOverride) {
-        manualToolOverride.addEventListener('change', (e) => {
-            const selectedTool = e.target.value;
-            mainEnhanceBtn.dataset.tool = selectedTool;
-            const toolNames = {
-                'upscale': 'Upscaler',
-                'restore': 'Restorer',
-                'edit': 'Editor'
-            };
-            mainEnhanceText.textContent = `Enhance with ${toolNames[selectedTool]}`;
-        });
-    }
-
-    // Enhance Button Click
-    if (mainEnhanceBtn) {
-        mainEnhanceBtn.addEventListener('click', async () => {
-            if (!currentImageUrl || !currentPhotoId || isProcessing) return;
-            isProcessing = true;
-
-            const selectedTool = mainEnhanceBtn.dataset.tool;
-
-            // Show Loader
+            isUploading = false;
+            // Hide Loader on error
             if (loaderOverlay) {
-                loaderOverlay.classList.remove('hidden');
-                loaderOverlay.classList.add('flex');
+                loaderOverlay.classList.add('hidden');
+                loaderOverlay.classList.remove('flex');
             }
-
-            try {
-                const enhanceRes = await fetch('/api/enhance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        imageUrl: currentImageUrl,
-                        tool: selectedTool,
-                        photoId: currentPhotoId
-                    })
-                });
-
-                const enhanceData = await enhanceRes.json();
-
-                if (!enhanceRes.ok) {
-                    throw new Error(enhanceData.error || 'Enhancement failed');
-                }
-
-                // Success! Update "After" image in slider
-                document.getElementById('img-after').src = enhanceData.output;
-
-                // Reset UI state to show slider clearly
-                document.querySelector('.content-overlay').style.pointerEvents = 'none'; // let user interact with slider easily
-                // Re-enable pointer events on the specific navbar items if needed, but usually login interface hides or moves
-                // For this layout, maybe we just hide the right panel entirely to focus on the result
-                document.querySelector('.right-panel').style.opacity = '0';
-                setTimeout(() => { document.querySelector('.right-panel').classList.add('hidden'); }, 500);
-
-            } catch (error) {
-                console.error("Enhancement Error:", error);
-                alert(error.message);
-                if (loaderOverlay) {
-                    loaderOverlay.classList.add('hidden');
-                    loaderOverlay.classList.remove('flex');
-                }
-            } finally {
-                isProcessing = false;
-                if (loaderOverlay) {
-                    loaderOverlay.classList.add('hidden');
-                    loaderOverlay.classList.remove('flex');
-                }
-            }
-        });
+        }
     }
 
     if (chooseBtn && fileInput) {

@@ -152,7 +152,35 @@ router.post('/upload', uploadSingle, async (req, res) => {
     }
 });
 
-// 2. Polling Endpoint for AI Recommendation Status
+// 2. Fetch Single Photo (Used by enhance.html initialization)
+router.get('/photos/:id', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Unauthorized. Please check your token or login.' });
+    }
+
+    try {
+        const photoId = req.params.id;
+        const result = await db.query('SELECT * FROM photos WHERE id = $1', [photoId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Photo not found' });
+        }
+
+        const photo = result.rows[0];
+
+        // Ensure user owns this photo
+        if (photo.user_id !== req.user.id) {
+            return res.status(403).json({ error: 'Forbidden. You do not own this photo.' });
+        }
+
+        res.json(photo);
+    } catch (error) {
+        console.error('Error fetching photo:', error);
+        res.status(500).json({ error: 'Internal server error while fetching photo.' });
+    }
+});
+
+// 3. Status Polling (Phase 2 Async Tagging)
 router.get('/photos/:id/status', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'Unauthorized' });
