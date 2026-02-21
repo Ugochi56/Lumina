@@ -148,7 +148,7 @@ router.post('/upload', uploadSingle, async (req, res) => {
 
     } catch (error) {
         console.error('Upload Error:', error);
-        res.status(500).json({ error: 'Internal server error during upload.' });
+        res.status(500).json({ error: 'Upload Crash Details: ' + error.message, stack: String(error.stack) });
     }
 });
 

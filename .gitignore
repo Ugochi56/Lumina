@@ -26,3 +26,8 @@ yarn-error.log*
 *.p8
 auth/
 ngrok.exe
+src/enhance.html
+test_upload_endpoint.js
+test_db_insert.js
+test_cloudinary.js
+rebuild_enhance.js

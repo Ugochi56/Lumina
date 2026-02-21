@@ -1,54 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // === 1. IMAGE SLIDER LOGIC ===
-    const sliderBox = document.getElementById('slider-box');
-    const overlay = document.getElementById('overlay');
-    const handle = document.getElementById('slider-handle');
+    // 1. DOM Elements
     const imgBefore = document.getElementById('img-before');
     const imgAfter = document.getElementById('img-after');
+    const thumbImg = document.getElementById('thumb-img');
+    const sliderContainer = document.getElementById('photo-slider-container');
+    const sliderHandle = document.getElementById('slider-handle');
 
-    function slide(x) {
-        if (!sliderBox) return;
-        const rect = sliderBox.getBoundingClientRect();
-        let pos = x - rect.left;
-
-        // Constrain position
-        if (pos < 0) pos = 0;
-        if (pos > rect.width) pos = rect.width;
-
-        // Slide
-        if (overlay) overlay.style.width = pos + "px";
-        if (handle) handle.style.left = pos + "px";
-    }
-
-    if (sliderBox) {
-        sliderBox.addEventListener('mousemove', (e) => slide(e.pageX));
-        sliderBox.addEventListener('touchmove', (e) => slide(e.touches[0].pageX));
-
-        // Init
-        const initSlider = () => {
-            const rect = sliderBox.getBoundingClientRect();
-            if (imgBefore) imgBefore.style.width = rect.width + "px";
-            slide(rect.left + (rect.width / 2));
-        };
-
-        // Short delay to ensure image loads and layout calculates
-        setTimeout(initSlider, 100);
-        window.addEventListener('resize', initSlider);
-    }
-
-    // === 2. ENHANCE PAGE LOGIC ===
+    // Tools
+    const tools = document.querySelectorAll('.tool-selector');
+    const applyBtn = document.getElementById('apply-btn');
     const aiStatusIndicator = document.getElementById('ai-status-indicator');
-    const enhancementActions = document.getElementById('enhancement-actions');
-    const mainEnhanceBtn = document.getElementById('main-enhance-btn');
-    const mainEnhanceText = document.getElementById('main-enhance-text');
-    const manualToolOverride = document.getElementById('manual-tool-override');
     const loaderOverlay = document.getElementById('loader-overlay');
+
+    // Bottom bar elements
+    const imgWidth = document.getElementById('img-width');
+    const imgHeight = document.getElementById('img-height');
+
+    // Limits
+    const tierCurrent = document.getElementById('tier-current');
+    const tierMax = document.getElementById('tier-max');
+    const tierProgressBar = document.getElementById('tier-progress-bar');
 
     let currentPhotoId = null;
     let currentImageUrl = null;
     let isProcessing = false;
+    let selectedTool = 'upscale'; // upscale corresponds to Face Enhance
 
-    // A. Parse URL ID
+    // 2. Parse URL ID
     const urlParams = new URLSearchParams(window.location.search);
     const photoIdParam = urlParams.get('id');
 
@@ -60,7 +38,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentPhotoId = photoIdParam;
 
-    // B. Fetch Photo Data
+    // 3. Tool Selection Logic
+    function selectTool(toolName) {
+        selectedTool = toolName;
+        tools.forEach(el => {
+            if (el.dataset.tool === toolName) {
+                // Active styles
+                el.classList.remove('bg-white/5', 'border-transparent', 'text-gray-200');
+                el.classList.add('bg-white/10', 'border-white', 'text-white', 'shadow-lg');
+                const title = el.querySelector('.tool-title');
+                if (title) {
+                    title.classList.remove('text-gray-200');
+                    title.classList.add('text-white');
+                }
+            } else {
+                // Inactive styles
+                el.classList.add('bg-white/5', 'border-transparent', 'text-gray-200');
+                el.classList.remove('bg-white/10', 'border-white', 'text-white', 'shadow-lg');
+                const title = el.querySelector('.tool-title');
+                if (title) {
+                    title.classList.remove('text-white');
+                    title.classList.add('text-gray-200');
+                }
+            }
+        });
+    }
+
+    tools.forEach(el => {
+        el.addEventListener('click', () => {
+            selectTool(el.dataset.tool);
+        });
+    });
+
+    // 4. Slider Logic (Clip-Path based)
+    if (sliderContainer) {
+        let isDown = false;
+
+        const moveSlider = (clientX) => {
+            const rect = sliderContainer.getBoundingClientRect();
+            let x = clientX - rect.left;
+            // Constrain
+            if (x < 0) x = 0;
+            if (x > rect.width) x = rect.width;
+
+            // Calculate percentage
+            let p = (x / rect.width) * 100;
+
+            // Apply
+            if (sliderHandle) sliderHandle.style.left = p + '%';
+            if (imgBefore) imgBefore.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+        };
+
+        sliderContainer.addEventListener('mousedown', (e) => { isDown = true; });
+        window.addEventListener('mouseup', () => { isDown = false; });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            requestAnimationFrame(() => moveSlider(e.clientX));
+        });
+
+        // Touch support
+        sliderContainer.addEventListener('touchstart', (e) => { isDown = true; });
+        window.addEventListener('touchend', () => { isDown = false; });
+        window.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            requestAnimationFrame(() => moveSlider(e.touches[0].clientX));
+        });
+    }
+
+    // 5. Fetch Photo & Init
     async function loadPhotoData() {
         try {
             const res = await fetch(`/api/photos/${currentPhotoId}`);
@@ -69,9 +114,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentImageUrl = photo.cloudinary_url;
 
-            // Set slider images
+            // Set slider & thumbnail images
             if (imgBefore) imgBefore.src = currentImageUrl;
-            if (imgAfter) imgAfter.src = currentImageUrl; // Same until enhanced
+            if (imgAfter) imgAfter.src = currentImageUrl;
+            if (thumbImg) thumbImg.src = currentImageUrl;
+
+            // Get dimensions once loaded
+            if (imgAfter) {
+                imgAfter.onload = () => {
+                    if (imgWidth) imgWidth.textContent = imgAfter.naturalWidth + ' px';
+                    if (imgHeight) imgHeight.textContent = imgAfter.naturalHeight + ' px';
+                };
+            }
+
+            // Fetch User details for limits
+            fetchUserData();
 
             // Start polling AI status
             pollRecommendationStatus();
@@ -83,7 +140,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // C. Poll AI
+    // 6. Fetch User Tier Data
+    async function fetchUserData() {
+        try {
+            const res = await fetch('/auth/me');
+            if (res.ok) {
+                const data = await res.json();
+                const user = data.user;
+                if (!user) return;
+
+                let limit = 15;
+                if (user.subscription_tier === 'monthly') limit = 20;
+                if (user.subscription_tier === 'yearly') limit = Infinity;
+
+                if (tierCurrent) tierCurrent.textContent = user.photos_uploaded;
+                if (tierMax) tierMax.textContent = limit === Infinity ? '∞' : limit;
+
+                if (tierProgressBar && limit !== Infinity) {
+                    const percent = Math.min((user.photos_uploaded / limit) * 100, 100);
+                    tierProgressBar.style.width = percent + '%';
+                } else if (tierProgressBar && limit === Infinity) {
+                    tierProgressBar.style.width = '100%';
+                    tierProgressBar.classList.replace('bg-gradient-to-r', 'bg-green-500');
+                    tierProgressBar.classList.replace('from-amber_flame', 'from-green-400');
+                    tierProgressBar.classList.replace('to-cayenne_red', 'to-green-600');
+                }
+            }
+        } catch (e) { console.error("Error fetching user stats", e); }
+    }
+
+    // 7. Poll AI Status
     async function pollRecommendationStatus() {
         if (!currentPhotoId) return;
 
@@ -95,57 +181,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (statusData.status === 'ready') {
                 const tool = statusData.recommended_tool || 'upscale';
-                const toolNames = { 'upscale': 'Upscaler', 'restore': 'Restorer', 'edit': 'Editor' };
-
-                if (mainEnhanceText) mainEnhanceText.textContent = `Enhance with ${toolNames[tool]}`;
-                if (mainEnhanceBtn) mainEnhanceBtn.dataset.tool = tool;
-                if (manualToolOverride) manualToolOverride.value = tool;
+                selectTool(tool);
 
                 if (aiStatusIndicator) {
                     aiStatusIndicator.classList.add('hidden');
                     aiStatusIndicator.classList.remove('flex');
                 }
-                if (enhancementActions) {
-                    enhancementActions.classList.remove('hidden');
-                    enhancementActions.classList.add('flex');
-                }
+
+                // Show Handle
+                if (sliderHandle) sliderHandle.classList.remove('hidden');
 
             } else if (statusData.status === 'failed') {
-                if (aiStatusIndicator) aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold">AI analysis failed. You can still manually select a tool.</span>`;
-                if (enhancementActions) {
-                    enhancementActions.classList.remove('hidden');
-                    enhancementActions.classList.add('flex');
+                if (aiStatusIndicator) {
+                    aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold p-2 text-center text-xs">AI analysis failed. Manually select tool.</span>`;
                 }
             } else {
+                // Show parsing indicator
+                if (aiStatusIndicator) {
+                    aiStatusIndicator.classList.remove('hidden');
+                    aiStatusIndicator.classList.add('flex');
+                }
                 setTimeout(pollRecommendationStatus, 1500);
             }
         } catch (error) {
             console.error("Polling Error:", error);
-            if (aiStatusIndicator) aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold">Connection lost. Manual selection enabled.</span>`;
-            if (enhancementActions) {
-                enhancementActions.classList.remove('hidden');
-                enhancementActions.classList.add('flex');
+            if (aiStatusIndicator) {
+                aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold p-2 text-center text-xs">Connection lost.</span>`;
             }
         }
     }
 
-    // D. Manual Tool Sync
-    if (manualToolOverride) {
-        manualToolOverride.addEventListener('change', (e) => {
-            const selectedTool = e.target.value;
-            if (mainEnhanceBtn) mainEnhanceBtn.dataset.tool = selectedTool;
-            const toolNames = { 'upscale': 'Upscaler', 'restore': 'Restorer', 'edit': 'Editor' };
-            if (mainEnhanceText) mainEnhanceText.textContent = `Enhance with ${toolNames[selectedTool]}`;
-        });
-    }
-
-    // E. Execute Enhancement
-    if (mainEnhanceBtn) {
-        mainEnhanceBtn.addEventListener('click', async () => {
+    // 8. Execute Enhancement
+    if (applyBtn) {
+        applyBtn.addEventListener('click', async () => {
             if (!currentImageUrl || !currentPhotoId || isProcessing) return;
             isProcessing = true;
-
-            const selectedTool = mainEnhanceBtn.dataset.tool;
 
             if (loaderOverlay) {
                 loaderOverlay.classList.remove('hidden');
@@ -170,20 +240,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Success! Update "After" image in slider
-                if (imgAfter) imgAfter.src = enhanceData.output;
+                if (imgAfter) {
+                    // Preload the image so it doesn't blink
+                    const newImg = new Image();
+                    newImg.onload = () => {
+                        imgAfter.src = enhanceData.output;
+                        // Move handle to center if it was moved
+                        if (sliderHandle) sliderHandle.style.left = '50%';
+                        if (imgBefore) imgBefore.style.clipPath = 'inset(0 50% 0 0)';
 
-                // Reset UI state to show slider clearly
-                document.querySelector('.content-overlay').style.pointerEvents = 'none';
-                document.querySelector('.right-panel').style.opacity = '0';
-                setTimeout(() => { document.querySelector('.right-panel').classList.add('hidden'); }, 500);
+                        if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
+                        if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
+                    };
+                    newImg.src = enhanceData.output;
+                }
 
             } catch (error) {
                 console.error("Enhancement Error:", error);
                 alert(error.message);
-                if (loaderOverlay) {
-                    loaderOverlay.classList.add('hidden');
-                    loaderOverlay.classList.remove('flex');
-                }
             } finally {
                 isProcessing = false;
                 if (loaderOverlay) {
