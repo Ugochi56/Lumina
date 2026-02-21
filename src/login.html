@@ -166,6 +166,64 @@
                     </div>
                 </div>
 
+                <!-- AI Recommendation UI (Hidden Initially) -->
+                <div id="ai-recommendation-ui" class="hidden flex-col items-center mt-8 animate-fade-in">
+                    <div id="ai-status-indicator"
+                        class="flex items-center gap-3 text-amber_flame font-bold mb-4 bg-amber_flame/10 px-4 py-2 rounded-full border border-amber_flame/30">
+                        <svg class="animate-spin h-5 w-5 text-amber_flame" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>AI is analyzing your image...</span>
+                    </div>
+
+                    <div id="enhancement-actions" class="hidden flex-col items-center gap-4 w-full max-w-sm">
+                        <div class="text-sm text-gray-400 font-medium tracking-wide uppercase flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber_flame" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            AI Recommended Tool
+                        </div>
+
+                        <button id="main-enhance-btn" data-tool="upscale"
+                            class="w-full relative group overflow-hidden rounded-full bg-gradient-to-r from-orange to-cayenne_red px-8 py-4 text-white font-bold text-lg shadow-[0_0_40px_rgba(232,93,4,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_60px_rgba(232,93,4,0.6)] flex items-center justify-center gap-3">
+                            <span
+                                class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+                            <span id="main-enhance-text" class="relative z-10">Enhance with Upscaler</span>
+                            <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </button>
+
+                        <div class="relative w-full mt-2">
+                            <select id="manual-tool-override"
+                                class="appearance-none w-full bg-white/5 border border-white/10 text-gray-300 py-3 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:bg-white/10 focus:border-white/20 transition cursor-pointer text-center font-medium">
+                                <option value="upscale" class="bg-gray-900 text-white">Super Resolution Upscaler
+                                </option>
+                                <option value="restore" class="bg-gray-900 text-white">Photo Restorer</option>
+                                <option value="edit" class="bg-gray-900 text-white">Image Editor</option>
+                            </select>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center px-4">You can manually override the AI's
+                            recommendation by selecting a different tool above.</p>
+                    </div>
+                </div>
+
                 <p class="text-xs text-gray-500 mt-8 text-center max-w-md mx-auto">
                     By continuing, you accept our <a href="#" class="underline hover:text-gray-300">Terms of Service</a>
                     and acknowledge receipt of our <a href="#" class="underline hover:text-gray-300">Privacy & Cookie
