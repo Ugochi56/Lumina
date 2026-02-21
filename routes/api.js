@@ -12,8 +12,26 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configure Multer for processing file uploads in memory
-const upload = multer({ storage: multer.memoryStorage() });
+// Configure Multer for processing file uploads in memory, with a 10MB limit
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // 10 MB maximum file size
+});
+
+// Wrapper to elegantly handle Multer errors (e.g. file size limit hit)
+const uploadSingle = (req, res, next) => {
+    upload.single('image')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File size exceeds the 10MB limit.' });
+            }
+            return res.status(400).json({ error: err.message });
+        } else if (err) {
+            return res.status(500).json({ error: 'An unknown upload error occurred.' });
+        }
+        next();
+    });
+};
 
 // Replicate Client
 const replicate = new Replicate({
@@ -35,7 +53,7 @@ const uploadToCloudinary = (buffer) => {
 };
 
 // 1. Initial Image Upload (Phase 1: Sync, Phase 2: Async)
-router.post('/upload', upload.single('image'), async (req, res) => {
+router.post('/upload', uploadSingle, async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
