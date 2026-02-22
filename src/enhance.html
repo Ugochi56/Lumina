@@ -144,19 +144,31 @@
             <!-- Slider Container -->
             <div class="flex-1 relative overflow-hidden flex items-center justify-center p-4 md:p-12 select-none"
                 id="canvas-area">
-                <div id="photo-slider-container"
-                    class="relative w-full h-full max-h-full flex items-center justify-center group touch-none">
+                <div class="relative w-full h-full max-h-full rounded-2xl overflow-hidden slider-container group"
+                    id="slider-box">
+
+                    <!-- After Image (Base) -->
                     <img id="img-after" src="../images/placeholder.jpg"
                         class="absolute w-full h-full object-contain pointer-events-none" alt="After">
-                    <img id="img-before" src="../images/placeholder.jpg"
-                        class="absolute w-full h-full object-contain pointer-events-none" alt="Before"
-                        style="clip-path: inset(0 50% 0 0);">
 
-                    <div id="slider-handle"
-                        class="absolute inset-y-0 w-1 bg-white shadow-[0_0_15px_rgba(0,0,0,0.8)] z-20 pointer-events-none hidden md:flex items-center justify-center cursor-ew-resize"
-                        style="left: 50%;">
+                    <!-- Before Image (Overlay) -->
+                    <div class="img-comp-overlay" id="overlay" style="pointer-events: none;">
+                        <img id="img-before" src="../images/placeholder.jpg"
+                            class="absolute w-full h-full object-contain pointer-events-none" alt="Before"
+                            style="width: 200%; max-width: none;">
+                    </div>
+
+                    <!-- Slider Handle -->
+                    <div class="slider-handle hidden md:flex" id="slider-handle"
+                        style="left: 50%; pointer-events: none;">
+                        <svg class="w-5 h-5 text-cayenne_red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                        </svg>
+
+                        <!-- Tooltip below handle -->
                         <div
-                            class="bg-white text-black text-[10px] font-extrabold px-3 py-1.5 rounded-full absolute whitespace-nowrap shadow-xl flex items-center gap-1">
+                            class="absolute -bottom-10 bg-white text-black text-[10px] font-extrabold px-3 py-1.5 rounded-full whitespace-nowrap shadow-xl flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <span>Move the slider</span>
                             <span class="text-xs leading-none">⟷</span>
                         </div>

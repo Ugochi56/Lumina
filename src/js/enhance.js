@@ -70,8 +70,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 4. Slider Logic (Clip-Path based)
-    if (sliderContainer) {
+    // 4. Slider Logic (Width based like index.html)
+    const overlay = document.getElementById('overlay');
+
+    // Ensure the overlay container hides the overflow so the image inside crops instead of squishing
+    if (overlay) {
+        overlay.style.overflow = 'hidden';
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.bottom = '0';
+        overlay.style.left = '0';
+    }
+
+    if (sliderContainer && overlay && sliderHandle) {
         let isDown = false;
 
         const moveSlider = (clientX) => {
@@ -85,11 +96,30 @@ document.addEventListener('DOMContentLoaded', () => {
             let p = (x / rect.width) * 100;
 
             // Apply
-            if (sliderHandle) sliderHandle.style.left = p + '%';
-            if (imgBefore) imgBefore.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+            sliderHandle.style.left = p + '%';
+            overlay.style.width = p + '%';
+
+            // Keep the inner image visually stationary
+            if (imgBefore) {
+                imgBefore.style.width = rect.width + 'px';
+                imgBefore.style.maxWidth = 'none';
+            }
         };
 
-        sliderContainer.addEventListener('mousedown', (e) => { isDown = true; });
+        // Initialize at 50%
+        overlay.style.width = '50%';
+        sliderHandle.style.left = '50%';
+
+        // Initial setup for image width
+        setTimeout(() => {
+            const rect = sliderContainer.getBoundingClientRect();
+            if (imgBefore) {
+                imgBefore.style.width = rect.width + 'px';
+                imgBefore.style.maxWidth = 'none';
+            }
+        }, 100);
+
+        sliderContainer.addEventListener('mousedown', (e) => { isDown = true; moveSlider(e.clientX); });
         window.addEventListener('mouseup', () => { isDown = false; });
         window.addEventListener('mousemove', (e) => {
             if (!isDown) return;
@@ -97,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Touch support
-        sliderContainer.addEventListener('touchstart', (e) => { isDown = true; });
+        sliderContainer.addEventListener('touchstart', (e) => { isDown = true; moveSlider(e.touches[0].clientX); });
         window.addEventListener('touchend', () => { isDown = false; });
         window.addEventListener('touchmove', (e) => {
             if (!isDown) return;
@@ -247,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         imgAfter.src = enhanceData.output;
                         // Move handle to center if it was moved
                         if (sliderHandle) sliderHandle.style.left = '50%';
-                        if (imgBefore) imgBefore.style.clipPath = 'inset(0 50% 0 0)';
+                        if (overlay) document.getElementById('overlay').style.width = '50%';
 
                         if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
                         if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
@@ -326,6 +356,38 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset input so the same file can be selected again if needed
         hiddenFileInput.value = '';
     });
+
+    // 10. Download Logic
+    const downloadBtn = document.querySelector('button.bg-\\[\\#ff4d6d\\]');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', async () => {
+            if (!imgAfter || !imgAfter.src || imgAfter.src.includes('placeholder.jpg')) {
+                alert("Please enhance an image first.");
+                return;
+            }
+
+            try {
+                // Fetch the image as a blob to force a download instead of opening a new tab
+                const response = await fetch(imgAfter.src);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `lumina_enhanced_${Date.now()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+
+                // Cleanup
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (err) {
+                console.error("Download fail:", err);
+                alert("Failed to download image. You can right-click the image and select 'Save Image As...'");
+            }
+        });
+    }
 
     // Init Page
     loadPhotoData();
