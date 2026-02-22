@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgBefore = document.getElementById('img-before');
     const imgAfter = document.getElementById('img-after');
     const thumbImg = document.getElementById('thumb-img');
-    const sliderContainer = document.getElementById('photo-slider-container');
+    const sliderContainer = document.getElementById('slider-box');
     const sliderHandle = document.getElementById('slider-handle');
 
     // Tools

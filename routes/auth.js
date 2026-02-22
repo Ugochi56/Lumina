@@ -78,11 +78,30 @@ router.get('/logout', (req, res, next) => {
 });
 
 // 7. Check Auth Status (API)
-router.get('/status', (req, res) => {
+router.get('/status', async (req, res) => {
     if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
+        try {
+            const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+            res.json({ authenticated: true, user: result.rows[0] });
+        } catch (err) {
+            res.json({ authenticated: true, user: req.user }); // fallback
+        }
     } else {
         res.json({ authenticated: false });
+    }
+});
+
+// 8. Get current user profile (API)
+router.get('/me', async (req, res) => {
+    if (req.isAuthenticated()) {
+        try {
+            const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+            res.json({ user: result.rows[0] });
+        } catch (err) {
+            res.json({ user: req.user }); // fallback
+        }
+    } else {
+        res.status(401).json({ error: 'Unauthorized' });
     }
 });
 
