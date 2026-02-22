@@ -146,8 +146,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Set slider & thumbnail images
             if (imgBefore) imgBefore.src = currentImageUrl;
-            if (imgAfter) imgAfter.src = currentImageUrl;
-            if (thumbImg) thumbImg.src = currentImageUrl;
+
+            if (photo.enhanced_url) {
+                if (imgAfter) imgAfter.src = photo.enhanced_url;
+                if (thumbImg) thumbImg.src = photo.enhanced_url;
+                if (applyBtn) applyBtn.textContent = 'Re-Enhance';
+
+                if (sliderHandle) {
+                    sliderHandle.classList.remove('hidden');
+                    sliderHandle.style.left = '50%';
+                }
+                if (overlay) document.getElementById('overlay').style.width = '50%';
+            } else {
+                if (imgAfter) imgAfter.src = currentImageUrl;
+                if (thumbImg) thumbImg.src = currentImageUrl;
+            }
 
             // Get dimensions once loaded
             if (imgAfter) {

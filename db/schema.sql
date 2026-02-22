@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS photos (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     cloudinary_url VARCHAR(255) NOT NULL,
+    enhanced_url VARCHAR(255),
     status VARCHAR(50) DEFAULT 'processing', -- 'processing', 'ready', 'failed'
     recommended_tool VARCHAR(50), -- 'upscale', 'restore', 'edit'
     tags JSONB,

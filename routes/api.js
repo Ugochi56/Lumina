@@ -308,13 +308,15 @@ router.post('/enhance', async (req, res) => {
                     {
                         folder: 'lumina_results',
                         transformation: [
-                            // Note: In production, you would upload a watermark image and overlay it
-                            // e.g., {overlay: "lumina_watermark", gravity: "bottom_right", opacity: 50}
-                            { effect: "art:primavera" } // Placeholder effect instead of actual watermark for demo
+                            { overlay: "My Brand:Sub_Logo_ukbwbq" },
+                            { width: 300, crop: "scale" },
+                            { flags: "layer_apply", gravity: "bottom_right", x: 20, y: 20, opacity: 60 }
                         ]
                     },
-                    (error, result) => {
+                    async (error, result) => {
                         if (error) throw error;
+                        // Save the watermarked image URL to database
+                        await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [result.secure_url, photoId]);
                         // Return transformed URL
                         res.json({ output: result.secure_url });
                     }
@@ -329,11 +331,13 @@ router.post('/enhance', async (req, res) => {
             } catch (wmError) {
                 console.error("Watermarking failed:", wmError);
                 // Fallback to non-watermarked if it fails for some reason
+                await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
                 return res.json({ output: finalImageUrl });
             }
         }
 
-        // If Monthly/Yearly, return directly
+        // If Monthly/Yearly, save and return directly
+        await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
         res.json({ output: finalImageUrl });
 
     } catch (error) {
