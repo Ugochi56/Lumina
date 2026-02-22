@@ -134,7 +134,8 @@
     <main class="max-w-7xl mx-auto px-4 pb-20">
 
         <!-- Tabs / Filters (Visual Only) -->
-        <div class="flex items-center gap-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
+        <div
+            class="flex justify-center flex-nowrap md:flex-wrap items-center gap-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
             <button class="bg-white text-black px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap">All
                 Photos</button>
             <button
@@ -145,7 +146,7 @@
                 class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Edited</button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="gallery-grid">
+        <div class="flex flex-col gap-10" id="gallery-container">
             <!-- Dynamic gallery items will be injected here -->
         </div>
 
@@ -241,52 +242,79 @@
                     return;
                 }
                 const photos = await res.json();
-                const grid = document.getElementById('gallery-grid');
+                const container = document.getElementById('gallery-container');
                 const emptyState = document.getElementById('empty-state');
 
                 if (photos.length === 0) {
                     emptyState.classList.remove('hidden');
                 } else {
-                    photos.forEach((photo, index) => {
-                        const item = document.createElement('div');
-                        item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300';
-                        item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
-
-                        // Adding animation delay for staggered entrance
-                        item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.1}s`;
-                        item.style.opacity = '0';
-
-                        // Parse tags 
-                        let tagsHtml = '';
-                        if (photo.tags) {
-                            const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
-                            tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
-                        }
-
-                        // Date formatting
-                        const date = new Date(photo.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-                        const toolLabel = photo.recommended_tool ? photo.recommended_tool.toUpperCase() : 'ANALYZING';
-
-                        item.innerHTML = `
-                            <div class="h-56 sm:h-64 md:h-72 overflow-hidden relative bg-black">
-                                <img src="${photo.cloudinary_url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100">
-                                <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${date}</div>
-                            </div>
-                            <div class="p-5 flex flex-col flex-1">
-                                <div class="text-[10px] text-cayenne_red font-bold mb-1.5 uppercase tracking-widest">${toolLabel} / Lumina AI</div>
-                                <h3 class="text-white font-bold text-lg mb-4 truncate">Photo #${photo.id}</h3>
-                                <div class="flex flex-wrap gap-1.5 mt-auto">
-                                    ${tagsHtml}
-                                </div>
-                            </div>
-                        `;
-                        grid.appendChild(item);
+                    // Group photos by date
+                    const grouped = {};
+                    photos.forEach(p => {
+                        const d = new Date(p.created_at);
+                        const dateKey = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+                        if (!grouped[dateKey]) grouped[dateKey] = [];
+                        grouped[dateKey].push(p);
                     });
+
+                    let globalIndex = 0;
+                    for (const [date, datePhotos] of Object.entries(grouped)) {
+                        const section = document.createElement('div');
+                        section.className = 'flex flex-col gap-5';
+
+                        // Create section header and inner grid
+                        section.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <h2 class="text-xl font-bold text-white tracking-widest">${date}</h2>
+                                <div class="h-px bg-white/10 flex-1"></div>
+                            </div>
+                            <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6 section-grid"></div>
+                        `;
+                        const sectionGrid = section.querySelector('.section-grid');
+
+                        datePhotos.forEach((photo) => {
+                            const item = document.createElement('div');
+                            item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid';
+                            item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
+
+                            // Adding animation delay for staggered entrance
+                            item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${globalIndex * 0.1}s`;
+                            item.style.opacity = '0';
+                            globalIndex++;
+
+                            // Parse tags 
+                            let tagsHtml = '';
+                            if (photo.tags) {
+                                const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
+                                tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
+                            }
+
+                            // Time formatting for badge
+                            const timeStr = new Date(photo.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+                            const toolLabel = photo.recommended_tool ? photo.recommended_tool.toUpperCase() : 'ANALYZING';
+
+                            item.innerHTML = `
+                                <div class="relative bg-black w-full min-h-[200px]">
+                                    <img src="${photo.cloudinary_url}" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100 block">
+                                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${timeStr}</div>
+                                </div>
+                                <div class="p-5 flex flex-col border-t border-white/5">
+                                    <div class="text-[10px] text-cayenne_red font-bold mb-1.5 uppercase tracking-widest">${toolLabel} / Lumina AI</div>
+                                    <h3 class="text-white font-bold text-lg mb-4 truncate">Photo #${photo.id}</h3>
+                                    <div class="flex flex-wrap gap-1.5 mt-auto">
+                                        ${tagsHtml}
+                                    </div>
+                                </div>
+                            `;
+                            sectionGrid.appendChild(item);
+                        });
+                        container.appendChild(section);
+                    }
                 }
             } catch (err) {
                 console.error('Error loading photos:', err);
                 // Keep UI clean, hide grid and show empty state on failure
-                document.getElementById('gallery-grid').classList.add('hidden');
+                document.getElementById('gallery-container').classList.add('hidden');
                 document.getElementById('empty-state').classList.remove('hidden');
             }
         });
