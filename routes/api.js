@@ -92,7 +92,10 @@ router.post('/upload', uploadSingle, async (req, res) => {
         );
         const photoId = insertRes.rows[0].id;
 
-        // 3. Respond immediately to the frontend
+        // 3. Increment the user's uploaded photos count
+        await db.query(`UPDATE users SET photos_uploaded = photos_uploaded + 1 WHERE id = $1`, [userId]);
+
+        // 4. Respond immediately to the frontend
         res.json({
             success: true,
             photoId: photoId,

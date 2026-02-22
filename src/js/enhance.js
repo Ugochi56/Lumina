@@ -268,6 +268,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 9. New In-Page Upload Logic
+    const addPhotosBtn = document.getElementById('add-photos-btn');
+    const newUploadBtn = document.getElementById('new-upload-btn');
+
+    // Create a persistent hidden file input
+    const hiddenFileInput = document.createElement('input');
+    hiddenFileInput.type = 'file';
+    hiddenFileInput.accept = 'image/*';
+    hiddenFileInput.classList.add('hidden');
+    document.body.appendChild(hiddenFileInput);
+
+    const triggerUpload = () => hiddenFileInput.click();
+    if (addPhotosBtn) addPhotosBtn.addEventListener('click', triggerUpload);
+    if (newUploadBtn) newUploadBtn.addEventListener('click', triggerUpload);
+
+    hiddenFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (loaderOverlay) {
+            loaderOverlay.classList.remove('hidden');
+            loaderOverlay.classList.add('flex');
+            const loaderTitle = loaderOverlay.querySelector('h2');
+            if (loaderTitle) loaderTitle.textContent = "Uploading your photo...";
+        }
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Upload failed');
+            }
+
+            // Success! Redirect to the same page with the new photo ID
+            // This naturally refreshes the interface and increments the counter
+            window.location.href = '/enhance.html?id=' + data.photoId;
+
+        } catch (error) {
+            console.error("Upload Error:", error);
+            alert(error.message);
+            if (loaderOverlay) {
+                loaderOverlay.classList.add('hidden');
+                loaderOverlay.classList.remove('flex');
+                const loaderTitle = loaderOverlay.querySelector('h2');
+                if (loaderTitle) loaderTitle.textContent = "Enhancing your photo...";
+            }
+        }
+
+        // Reset input so the same file can be selected again if needed
+        hiddenFileInput.value = '';
+    });
+
     // Init Page
     loadPhotoData();
 });
