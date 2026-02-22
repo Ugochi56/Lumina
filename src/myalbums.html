@@ -285,8 +285,14 @@
                             // Parse tags 
                             let tagsHtml = '';
                             if (photo.tags) {
-                                const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
-                                tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
+                                try {
+                                    const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
+                                    if (Array.isArray(tagsArr)) {
+                                        tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to parse tags for photo', photo.id, e);
+                                }
                             }
 
                             // Time formatting for badge
