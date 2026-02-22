@@ -52,27 +52,14 @@
             transform: translateY(0) translateX(-50%);
         }
 
-        /* === MASONRY GRID === */
-        .masonry-grid {
-            column-count: 2;
-            column-gap: 1.5rem;
+        /* === DASHBOARD LAYOUT === */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
         }
 
-        @media (min-width: 768px) {
-            .masonry-grid {
-                column-count: 3;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .masonry-grid {
-                column-count: 4;
-            }
-        }
-
-        .masonry-item {
-            break-inside: avoid;
-            margin-bottom: 1.5rem;
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
     <script src="js/starfield.js" defer></script>
@@ -143,82 +130,43 @@
 
     </section>
 
-    <!-- MASONRY GALLERY -->
+    <!-- DASHBOARD GALLERY -->
     <main class="max-w-7xl mx-auto px-4 pb-20">
-        <div class="masonry-grid">
 
-            <!-- Item 1 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
+        <!-- Tabs / Filters (Visual Only) -->
+        <div class="flex items-center gap-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
+            <button class="bg-white text-black px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap">All
+                Photos</button>
+            <button
+                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Upscaled</button>
+            <button
+                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Restored</button>
+            <button
+                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Edited</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="gallery-grid">
+            <!-- Dynamic gallery items will be injected here -->
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-32 bg-[#121212] rounded-3xl border border-white/5 mt-8">
+            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                </svg>
             </div>
-
-            <!-- Item 2 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 3 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 4 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 5 (Wide) -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 6 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 7 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
-            <!-- Item 8 -->
-            <div class="masonry-item relative group overflow-hidden rounded-2xl">
-                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                    class="w-full h-auto object-cover transform transition duration-500 group-hover:scale-105">
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[10px] font-bold tracking-widest uppercase text-white/70">AI Generated</span>
-                </div>
-            </div>
-
+            <h2 class="text-2xl font-bold text-white mb-3">Your album is empty</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Upload and enhance your first photo to start building your
+                personal gallery.</p>
+            <button onclick="window.location.href='login.html'"
+                class="bg-white text-black hover:bg-gray-200 px-8 py-3.5 rounded-full text-sm font-bold transition shadow-lg inline-flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Upload
+            </button>
         </div>
     </main>
 
@@ -281,6 +229,68 @@
         </div>
     </footer>
 
+    <!-- SCRIPT TO LOAD PHOTOS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/photos');
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = '/login.html';
+                    }
+                    return;
+                }
+                const photos = await res.json();
+                const grid = document.getElementById('gallery-grid');
+                const emptyState = document.getElementById('empty-state');
+
+                if (photos.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    photos.forEach((photo, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300';
+                        item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
+
+                        // Adding animation delay for staggered entrance
+                        item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.1}s`;
+                        item.style.opacity = '0';
+
+                        // Parse tags 
+                        let tagsHtml = '';
+                        if (photo.tags) {
+                            const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
+                            tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
+                        }
+
+                        // Date formatting
+                        const date = new Date(photo.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                        const toolLabel = photo.recommended_tool ? photo.recommended_tool.toUpperCase() : 'ANALYZING';
+
+                        item.innerHTML = `
+                            <div class="h-56 sm:h-64 md:h-72 overflow-hidden relative bg-black">
+                                <img src="${photo.cloudinary_url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100">
+                                <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${date}</div>
+                            </div>
+                            <div class="p-5 flex flex-col flex-1">
+                                <div class="text-[10px] text-cayenne_red font-bold mb-1.5 uppercase tracking-widest">${toolLabel} / Lumina AI</div>
+                                <h3 class="text-white font-bold text-lg mb-4 truncate">Photo #${photo.id}</h3>
+                                <div class="flex flex-wrap gap-1.5 mt-auto">
+                                    ${tagsHtml}
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading photos:', err);
+                // Keep UI clean, hide grid and show empty state on failure
+                document.getElementById('gallery-grid').classList.add('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 
 </html>
