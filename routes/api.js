@@ -308,13 +308,18 @@ router.post('/enhance', async (req, res) => {
                     {
                         folder: 'lumina_results',
                         transformation: [
-                            { overlay: "My Brand:Sub_Logo_ukbwbq" },
+                            { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
                             { width: 300, crop: "scale" },
                             { flags: "layer_apply", gravity: "bottom_right", x: 20, y: 20, opacity: 60 }
                         ]
                     },
                     async (error, result) => {
-                        if (error) throw error;
+                        if (error) {
+                            console.error("Cloudinary Watermark Stream Error:", error);
+                            // Fallback to saving/returning non-watermarked image rather than crashing
+                            await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
+                            return res.json({ output: finalImageUrl });
+                        }
                         // Save the watermarked image URL to database
                         await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [result.secure_url, photoId]);
                         // Return transformed URL

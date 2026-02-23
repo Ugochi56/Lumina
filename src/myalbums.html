@@ -248,73 +248,109 @@
                 if (photos.length === 0) {
                     emptyState.classList.remove('hidden');
                 } else {
-                    // Group photos by date
-                    const grouped = {};
+                    // Group photos by tool type into Folders
+                    const grouped = {
+                        'UPSCALE': [],
+                        'RESTORE': [],
+                        'EDIT': [],
+                        'UNCATEGORIZED': []
+                    };
                     photos.forEach(p => {
-                        const d = new Date(p.created_at);
-                        const dateKey = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-                        if (!grouped[dateKey]) grouped[dateKey] = [];
-                        grouped[dateKey].push(p);
+                        const tool = p.recommended_tool ? p.recommended_tool.toUpperCase() : 'UNCATEGORIZED';
+                        if (grouped[tool]) {
+                            grouped[tool].push(p);
+                        } else {
+                            grouped[tool] = [p];
+                        }
                     });
 
-                    let globalIndex = 0;
-                    for (const [date, datePhotos] of Object.entries(grouped)) {
-                        const section = document.createElement('div');
-                        section.className = 'flex flex-col gap-5';
-
-                        // Create section header and inner grid
-                        section.innerHTML = `
-                            <div class="flex items-center gap-4">
-                                <h2 class="text-xl font-bold text-white tracking-widest">${date}</h2>
+                    // Create UI structure for Folders and Grid
+                    container.innerHTML = `
+                        <div id="folders-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+                        <div id="album-view" class="hidden flex-col gap-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <button id="back-btn" class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium transition flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Back
+                                </button>
+                                <h2 id="album-title" class="text-2xl font-bold text-white tracking-widest ml-4">ALBUM</h2>
                                 <div class="h-px bg-white/10 flex-1"></div>
                             </div>
-                            <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6 section-grid"></div>
-                        `;
-                        const sectionGrid = section.querySelector('.section-grid');
+                            <div id="album-grid" class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6"></div>
+                        </div>
+                    `;
 
-                        datePhotos.forEach((photo) => {
-                            const item = document.createElement('div');
-                            item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid';
-                            item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
+                    const foldersView = document.getElementById('folders-view');
+                    const albumView = document.getElementById('album-view');
+                    const albumGrid = document.getElementById('album-grid');
+                    const albumTitle = document.getElementById('album-title');
+                    const backBtn = document.getElementById('back-btn');
 
-                            // Adding animation delay for staggered entrance
-                            item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${globalIndex * 0.1}s`;
-                            item.style.opacity = '0';
-                            globalIndex++;
+                    backBtn.onclick = () => {
+                        albumView.classList.add('hidden');
+                        albumView.classList.remove('flex', 'flex-col');
+                        foldersView.classList.remove('hidden');
+                        foldersView.classList.add('grid');
+                    };
 
-                            // Parse tags 
-                            let tagsHtml = '';
-                            if (photo.tags) {
-                                try {
-                                    const tagsArr = typeof photo.tags === 'string' ? JSON.parse(photo.tags) : photo.tags;
-                                    if (Array.isArray(tagsArr)) {
-                                        tagsHtml = tagsArr.map(tag => `<span class="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-gray-300 uppercase tracking-wider">${tag}</span>`).join('');
-                                    }
-                                } catch (e) {
-                                    console.error('Failed to parse tags for photo', photo.id, e);
-                                }
-                            }
+                    let folderDelay = 0;
+                    for (const [tool, datePhotos] of Object.entries(grouped)) {
+                        if (datePhotos.length === 0) continue;
 
-                            // Time formatting for badge
-                            const timeStr = new Date(photo.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-                            const toolLabel = photo.recommended_tool ? photo.recommended_tool.toUpperCase() : 'ANALYZING';
+                        const folder = document.createElement('div');
+                        folder.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 relative';
+                        folder.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${folderDelay * 0.1}s`;
+                        folder.style.opacity = '0';
+                        folderDelay++;
 
-                            item.innerHTML = `
-                                <div class="relative bg-black w-full min-h-[200px]">
-                                    <img src="${photo.cloudinary_url}" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100 block">
-                                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${timeStr}</div>
-                                </div>
-                                <div class="p-5 flex flex-col border-t border-white/5">
-                                    <div class="text-[10px] text-cayenne_red font-bold mb-1.5 uppercase tracking-widest">${toolLabel} / Lumina AI</div>
-                                    <h3 class="text-white font-bold text-lg mb-4 truncate">Photo #${photo.id}</h3>
-                                    <div class="flex flex-wrap gap-1.5 mt-auto">
-                                        ${tagsHtml}
+                        const previewImg = datePhotos[0].enhanced_url || datePhotos[0].cloudinary_url;
+
+                        folder.innerHTML = `
+                            <div class="relative bg-black w-full h-48 md:h-56">
+                                <img src="${previewImg}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-60 group-hover:opacity-80">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#121212]/90 to-transparent"></div>
+                                <div class="absolute bottom-4 left-5 flex items-center gap-3">
+                                    <div class="bg-white/10 backdrop-blur-md p-2 rounded-lg border border-white/10">
+                                        <svg class="w-6 h-6 text-white text-opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-white font-bold text-xl uppercase tracking-wider">${tool}</h3>
+                                        <p class="text-white/60 text-xs font-medium">${datePhotos.length} Items</p>
                                     </div>
                                 </div>
-                            `;
-                            sectionGrid.appendChild(item);
-                        });
-                        container.appendChild(section);
+                            </div>
+                        `;
+
+                        folder.onclick = () => {
+                            foldersView.classList.add('hidden');
+                            foldersView.classList.remove('grid');
+                            albumView.classList.remove('hidden');
+                            albumView.classList.add('flex', 'flex-col');
+                            albumTitle.textContent = tool + ' PHOTOS';
+
+                            albumGrid.innerHTML = '';
+                            datePhotos.forEach((photo, index) => {
+                                const item = document.createElement('div');
+                                item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid';
+                                item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
+
+                                item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.05}s`;
+                                item.style.opacity = '0';
+
+                                const timeStr = new Date(photo.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                                const imageSrc = photo.enhanced_url || photo.cloudinary_url;
+                                const isEnhanced = photo.enhanced_url ? true : false;
+
+                                item.innerHTML = `
+                                    <div class="relative bg-black w-full min-h-[150px]">
+                                        <img src="${imageSrc}" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100 block">
+                                        <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${timeStr}</div>
+                                        ${isEnhanced ? '<div class="absolute bottom-3 left-3 bg-gradient-to-r from-amber_flame to-cayenne_red px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-widest shadow-lg">Enhanced</div>' : ''}
+                                    </div>
+                                `;
+                                albumGrid.appendChild(item);
+                            });
+                        };
+                        foldersView.appendChild(folder);
                     }
                 }
             } catch (err) {

@@ -43,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Mock data if DB fields missing
                     accountCreated.textContent = "18/02/2026";
                     accountId.textContent = "u-" + (data.user.id || "12345");
+
+                    const accountTier = document.getElementById('account-tier');
+                    if (accountTier && data.user.subscription_tier) {
+                        accountTier.textContent = data.user.subscription_tier;
+                    }
                 }
             });
     }
