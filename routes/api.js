@@ -268,12 +268,9 @@ router.post('/enhance', async (req, res) => {
                 inputData.scale = 2; // Default scale
                 break;
             case 'restore':
-                // Face / Photo Restoration (e.g., GFPGAN or CodeFormer)
-                // Using TencentARC GFPGAN as an example
-                modelString = "tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c";
-                inputData.img = inputData.image;
-                delete inputData.image;
-                inputData.scale = 2;
+                // SwinIR for Real-World Image Super-Resolution
+                modelString = "jingyunliang/swinir:660d922d33153019e8c263a3bba265de882e7f4f70396546b6c9c8f9d47a021a";
+                inputData.task_type = "Real-World Image Super-Resolution-Large";
                 break;
             case 'edit':
                 // Image Editing / Magic Eraser / InstructPix2Pix
@@ -291,14 +288,35 @@ router.post('/enhance', async (req, res) => {
 
         // --- EXECUTE REPLICATE API (WITH FALLBACK) ---
         let finalImageUrl = "";
-        try {
-            const output = await replicate.run(modelString, { input: inputData });
-            // Some models return arrays of URLs, some return single strings. Handle both.
-            finalImageUrl = Array.isArray(output) ? output[output.length - 1] : output;
-        } catch (apiError) {
-            console.warn(`Replicate API failed for ${tool}, returning mock enhanced image. Error:`, apiError.message);
-            // Provide a high-res placeholder image as mock successful enhancement
-            finalImageUrl = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
+        let retryCount = 0;
+        let output;
+
+        while (retryCount < 2) {
+            try {
+                output = await replicate.run(modelString, { input: inputData });
+                break; // Success
+            } catch (apiError) {
+                if (apiError.message.includes('429') && retryCount < 1) {
+                    console.warn(`Rate limited (429) for ${tool}, retrying in 2 seconds...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    retryCount++;
+                } else {
+                    console.warn(`Replicate API failed for ${tool}, returning mock enhanced image. Error:`, apiError.message);
+                    // Provide a high-res placeholder image as mock successful enhancement
+                    output = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
+                    break;
+                }
+            }
+        }
+
+        // Extract URL string from Replicate V1.x ReadableStream or older string/array outputs
+        if (Array.isArray(output)) {
+            const lastItem = output[output.length - 1];
+            finalImageUrl = (lastItem && typeof lastItem.url === 'function') ? lastItem.url().href : lastItem;
+        } else if (output && typeof output.url === 'function') {
+            finalImageUrl = output.url().href;
+        } else {
+            finalImageUrl = output; // Fallback string
         }
 
         // --- WATERMARKING LOGIC (Free/Weekly) ---
