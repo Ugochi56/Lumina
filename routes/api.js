@@ -268,9 +268,11 @@ router.post('/enhance', async (req, res) => {
                 inputData.scale = 2; // Default scale
                 break;
             case 'restore':
-                // SwinIR for Real-World Image Super-Resolution
-                modelString = "jingyunliang/swinir:660d922d33153019e8c263a3bba265de882e7f4f70396546b6c9c8f9d47a021a";
-                inputData.task_type = "Real-World Image Super-Resolution-Large";
+                // Face / Photo Restoration (e.g., CodeFormer)
+                modelString = "sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56";
+                inputData.background_enhance = true;
+                inputData.face_upsample = true;
+                inputData.upscale = 2;
                 break;
             case 'edit':
                 // Image Editing / Magic Eraser / InstructPix2Pix
