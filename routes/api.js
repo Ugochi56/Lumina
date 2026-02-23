@@ -270,13 +270,13 @@ router.post('/enhance', async (req, res) => {
             case 'restore':
                 // Face / Photo Restoration (e.g., GFPGAN or CodeFormer)
                 // Using TencentARC GFPGAN as an example
-                modelString = "tencentarc/gfpgan:9283608cb6b7ecca216c8e3128fb9a98ac20f4c0ee1517f858888eb1beb99c2d";
+                modelString = "tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c";
                 inputData.scale = 2;
                 break;
             case 'edit':
                 // Image Editing / Magic Eraser / InstructPix2Pix
                 // Using a generic instruct model for "edit" as placeholder
-                modelString = "timbrooks/instruct-pix2pix:30c1d0b916a6f8efce20d220800b6528d2bc2dcbbbc98efaeab5b68df56612cb";
+                modelString = "timothybrooks/instruct-pix2pix:30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f";
                 inputData.prompt = "enhance quality, vivid colors, modern"; // Generic edit prompt
                 break;
             default:
