@@ -27,7 +27,7 @@
     "express-session": "^1.19.0",
     "form-data": "^4.0.5",
     "multer": "^2.0.2",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
     "passport-apple": "^2.0.2",
     "passport-facebook": "^3.0.0",

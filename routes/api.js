@@ -271,6 +271,8 @@ router.post('/enhance', async (req, res) => {
                 // Face / Photo Restoration (e.g., GFPGAN or CodeFormer)
                 // Using TencentARC GFPGAN as an example
                 modelString = "tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c";
+                inputData.img = inputData.image;
+                delete inputData.image;
                 inputData.scale = 2;
                 break;
             case 'edit':
