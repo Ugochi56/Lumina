@@ -275,10 +275,10 @@ router.post('/enhance', async (req, res) => {
                 inputData.upscale = 2;
                 break;
             case 'edit':
-                // Image Editing / Magic Eraser / InstructPix2Pix
-                // Using a generic instruct model for "edit" as placeholder
-                modelString = "timothybrooks/instruct-pix2pix:30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f";
-                inputData.prompt = "enhance quality, vivid colors, modern"; // Generic edit prompt
+                // Fast Image Enhancement & Retouching
+                modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
+                inputData.scale = 1; // Keep original size, just enhance
+                inputData.face_enhance = true; // Use GFPGAN under the hood for retouching
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid tool selected' });
