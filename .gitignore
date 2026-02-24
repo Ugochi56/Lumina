@@ -34,3 +34,4 @@ rebuild_enhance.js
 test_replicate.js
 fix_seq.js
 models.json
+check_db.js

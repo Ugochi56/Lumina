@@ -102,6 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Keep the inner image visually stationary
             if (imgBefore) {
                 imgBefore.style.width = rect.width + 'px';
+                imgBefore.style.height = rect.height + 'px';
+                imgBefore.style.maxWidth = 'none';
+            }
+        };
+
+        const resetSliderDimensions = () => {
+            const rect = sliderContainer.getBoundingClientRect();
+            if (imgBefore) {
+                imgBefore.style.width = rect.width + 'px';
+                imgBefore.style.height = rect.height + 'px';
                 imgBefore.style.maxWidth = 'none';
             }
         };
@@ -111,13 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
         sliderHandle.style.left = '50%';
 
         // Initial setup for image width
-        setTimeout(() => {
-            const rect = sliderContainer.getBoundingClientRect();
-            if (imgBefore) {
-                imgBefore.style.width = rect.width + 'px';
-                imgBefore.style.maxWidth = 'none';
-            }
-        }, 100);
+        setTimeout(resetSliderDimensions, 100);
+
+        // Recalculate correctly when window is resized or images are loaded
+        window.addEventListener('resize', resetSliderDimensions);
+        if (imgAfter) imgAfter.addEventListener('load', resetSliderDimensions);
+        if (imgBefore) imgBefore.addEventListener('load', resetSliderDimensions);
 
         sliderContainer.addEventListener('mousedown', (e) => { isDown = true; moveSlider(e.clientX); });
         window.addEventListener('mouseup', () => { isDown = false; });

@@ -130,10 +130,12 @@ router.post('/upload', uploadSingle, async (req, res) => {
 
                 console.log(`Generated caption for photo ${photoId}: ${caption}`);
 
-                // 2. Recommendation Engine (Upscale vs Restore vs Edit)
+                // 2. Recommendation Engine (Upscale vs Restore vs Edit vs Low Light)
                 let recommendedTool = 'upscale'; // default
                 if (caption.includes('old') || caption.includes('scratch') || caption.includes('damage') || caption.includes('black and white') || caption.includes('sepia')) {
                     recommendedTool = 'restore';
+                } else if (caption.includes('dark') || caption.includes('night') || caption.includes('shadow') || caption.includes('underexposed')) {
+                    recommendedTool = 'lowlight';
                 } else if (caption.includes('clear') || caption.includes('modern') || caption.includes('bright') || caption.includes('beautiful')) {
                     recommendedTool = 'edit';
                 } else if (caption.includes('blur') || caption.includes('low') || caption.includes('pixel')) {
@@ -280,6 +282,12 @@ router.post('/enhance', async (req, res) => {
                 modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
                 inputData.scale = 1; // Keep original size, just enhance
                 inputData.face_enhance = true; // Use GFPGAN under the hood for retouching
+                break;
+            case 'lowlight':
+                // Low-Light Enhancer
+                modelString = "timothybrooks/instruct-pix2pix:30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f";
+                inputData.prompt = "increase exposure and brightness, intelligently lift shadows, fix low light realistically";
+                inputData.image_guidance_scale = 1.5; // High guidance to prevent AI from aggressively hallucinating
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid tool selected' });
