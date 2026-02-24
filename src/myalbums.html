@@ -327,27 +327,54 @@
                         folderWrapper.style.opacity = '0';
                         folderDelay++;
 
-                        // Uiverse.io Folder HTML (Refactored to avoid JIT Arbitrary Value bugs)
+                        // Uiverse.io Folder HTML - CSS Hovers removed to be handled by JS
                         folderWrapper.innerHTML = `
-                            <section class="relative font-sans uiverse-folder-group flex flex-col items-center justify-center w-full h-full text-center">
-                                <div class="file relative w-60 h-40 cursor-pointer origin-bottom uiverse-folder-container z-50">
-                                    <div class="uiverse-folder-work5 bg-amber-600 w-full h-full origin-top rounded-2xl rounded-tl-none relative after:absolute after:content-[''] after:bottom-[99%] after:left-0 after:w-20 after:h-4 after:bg-amber-600 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[15px] before:left-[75.5px] before:w-4 before:h-4 before:bg-amber-600"></div>
-                                    <div class="uiverse-folder-work4 absolute inset-1 bg-zinc-400 rounded-2xl transition-all ease duration-300 origin-bottom select-none overflow-hidden">
+                            <section class="relative flex flex-col items-center justify-center w-full h-full text-center">
+                                <div class="file relative w-60 h-40 cursor-pointer origin-bottom [perspective:1500px] z-50">
+                                    <div class="work-5 bg-amber-600 w-full h-full origin-top rounded-2xl rounded-tl-none transition-all ease duration-300 relative after:absolute after:content-[''] after:bottom-[99%] after:left-0 after:w-20 after:h-4 after:bg-amber-600 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[15px] before:left-[75.5px] before:w-4 before:h-4 before:bg-amber-600 before:[clip-path:polygon(0_35%,0%_100%,50%_100%);]"></div>
+                                    <div class="work-4 absolute inset-1 bg-zinc-400 rounded-2xl transition-all ease duration-300 origin-bottom select-none overflow-hidden">
                                         <img src="${datePhotos[0].enhanced_url || datePhotos[0].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />
                                     </div>
-                                    <div class="uiverse-folder-work3 absolute inset-1 bg-zinc-300 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
+                                    <div class="work-3 absolute inset-1 bg-zinc-300 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
                                         ${datePhotos.length > 1 ? `<img src="${datePhotos[1].enhanced_url || datePhotos[1].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
                                     </div>
-                                    <div class="uiverse-folder-work2 absolute inset-1 bg-zinc-200 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
+                                    <div class="work-2 absolute inset-1 bg-zinc-200 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
                                         ${datePhotos.length > 2 ? `<img src="${datePhotos[2].enhanced_url || datePhotos[2].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
                                     </div>
-                                    <div class="uiverse-folder-work1 absolute bottom-0 bg-gradient-to-t from-amber-500 to-amber-400 w-full h-[156px] rounded-2xl rounded-tr-none after:absolute after:content-[''] after:bottom-[99%] after:right-0 after:w-[146px] after:h-[16px] after:bg-amber-400 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[10px] before:right-[142px] before:w-3 before:h-3 before:bg-amber-400 transition-all ease duration-300 origin-bottom flex items-center justify-center flex-col pt-8">
+                                    <div class="work-1 absolute bottom-0 bg-gradient-to-t from-amber-500 to-amber-400 w-full h-[156px] rounded-2xl rounded-tr-none after:absolute after:content-[''] after:bottom-[99%] after:right-0 after:w-[146px] after:h-[16px] after:bg-amber-400 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[10px] before:right-[142px] before:w-3 before:h-3 before:bg-amber-400 before:[clip-path:polygon(100%_14%,50%_100%,100%_100%);] transition-all ease duration-300 origin-bottom flex items-center justify-center flex-col pt-8">
                                         <h3 class="text-white font-bold text-2xl uppercase tracking-widest drop-shadow-lg">${dateLabel}</h3>
                                         <p class="text-amber-900 font-bold text-sm bg-white/40 px-3 py-1 rounded-full mt-2">${datePhotos.length} Items</p>
                                     </div>
                                 </div>
                             </section>
                         `;
+
+                        // Apply pure Javascript Hover animations
+                        const work1 = folderWrapper.querySelector('.work-1');
+                        const work2 = folderWrapper.querySelector('.work-2');
+                        const work3 = folderWrapper.querySelector('.work-3');
+                        const work4 = folderWrapper.querySelector('.work-4');
+                        const work5 = folderWrapper.querySelector('.work-5');
+
+                        folderWrapper.addEventListener('mouseenter', () => {
+                            work5.style.boxShadow = '0 20px 40px rgba(0,0,0,.2)';
+                            work4.style.transform = 'rotateX(-20deg)';
+                            work3.style.transform = 'rotateX(-30deg)';
+                            work2.style.transform = 'rotateX(-38deg)';
+
+                            work1.style.boxShadow = 'inset 0 20px 40px #fbbf24, inset 0 -20px 40px #d97706';
+                            work1.style.transform = 'rotateX(-46deg) translateY(1px)';
+                        });
+
+                        folderWrapper.addEventListener('mouseleave', () => {
+                            work5.style.boxShadow = 'none';
+                            work4.style.transform = 'rotateX(0deg)';
+                            work3.style.transform = 'rotateX(0deg)';
+                            work2.style.transform = 'rotateX(0deg)';
+
+                            work1.style.boxShadow = 'none';
+                            work1.style.transform = 'rotateX(0deg) translateY(0px)';
+                        });
 
                         // Add click handler to the *inner* folder element for better click targeting
                         const folderClickTarget = folderWrapper.querySelector('.file');
