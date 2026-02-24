@@ -264,60 +264,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. Execute Enhancement
-    if (applyBtn) {
-        applyBtn.addEventListener('click', async () => {
-            if (!currentImageUrl || !currentPhotoId || isProcessing) return;
-            isProcessing = true;
+    const processEnhancement = async () => {
+        if (!currentImageUrl || !currentPhotoId || isProcessing) return;
+        isProcessing = true;
 
+        if (loaderOverlay) {
+            loaderOverlay.classList.remove('hidden');
+            loaderOverlay.classList.add('flex');
+        }
+
+        const sliderBox = document.getElementById('slider-box');
+        const errorContainer = document.getElementById('error-state-container');
+
+        // Reset visibility just in case
+        if (errorContainer) {
+            errorContainer.classList.add('hidden');
+            errorContainer.classList.remove('flex');
+        }
+        if (sliderBox) {
+            sliderBox.classList.remove('hidden');
+        }
+
+        try {
+            const enhanceRes = await fetch('/api/enhance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    imageUrl: currentImageUrl,
+                    tool: selectedTool,
+                    photoId: currentPhotoId
+                })
+            });
+
+            const enhanceData = await enhanceRes.json();
+
+            if (!enhanceRes.ok) {
+                throw new Error(enhanceData.error || 'Enhancement failed');
+            }
+
+            // Success! Update "After" image in slider
+            if (imgAfter) {
+                // Preload the image so it doesn't blink
+                const newImg = new Image();
+                newImg.onload = () => {
+                    imgAfter.src = enhanceData.output;
+                    // Move handle to center if it was moved
+                    if (sliderHandle) sliderHandle.style.left = '50%';
+                    if (overlay) document.getElementById('overlay').style.width = '50%';
+
+                    if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
+                    if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
+                };
+                newImg.src = enhanceData.output;
+            }
+
+        } catch (error) {
+            console.error("Enhancement Error:", error);
+            // Hide slider, show error state
+            if (sliderBox) {
+                sliderBox.classList.add('hidden');
+            }
+            if (errorContainer) {
+                errorContainer.classList.remove('hidden');
+                errorContainer.classList.add('flex');
+            }
+        } finally {
+            isProcessing = false;
             if (loaderOverlay) {
-                loaderOverlay.classList.remove('hidden');
-                loaderOverlay.classList.add('flex');
+                loaderOverlay.classList.add('hidden');
+                loaderOverlay.classList.remove('flex');
             }
+        }
+    };
 
-            try {
-                const enhanceRes = await fetch('/api/enhance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        imageUrl: currentImageUrl,
-                        tool: selectedTool,
-                        photoId: currentPhotoId
-                    })
-                });
+    if (applyBtn) {
+        applyBtn.addEventListener('click', processEnhancement);
+    }
 
-                const enhanceData = await enhanceRes.json();
-
-                if (!enhanceRes.ok) {
-                    throw new Error(enhanceData.error || 'Enhancement failed');
-                }
-
-                // Success! Update "After" image in slider
-                if (imgAfter) {
-                    // Preload the image so it doesn't blink
-                    const newImg = new Image();
-                    newImg.onload = () => {
-                        imgAfter.src = enhanceData.output;
-                        // Move handle to center if it was moved
-                        if (sliderHandle) sliderHandle.style.left = '50%';
-                        if (overlay) document.getElementById('overlay').style.width = '50%';
-
-                        if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
-                        if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
-                    };
-                    newImg.src = enhanceData.output;
-                }
-
-            } catch (error) {
-                console.error("Enhancement Error:", error);
-                alert(error.message);
-            } finally {
-                isProcessing = false;
-                if (loaderOverlay) {
-                    loaderOverlay.classList.add('hidden');
-                    loaderOverlay.classList.remove('flex');
-                }
-            }
-        });
+    const retryBtn = document.getElementById('retry-btn');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', processEnhancement);
     }
 
     // 9. New In-Page Upload Logic

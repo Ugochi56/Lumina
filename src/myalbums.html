@@ -28,6 +28,18 @@
             backdrop-filter: blur(10px);
         }
 
+        @keyframes slideUpBounceMobile {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         .glow-hover {
             transition: all 0.3s ease;
         }
@@ -134,8 +146,7 @@
     <main class="max-w-7xl mx-auto px-4 pb-20">
 
         <!-- Tabs / Filters (Visual Only) -->
-        <div
-            class="flex justify-center flex-nowrap md:flex-wrap items-center gap-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
+        <div class="flex justify-center flex-wrap items-center gap-3 mb-8 w-full max-w-2xl mx-auto px-4 hide-scrollbar">
             <button class="bg-white text-black px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap">All
                 Photos</button>
             <button
@@ -248,26 +259,40 @@
                 if (photos.length === 0) {
                     emptyState.classList.remove('hidden');
                 } else {
-                    // Group photos by tool type into Folders
+                    // Group photos by Date
                     const grouped = {
-                        'UPSCALE': [],
-                        'RESTORE': [],
-                        'EDIT': [],
-                        'UNCATEGORIZED': []
+                        'Today': [],
+                        'Yesterday': [],
+                        'Previous 7 Days': [],
+                        'Older': []
                     };
+
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0); // start of today
+
+                    const yesterday = new Date(now);
+                    yesterday.setDate(yesterday.getDate() - 1);
+
+                    const lastWeek = new Date(now);
+                    lastWeek.setDate(lastWeek.getDate() - 7);
+
                     photos.forEach(p => {
-                        const tool = p.recommended_tool ? p.recommended_tool.toUpperCase() : 'UNCATEGORIZED';
-                        if (grouped[tool]) {
-                            grouped[tool].push(p);
+                        const photoDate = new Date(p.created_at);
+                        if (photoDate >= now) {
+                            grouped['Today'].push(p);
+                        } else if (photoDate >= yesterday) {
+                            grouped['Yesterday'].push(p);
+                        } else if (photoDate >= lastWeek) {
+                            grouped['Previous 7 Days'].push(p);
                         } else {
-                            grouped[tool] = [p];
+                            grouped['Older'].push(p);
                         }
                     });
 
-                    // Create UI structure for Folders and Grid
+                    // Container setup for Folders and Grid views
                     container.innerHTML = `
                         <div id="folders-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-                        <div id="album-view" class="hidden flex-col gap-6">
+                        <div id="album-view" class="hidden flex-col gap-6 w-full">
                             <div class="flex items-center gap-4 mb-4">
                                 <button id="back-btn" class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium transition flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Back
@@ -275,7 +300,7 @@
                                 <h2 id="album-title" class="text-2xl font-bold text-white tracking-widest ml-4">ALBUM</h2>
                                 <div class="h-px bg-white/10 flex-1"></div>
                             </div>
-                            <div id="album-grid" class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6"></div>
+                            <div id="album-grid" class="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4 photo-grid"></div>
                         </div>
                     `;
 
@@ -293,64 +318,70 @@
                     };
 
                     let folderDelay = 0;
-                    for (const [tool, datePhotos] of Object.entries(grouped)) {
+                    for (const [dateLabel, datePhotos] of Object.entries(grouped)) {
                         if (datePhotos.length === 0) continue;
 
-                        const folder = document.createElement('div');
-                        folder.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 relative';
-                        folder.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${folderDelay * 0.1}s`;
-                        folder.style.opacity = '0';
+                        const folderWrapper = document.createElement('div');
+                        folderWrapper.className = 'w-full flex justify-center break-inside-avoid relative inline-block';
+                        folderWrapper.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${folderDelay * 0.1}s`;
+                        folderWrapper.style.opacity = '0';
                         folderDelay++;
 
-                        const previewImg = datePhotos[0].enhanced_url || datePhotos[0].cloudinary_url;
-
-                        folder.innerHTML = `
-                            <div class="relative bg-black w-full h-48 md:h-56">
-                                <img src="${previewImg}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-60 group-hover:opacity-80">
-                                <div class="absolute inset-0 bg-gradient-to-t from-[#121212]/90 to-transparent"></div>
-                                <div class="absolute bottom-4 left-5 flex items-center gap-3">
-                                    <div class="bg-white/10 backdrop-blur-md p-2 rounded-lg border border-white/10">
-                                        <svg class="w-6 h-6 text-white text-opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        // Uiverse.io Folder HTML (Refactored to avoid JIT Arbitrary Value bugs)
+                        folderWrapper.innerHTML = `
+                            <section class="relative font-sans uiverse-folder-group flex flex-col items-center justify-center w-full h-full text-center">
+                                <div class="file relative w-60 h-40 cursor-pointer origin-bottom uiverse-folder-container z-50">
+                                    <div class="uiverse-folder-work5 bg-amber-600 w-full h-full origin-top rounded-2xl rounded-tl-none relative after:absolute after:content-[''] after:bottom-[99%] after:left-0 after:w-20 after:h-4 after:bg-amber-600 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[15px] before:left-[75.5px] before:w-4 before:h-4 before:bg-amber-600"></div>
+                                    <div class="uiverse-folder-work4 absolute inset-1 bg-zinc-400 rounded-2xl transition-all ease duration-300 origin-bottom select-none overflow-hidden">
+                                        <img src="${datePhotos[0].enhanced_url || datePhotos[0].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />
                                     </div>
-                                    <div>
-                                        <h3 class="text-white font-bold text-xl uppercase tracking-wider">${tool}</h3>
-                                        <p class="text-white/60 text-xs font-medium">${datePhotos.length} Items</p>
+                                    <div class="uiverse-folder-work3 absolute inset-1 bg-zinc-300 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
+                                        ${datePhotos.length > 1 ? `<img src="${datePhotos[1].enhanced_url || datePhotos[1].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
+                                    </div>
+                                    <div class="uiverse-folder-work2 absolute inset-1 bg-zinc-200 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
+                                        ${datePhotos.length > 2 ? `<img src="${datePhotos[2].enhanced_url || datePhotos[2].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
+                                    </div>
+                                    <div class="uiverse-folder-work1 absolute bottom-0 bg-gradient-to-t from-amber-500 to-amber-400 w-full h-[156px] rounded-2xl rounded-tr-none after:absolute after:content-[''] after:bottom-[99%] after:right-0 after:w-[146px] after:h-[16px] after:bg-amber-400 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[10px] before:right-[142px] before:w-3 before:h-3 before:bg-amber-400 transition-all ease duration-300 origin-bottom flex items-center justify-center flex-col pt-8">
+                                        <h3 class="text-white font-bold text-2xl uppercase tracking-widest drop-shadow-lg">${dateLabel}</h3>
+                                        <p class="text-amber-900 font-bold text-sm bg-white/40 px-3 py-1 rounded-full mt-2">${datePhotos.length} Items</p>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
                         `;
 
-                        folder.onclick = () => {
+                        // Add click handler to the *inner* folder element for better click targeting
+                        const folderClickTarget = folderWrapper.querySelector('.file');
+                        folderClickTarget.onclick = () => {
                             foldersView.classList.add('hidden');
                             foldersView.classList.remove('grid');
                             albumView.classList.remove('hidden');
                             albumView.classList.add('flex', 'flex-col');
-                            albumTitle.textContent = tool + ' PHOTOS';
+                            albumTitle.textContent = dateLabel.toUpperCase();
 
                             albumGrid.innerHTML = '';
+
                             datePhotos.forEach((photo, index) => {
                                 const item = document.createElement('div');
-                                item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid';
+                                item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid relative inline-block w-full';
                                 item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
 
                                 item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.05}s`;
                                 item.style.opacity = '0';
 
-                                const timeStr = new Date(photo.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                                 const imageSrc = photo.enhanced_url || photo.cloudinary_url;
                                 const isEnhanced = photo.enhanced_url ? true : false;
 
                                 item.innerHTML = `
-                                    <div class="relative bg-black w-full min-h-[150px]">
-                                        <img src="${imageSrc}" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100 block">
-                                        <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-bold text-white/90 border border-white/10">${timeStr}</div>
+                                    <div class="relative bg-black w-full">
+                                        <img src="${imageSrc}" class="w-full h-auto block group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100">
                                         ${isEnhanced ? '<div class="absolute bottom-3 left-3 bg-gradient-to-r from-amber_flame to-cayenne_red px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-widest shadow-lg">Enhanced</div>' : ''}
                                     </div>
                                 `;
                                 albumGrid.appendChild(item);
                             });
                         };
-                        foldersView.appendChild(folder);
+
+                        foldersView.appendChild(folderWrapper);
                     }
                 }
             } catch (err) {

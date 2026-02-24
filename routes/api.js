@@ -312,10 +312,8 @@ router.post('/enhance', async (req, res) => {
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     retryCount++;
                 } else {
-                    console.warn(`Replicate API failed for ${tool}, returning mock enhanced image. Error:`, apiError.message);
-                    // Provide a high-res placeholder image as mock successful enhancement
-                    output = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
-                    break;
+                    console.error(`Replicate API failed for ${tool}:`, apiError.message);
+                    throw new Error("Replicate API failed or timed out. Please try again.");
                 }
             }
         }
@@ -378,7 +376,7 @@ router.post('/enhance', async (req, res) => {
 
     } catch (error) {
         console.error('Enhancement Error:', error);
-        res.status(500).json({ error: 'Enhancement failed' });
+        res.status(500).json({ error: error.message || 'Enhancement failed. Please try again.' });
     }
 });
 
