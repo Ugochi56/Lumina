@@ -1,25 +1,24 @@
-require('dotenv').config();
-const { Client } = require('pg');
+require('dotenv').config({ path: '../.env' });
+const { Pool } = require('pg');
 
-async function migrate() {
-    const client = new Client({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+async function runMigration() {
     try {
-        await client.connect();
-        console.log('Running migration...');
+        console.log("Connecting to the database...");
 
-        await client.query(`
-            ALTER TABLE users 
-            ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(50) DEFAULT 'free',
-            ADD COLUMN IF NOT EXISTS photos_uploaded INTEGER DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS albums_created INTEGER DEFAULT 0;
-        `);
+        console.log("Adding 'subject' column to 'photos' table...");
+        await pool.query(`ALTER TABLE photos ADD COLUMN IF NOT EXISTS subject VARCHAR(100) DEFAULT 'General';`);
 
-        console.log('Migration successful: Added missing columns to users table.');
-    } catch (e) {
-        console.error('Migration failed', e);
+        console.log("Migration successful! Added 'subject' column.");
+    } catch (error) {
+        console.error("Migration failed:", error);
     } finally {
-        await client.end();
+        await pool.end();
     }
 }
 
-migrate();
+runMigration();

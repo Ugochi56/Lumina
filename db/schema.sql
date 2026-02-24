@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS photos (
     status VARCHAR(50) DEFAULT 'processing', -- 'processing', 'ready', 'failed'
     recommended_tool VARCHAR(50), -- 'upscale', 'restore', 'edit'
     tags JSONB,
+    subject VARCHAR(100) DEFAULT 'General',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

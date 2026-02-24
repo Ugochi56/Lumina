@@ -146,10 +146,33 @@ router.post('/upload', uploadSingle, async (req, res) => {
                 const tagsArray = caption.split(' ').filter(word => word.length > 2);
                 const tagsJson = JSON.stringify(tagsArray);
 
-                // 4. Update DB photo status to 'ready'
+                // 4. Intelligent Auto-Categorization (LLaMA-3)
+                let subject = 'General';
+                try {
+                    const llamaOutput = await replicate.run(
+                        "meta/meta-llama-3-8b-instruct",
+                        {
+                            input: {
+                                prompt: `Analyze the following photo description and categorize it into a single short, natural subject category (like 'Wildlife', 'Portrait', 'Landscape', 'Architecture', 'Vintage', 'Pets', 'Cityscape', etc). Only output the category name, nothing else.\n\nDescription: "${caption}"`,
+                                max_new_tokens: 15,
+                            }
+                        }
+                    );
+                    subject = (Array.isArray(llamaOutput) ? llamaOutput.join('') : String(llamaOutput)).trim();
+                    // Clean up any quotes or punctuation just in case
+                    subject = subject.replace(/['"]+/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+                    // Capitalize first letter
+                    subject = subject.charAt(0).toUpperCase() + subject.slice(1);
+                } catch (llamaError) {
+                    console.warn(`LLaMA-3 categorization failed for photo ${photoId}, using default subject. Error:`, llamaError.message);
+                }
+
+                console.log(`Generated subject for photo ${photoId}: ${subject}`);
+
+                // 5. Update DB photo status to 'ready'
                 await db.query(
-                    `UPDATE photos SET status = 'ready', recommended_tool = $1, tags = $2 WHERE id = $3`,
-                    [recommendedTool, tagsJson, photoId]
+                    `UPDATE photos SET status = 'ready', recommended_tool = $1, tags = $2, subject = $3 WHERE id = $4`,
+                    [recommendedTool, tagsJson, subject, photoId]
                 );
                 console.log(`Phase 2 completed successfully for photo ${photoId}`);
 

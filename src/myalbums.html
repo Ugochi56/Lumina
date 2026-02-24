@@ -259,34 +259,15 @@
                 if (photos.length === 0) {
                     emptyState.classList.remove('hidden');
                 } else {
-                    // Group photos by Date
-                    const grouped = {
-                        'Today': [],
-                        'Yesterday': [],
-                        'Previous 7 Days': [],
-                        'Older': []
-                    };
-
-                    const now = new Date();
-                    now.setHours(0, 0, 0, 0); // start of today
-
-                    const yesterday = new Date(now);
-                    yesterday.setDate(yesterday.getDate() - 1);
-
-                    const lastWeek = new Date(now);
-                    lastWeek.setDate(lastWeek.getDate() - 7);
+                    // Group photos by AI Subject
+                    const grouped = {};
 
                     photos.forEach(p => {
-                        const photoDate = new Date(p.created_at);
-                        if (photoDate >= now) {
-                            grouped['Today'].push(p);
-                        } else if (photoDate >= yesterday) {
-                            grouped['Yesterday'].push(p);
-                        } else if (photoDate >= lastWeek) {
-                            grouped['Previous 7 Days'].push(p);
-                        } else {
-                            grouped['Older'].push(p);
+                        const subject = p.subject || 'General';
+                        if (!grouped[subject]) {
+                            grouped[subject] = [];
                         }
+                        grouped[subject].push(p);
                     });
 
                     // Container setup for Folders and Grid views
@@ -318,8 +299,8 @@
                     };
 
                     let folderDelay = 0;
-                    for (const [dateLabel, datePhotos] of Object.entries(grouped)) {
-                        if (datePhotos.length === 0) continue;
+                    for (const [subjectLabel, subjectPhotos] of Object.entries(grouped)) {
+                        if (subjectPhotos.length === 0) continue;
 
                         const folderWrapper = document.createElement('div');
                         folderWrapper.className = 'w-full flex justify-center break-inside-avoid relative inline-block';
@@ -333,17 +314,17 @@
                                 <div class="file relative w-60 h-40 cursor-pointer origin-bottom [perspective:1500px] z-50">
                                     <div class="work-5 bg-amber-600 w-full h-full origin-top rounded-2xl rounded-tl-none transition-all ease duration-300 relative after:absolute after:content-[''] after:bottom-[99%] after:left-0 after:w-20 after:h-4 after:bg-amber-600 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[15px] before:left-[75.5px] before:w-4 before:h-4 before:bg-amber-600 before:[clip-path:polygon(0_35%,0%_100%,50%_100%);]"></div>
                                     <div class="work-4 absolute inset-1 bg-zinc-400 rounded-2xl transition-all ease duration-300 origin-bottom select-none overflow-hidden">
-                                        <img src="${datePhotos[0].enhanced_url || datePhotos[0].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />
+                                        <img src="${subjectPhotos[0].enhanced_url || subjectPhotos[0].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />
                                     </div>
                                     <div class="work-3 absolute inset-1 bg-zinc-300 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
-                                        ${datePhotos.length > 1 ? `<img src="${datePhotos[1].enhanced_url || datePhotos[1].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
+                                        ${subjectPhotos.length > 1 ? `<img src="${subjectPhotos[1].enhanced_url || subjectPhotos[1].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
                                     </div>
                                     <div class="work-2 absolute inset-1 bg-zinc-200 rounded-2xl transition-all ease duration-300 origin-bottom overflow-hidden">
-                                        ${datePhotos.length > 2 ? `<img src="${datePhotos[2].enhanced_url || datePhotos[2].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
+                                        ${subjectPhotos.length > 2 ? `<img src="${subjectPhotos[2].enhanced_url || subjectPhotos[2].cloudinary_url}" class="w-full h-full object-cover opacity-50 grayscale mix-blend-multiply" />` : ''}
                                     </div>
                                     <div class="work-1 absolute bottom-0 bg-gradient-to-t from-amber-500 to-amber-400 w-full h-[156px] rounded-2xl rounded-tr-none after:absolute after:content-[''] after:bottom-[99%] after:right-0 after:w-[146px] after:h-[16px] after:bg-amber-400 after:rounded-t-2xl before:absolute before:content-[''] before:-top-[10px] before:right-[142px] before:w-3 before:h-3 before:bg-amber-400 before:[clip-path:polygon(100%_14%,50%_100%,100%_100%);] transition-all ease duration-300 origin-bottom flex items-center justify-center flex-col pt-8">
-                                        <h3 class="text-white font-bold text-2xl uppercase tracking-widest drop-shadow-lg">${dateLabel}</h3>
-                                        <p class="text-amber-900 font-bold text-sm bg-white/40 px-3 py-1 rounded-full mt-2">${datePhotos.length} Items</p>
+                                        <h3 class="text-white font-bold text-2xl uppercase tracking-widest drop-shadow-lg">${subjectLabel}</h3>
+                                        <p class="text-amber-900 font-bold text-sm bg-white/40 px-3 py-1 rounded-full mt-2">${subjectPhotos.length} Items</p>
                                     </div>
                                 </div>
                             </section>
@@ -383,14 +364,14 @@
                             foldersView.classList.remove('grid');
                             albumView.classList.remove('hidden');
                             albumView.classList.add('flex', 'flex-col');
-                            albumTitle.textContent = dateLabel.toUpperCase();
+                            albumTitle.textContent = subjectLabel.toUpperCase() + ' PHOTOS';
 
                             albumGrid.innerHTML = '';
 
-                            datePhotos.forEach((photo, index) => {
+                            subjectPhotos.forEach((photo, index) => {
                                 const item = document.createElement('div');
                                 item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid relative inline-block w-full';
-                                item.onclick = () => window.location.href = '/enhance.html?id=' + photo.id;
+                                item.onclick = () => window.open(photo.enhanced_url || photo.cloudinary_url, '_blank');
 
                                 item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.05}s`;
                                 item.style.opacity = '0';
