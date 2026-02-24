@@ -263,9 +263,10 @@ router.post('/enhance', async (req, res) => {
 
         switch (tool) {
             case 'upscale':
-                // Super Resolution (e.g., Real-ESRGAN)
+                // Super Resolution & Face Unblurring (e.g., Real-ESRGAN)
                 modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
                 inputData.scale = 2; // Default scale
+                inputData.face_enhance = true; // CRITICAL: This was missing, causing blurred images to just get upscaled blur!
                 break;
             case 'restore':
                 // Face / Photo Restoration (e.g., CodeFormer)
