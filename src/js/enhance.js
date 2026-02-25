@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. DOM Elements
     const imgBefore = document.getElementById('img-before');
     const imgAfter = document.getElementById('img-after');
-    const thumbImg = document.getElementById('thumb-img');
+    const thumbnailFilmstrip = document.getElementById('thumbnail-filmstrip');
     const sliderContainer = document.getElementById('slider-box');
     const sliderHandle = document.getElementById('slider-handle');
 
@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgHeight = document.getElementById('img-height');
 
     // Limits
-    const tierCurrent = document.getElementById('tier-current');
     const tierMax = document.getElementById('tier-max');
     const tierProgressBar = document.getElementById('tier-progress-bar');
+    const errorContainer = document.getElementById('error-state-container');
 
     let currentPhotoId = null;
     let currentImageUrl = null;
@@ -147,40 +147,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Fetch Photo & Init
     async function loadPhotoData() {
         try {
+            // First, load the specific active photo data
             const res = await fetch(`/api/photos/${currentPhotoId}`);
             if (!res.ok) throw new Error("Failed to load photo data.");
-            const photo = await res.json();
+            const activePhoto = await res.json();
 
-            currentImageUrl = photo.cloudinary_url;
-
-            // Set slider & thumbnail images
-            if (imgBefore) imgBefore.src = currentImageUrl;
-
-            if (photo.enhanced_url) {
-                if (imgAfter) imgAfter.src = photo.enhanced_url;
-                if (thumbImg) thumbImg.src = photo.enhanced_url;
-                if (applyBtn) applyBtn.textContent = 'Re-Enhance';
-
-                if (sliderHandle) {
-                    sliderHandle.classList.remove('hidden');
-                    sliderHandle.style.left = '50%';
-                }
-                if (overlay) document.getElementById('overlay').style.width = '50%';
-            } else {
-                if (imgAfter) imgAfter.src = currentImageUrl;
-                if (thumbImg) thumbImg.src = currentImageUrl;
-            }
-
-            // Get dimensions once loaded
-            if (imgAfter) {
-                imgAfter.onload = () => {
-                    if (imgWidth) imgWidth.textContent = imgAfter.naturalWidth + ' px';
-                    if (imgHeight) imgHeight.textContent = imgAfter.naturalHeight + ' px';
-                };
-            }
+            // Set main editor state
+            updateEditorView(activePhoto);
 
             // Fetch User details for limits
             fetchUserData();
+
+            // Populate the filmstrip with ONLY the initial session photo
+            if (thumbnailFilmstrip) {
+                thumbnailFilmstrip.innerHTML = renderThumbnail(activePhoto, true);
+                bindThumbnailClicks();
+            }
 
             // Start polling AI status
             pollRecommendationStatus();
@@ -188,8 +170,119 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(error);
             alert("Could not load your image. Redirecting...");
-            window.location.href = '/login.html';
+            window.location.href = '/myalbums.html';
         }
+    }
+
+    function updateEditorView(photo) {
+        currentPhotoId = photo.id;
+        currentImageUrl = photo.cloudinary_url;
+
+        if (imgBefore) imgBefore.src = currentImageUrl;
+
+        if (photo.enhanced_url) {
+            if (imgAfter) imgAfter.src = photo.enhanced_url;
+            if (applyBtn) applyBtn.textContent = 'Re-Enhance';
+
+            if (sliderHandle) {
+                sliderHandle.classList.remove('hidden');
+                sliderHandle.style.left = '50%';
+            }
+            if (overlay) document.getElementById('overlay').style.width = '50%';
+        } else {
+            if (imgAfter) imgAfter.src = currentImageUrl;
+            if (applyBtn) applyBtn.textContent = 'Apply';
+            if (sliderHandle) sliderHandle.classList.add('hidden');
+            if (overlay) document.getElementById('overlay').style.width = '0%';
+        }
+
+        if (imgAfter) {
+            imgAfter.onload = () => {
+                if (imgWidth) imgWidth.textContent = imgAfter.naturalWidth + ' px';
+                if (imgHeight) imgHeight.textContent = imgAfter.naturalHeight + ' px';
+            };
+        }
+
+        // Hide error state if it was showing
+        if (errorContainer) {
+            errorContainer.classList.add('hidden');
+            errorContainer.classList.remove('flex');
+        }
+        if (sliderContainer) {
+            sliderContainer.classList.remove('hidden');
+        }
+
+        // Update URL to match
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + currentPhotoId;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+    }
+
+    // populateFilmstrip removed in favor of session-based loading
+
+    function renderThumbnail(photo, isActive) {
+        const borderClass = isActive ? 'border-amber_flame opacity-100' : 'border-white/20 opacity-60 hover:opacity-100';
+        const checkMark = isActive ? `
+            <div class="absolute top-2 left-2 bg-amber_flame rounded-full p-1 shadow-sm skeleton">
+                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+        ` : '';
+        const imgUrl = photo.enhanced_url || photo.cloudinary_url;
+
+        return `
+            <div class="thumbnail-item relative w-full aspect-video bg-black rounded-lg overflow-hidden border-2 ${borderClass} shadow-lg cursor-pointer transition-all duration-200" data-id="${photo.id}">
+                <img src="${imgUrl}" class="w-full h-full object-cover" alt="Thumbnail">
+                ${checkMark}
+            </div>
+        `;
+    }
+
+    function bindThumbnailClicks() {
+        const thumbs = document.querySelectorAll('.thumbnail-item');
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', async (e) => {
+                const newId = e.currentTarget.getAttribute('data-id');
+                if (newId == currentPhotoId) return; // Already active
+
+                // Show loader while fetching new photo
+                if (loaderOverlay) {
+                    loaderOverlay.classList.remove('hidden');
+                    loaderOverlay.classList.add('flex');
+                    const loaderTitle = loaderOverlay.querySelector('h2');
+                    if (loaderTitle) loaderTitle.textContent = "Loading photo...";
+                }
+
+                try {
+                    const res = await fetch(`/api/photos/${newId}`);
+                    if (!res.ok) throw new Error("Load failed");
+                    const newPhoto = await res.json();
+
+                    updateEditorView(newPhoto);
+
+                    // Repaint filmstrip visually without re-fetching
+                    document.querySelectorAll('.thumbnail-item').forEach(t => {
+                        const id = t.getAttribute('data-id');
+                        t.outerHTML = renderThumbnail(newPhoto.id == id ? newPhoto : { id, enhanced_url: t.querySelector('img').src, cloudinary_url: t.querySelector('img').src }, id == newId);
+                    });
+                    bindThumbnailClicks(); // Rebind since outerHTML replaces elements
+
+                    // Restart AI polling for the new active photo
+                    pollRecommendationStatus();
+
+                } catch (err) {
+                    console.error("Switch error:", err);
+                    alert("Failed to load that photo.");
+                } finally {
+                    if (loaderOverlay) {
+                        loaderOverlay.classList.add('hidden');
+                        loaderOverlay.classList.remove('flex');
+                        const loaderTitle = loaderOverlay.querySelector('h2');
+                        if (loaderTitle) loaderTitle.textContent = "Enhancing your photo...";
+                    }
+                }
+            });
+        });
     }
 
     // 6. Fetch User Tier Data
@@ -386,9 +479,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'Upload failed');
             }
 
-            // Success! Redirect to the same page with the new photo ID
-            // This naturally refreshes the interface and increments the counter
-            window.location.href = '/enhance.html?id=' + data.photoId;
+            // Fetch the newly created photo details
+            const newPhotoRes = await fetch(`/api/photos/${data.photoId}`);
+            const newPhoto = await newPhotoRes.json();
+
+            // Switch main view
+            updateEditorView(newPhoto);
+
+            // Re-fetch filmstrip to include new photo at top, or just prepend HTML
+            const newThumbHtml = renderThumbnail(newPhoto, true);
+            if (thumbnailFilmstrip) {
+                // Change old active thumbnail to inactive
+                const oldActive = thumbnailFilmstrip.querySelector('.border-amber_flame');
+                if (oldActive) {
+                    const oldId = oldActive.getAttribute('data-id');
+                    oldActive.outerHTML = renderThumbnail({ id: oldId, enhanced_url: oldActive.querySelector('img').src }, false);
+                }
+
+                // Prepend new active upload
+                thumbnailFilmstrip.insertAdjacentHTML('afterbegin', newThumbHtml);
+                bindThumbnailClicks();
+            }
+
+            // Refresh tier count now that upload succeeded
+            fetchUserData();
+
+            // Restart AI polling for the new upload
+            pollRecommendationStatus();
+
+            if (loaderOverlay) {
+                loaderOverlay.classList.add('hidden');
+                loaderOverlay.classList.remove('flex');
+            }
 
         } catch (error) {
             console.error("Upload Error:", error);
@@ -396,8 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loaderOverlay) {
                 loaderOverlay.classList.add('hidden');
                 loaderOverlay.classList.remove('flex');
-                const loaderTitle = loaderOverlay.querySelector('h2');
-                if (loaderTitle) loaderTitle.textContent = "Enhancing your photo...";
             }
         }
 

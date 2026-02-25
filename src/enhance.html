@@ -288,40 +288,34 @@
         <aside class="w-full md:w-[280px] bg-[#121212] border-l border-white/5 flex flex-col shrink-0 relative">
             <div class="p-6 flex flex-col gap-5 flex-1">
 
-                <div
-                    class="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-white/20 shadow-lg group">
-                    <img id="thumb-img" src="../images/placeholder.jpg"
-                        class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        alt="Thumbnail">
-                    <div
-                        class="absolute top-2 left-2 bg-white/20 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-sm">
-                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
-                            </path>
-                        </svg>
+                <div class="p-6 flex flex-col gap-5 flex-1">
+
+                    <!-- Scrollable Filmstrip Container -->
+                    <div id="thumbnail-filmstrip"
+                        class="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-320px)] pr-1 custom-scrollbar">
+                        <!-- Thumbnails will be injected here by enhance.js -->
                     </div>
+
+                    <div class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300">
+                        <span id="tier-limit-text">1/<span id="tier-max">15</span></span>
+                        <div class="flex-1 h-1 bg-gray-800 rounded-full mx-3 overflow-hidden">
+                            <div id="tier-progress-bar" class="h-full bg-white w-[6%]"></div>
+                        </div>
+                    </div>
+
+                    <button id="add-photos-btn"
+                        class="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-full font-bold text-sm transition shadow-sm mt-2">
+                        Add photos
+                    </button>
                 </div>
 
-                <div class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300">
-                    <span id="tier-limit-text">1/<span id="tier-max">15</span></span>
-                    <div class="flex-1 h-1 bg-gray-800 rounded-full mx-3 overflow-hidden">
-                        <div id="tier-progress-bar" class="h-full bg-white w-[6%]"></div>
-                    </div>
+                <!-- Bottom Action -->
+                <div class="p-6 border-t border-white/5 bg-[#0a0a0a]">
+                    <button id="new-upload-btn"
+                        class="w-full bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-gray-300 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
+                        New upload
+                    </button>
                 </div>
-
-                <button id="add-photos-btn"
-                    class="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-full font-bold text-sm transition shadow-sm mt-2">
-                    Add photos
-                </button>
-            </div>
-
-            <!-- Bottom Action -->
-            <div class="p-6 border-t border-white/5 bg-[#0a0a0a]">
-                <button id="new-upload-btn"
-                    class="w-full bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-gray-300 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
-                    New upload
-                </button>
-            </div>
         </aside>
     </main>
 
