@@ -148,23 +148,36 @@ router.post('/upload', uploadSingle, async (req, res) => {
 
                 // 4. Intelligent Auto-Categorization (LLaMA-3)
                 let subject = 'General';
-                try {
-                    const llamaOutput = await replicate.run(
-                        "meta/meta-llama-3-8b-instruct",
-                        {
-                            input: {
-                                prompt: `Analyze the following photo description and categorize it into a single short, natural subject category (like 'Wildlife', 'Portrait', 'Landscape', 'Architecture', 'Vintage', 'Pets', 'Cityscape', etc). Only output the category name, nothing else.\n\nDescription: "${caption}"`,
-                                max_new_tokens: 15,
+                let llamaRetryCount = 0;
+
+                while (llamaRetryCount < 3) {
+                    try {
+                        const llamaOutput = await replicate.run(
+                            "meta/meta-llama-3-8b-instruct",
+                            {
+                                input: {
+                                    prompt: `Analyze the following photo description and categorize it into a single short, natural subject category (like 'Wildlife', 'Portrait', 'Landscape', 'Architecture', 'Vintage', 'Pets', 'Cityscape', etc). Only output the category name, nothing else.\n\nDescription: "${caption}"`,
+                                    max_new_tokens: 15,
+                                }
                             }
+                        );
+                        subject = (Array.isArray(llamaOutput) ? llamaOutput.join('') : String(llamaOutput)).trim();
+                        // Clean up any quotes or punctuation just in case
+                        subject = subject.replace(/['"]+/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+                        // Capitalize first letter
+                        subject = subject.charAt(0).toUpperCase() + subject.slice(1);
+                        break; // Success, exit retry loop
+
+                    } catch (llamaError) {
+                        if (llamaError.message.includes('429') && llamaRetryCount < 2) {
+                            console.warn(`Rate limited (429) for LLaMA-3 categorization, retrying in 4 seconds...`);
+                            await new Promise(resolve => setTimeout(resolve, 4000));
+                            llamaRetryCount++;
+                        } else {
+                            console.warn(`LLaMA-3 categorization failed for photo ${photoId}, using default subject. Error:`, llamaError.message);
+                            break; // Fail gracefully to 'General'
                         }
-                    );
-                    subject = (Array.isArray(llamaOutput) ? llamaOutput.join('') : String(llamaOutput)).trim();
-                    // Clean up any quotes or punctuation just in case
-                    subject = subject.replace(/['"]+/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
-                    // Capitalize first letter
-                    subject = subject.charAt(0).toUpperCase() + subject.slice(1);
-                } catch (llamaError) {
-                    console.warn(`LLaMA-3 categorization failed for photo ${photoId}, using default subject. Error:`, llamaError.message);
+                    }
                 }
 
                 console.log(`Generated subject for photo ${photoId}: ${subject}`);
@@ -308,9 +321,8 @@ router.post('/enhance', async (req, res) => {
                 break;
             case 'lowlight':
                 // Low-Light Enhancer
-                modelString = "timothybrooks/instruct-pix2pix:30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f";
-                inputData.prompt = "increase exposure and brightness, intelligently lift shadows, fix low light realistically";
-                inputData.image_guidance_scale = 1.5; // High guidance to prevent AI from aggressively hallucinating
+                modelString = "cjwbw/night-enhancement:4328e402cfedafa70ad7cec04412e86ab61832204deccd94108ae5222c9b1ae1";
+                // This specialized model only requires the image input, no prompts or guidance scale needed.
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid tool selected' });
