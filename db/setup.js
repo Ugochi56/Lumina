@@ -4,11 +4,11 @@ const fs = require('fs');
 const path = require('path');
 
 async function setupDatabase() {
-    console.log('🔄 Starting Database Setup...');
+    console.log('Starting Database Setup...');
 
     if (!process.env.DATABASE_URL) {
-        console.error('❌ Error: DATABASE_URL is missing in .env file.');
-        console.log('👉 Example: postgresql://postgres:password@localhost:5432/lumina');
+        console.error('Error: DATABASE_URL is missing in .env file.');
+        console.log('Example: postgresql://postgres:password@localhost:5432/lumina');
         process.exit(1);
     }
 
@@ -28,15 +28,15 @@ async function setupDatabase() {
         // Check if DB exists
         const res = await rootClient.query(`SELECT 1 FROM pg_database WHERE datname = '${dbName}'`);
         if (res.rowCount === 0) {
-            console.log(`✨ Database '${dbName}' not found. Creating...`);
+            console.log(`Database '${dbName}' not found. Creating...`);
             await rootClient.query(`CREATE DATABASE "${dbName}"`);
-            console.log(`✅ Database '${dbName}' created.`);
+            console.log(`Database '${dbName}' created.`);
         } else {
-            console.log(`ℹ️  Database '${dbName}' already exists.`);
+            console.log(`ℹDatabase '${dbName}' already exists.`);
         }
     } catch (err) {
-        console.error('❌ Error connecting to Postgres root:', err.message);
-        console.log('💡 Tip: Check your username/password in database_url.');
+        console.error('Error connecting to Postgres root:', err.message);
+        console.log('Tip: Check your username/password in database_url.');
         process.exit(1);
     } finally {
         await rootClient.end();
@@ -47,16 +47,16 @@ async function setupDatabase() {
 
     try {
         await dbClient.connect();
-        console.log('📂 Applying schema...');
+        console.log('Applying schema...');
 
         const schemaPath = path.join(__dirname, 'schema.sql');
         const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
         await dbClient.query(schemaSql);
-        console.log('✅ Tables created/verified successfully.');
-        console.log('🎉 Setup complete! You can now run "node server.js"');
+        console.log('Tables created/verified successfully.');
+        console.log('Setup complete! You can now run "node server.js"');
     } catch (err) {
-        console.error('❌ Error applying schema:', err.message);
+        console.error('Error applying schema:', err.message);
     } finally {
         await dbClient.end();
     }
