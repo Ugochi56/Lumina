@@ -22,14 +22,16 @@ async function migrateAdmin() {
         console.log('is_admin column successfully added.');
 
         // Set specific user as admin
+        const adminEmail = process.env.ADMIN_EMAIL || 'uofuzor72@gmail.com';
+
         const updateRes = await dbClient.query(`
             UPDATE users SET is_admin = true WHERE email = $1 RETURNING id;
-        `, ['uofuzor72@gmail.com']);
+        `, [adminEmail]);
 
         if (updateRes.rows.length > 0) {
-            console.log(`Successfully elevated uofuzor72@gmail.com to Admin.`);
+            console.log(`Successfully elevated ${adminEmail} to Admin.`);
         } else {
-            console.log(`Note: uofuzor72@gmail.com not found in the database yet. They will not be admin until the query is run again after they sign up.`);
+            console.log(`Note: ${adminEmail} not found in the database yet. They will not be admin until the query is run again after they sign up.`);
         }
 
     } catch (err) {
