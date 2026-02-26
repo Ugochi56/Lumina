@@ -36,6 +36,7 @@ app.use(passport.session());
 // --- ROUTES ---
 app.use('/auth', require('./routes/auth'));
 app.use('/api', require('./routes/api'));
+app.use('/admin', require('./routes/admin'));
 
 // Explicit Route for enhance page to ensure it exists alongside static serving
 app.get('/enhance.html', (req, res) => {
