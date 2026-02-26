@@ -419,16 +419,23 @@ router.post('/enhance', async (req, res) => {
                         ]
                     },
                     async (error, result) => {
-                        if (error) {
-                            console.error("Cloudinary Watermark Stream Error:", error);
-                            // Fallback to saving/returning non-watermarked image rather than crashing
-                            await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
-                            return res.json({ output: finalImageUrl });
+                        try {
+                            if (error) {
+                                console.error("Cloudinary Watermark Stream Error:", error);
+                                // Fallback to saving/returning non-watermarked image rather than crashing
+                                await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
+                                return res.json({ output: finalImageUrl });
+                            }
+                            // Save the watermarked image URL to database
+                            await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [result.secure_url, photoId]);
+                            // Return transformed URL
+                            res.json({ output: result.secure_url });
+                        } catch (cbErr) {
+                            console.error("DB error in watermark callback:", cbErr);
+                            if (!res.headersSent) {
+                                res.status(500).json({ error: "Failed to save final watermarked image." });
+                            }
                         }
-                        // Save the watermarked image URL to database
-                        await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [result.secure_url, photoId]);
-                        // Return transformed URL
-                        res.json({ output: result.secure_url });
                     }
                 );
 
@@ -463,7 +470,11 @@ router.post('/enhance', async (req, res) => {
 });
 
 // 2. Interactive Subscription Endpoint
-router.post('/subscribe', isAuthenticated, async (req, res) => {
+router.post('/subscribe', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
         const { tier } = req.body;
         const validTiers = ['free', 'weekly', 'monthly', 'yearly'];
