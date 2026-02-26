@@ -192,6 +192,38 @@ router.post('/upload', uploadSingle, async (req, res) => {
                 );
                 console.log(`Phase 2 completed successfully for photo ${photoId}`);
 
+                // 6. Sync Smart Album to Database
+                try {
+                    // Check if album exists for this user and subject
+                    const albumCheck = await db.query('SELECT id FROM albums WHERE user_id = $1 AND name = $2', [userId, subject]);
+                    let albumId;
+
+                    if (albumCheck.rows.length > 0) {
+                        albumId = albumCheck.rows[0].id;
+                    } else {
+                        // Create new album
+                        const albumInsert = await db.query(
+                            'INSERT INTO albums (user_id, name, theme_tag) VALUES ($1, $2, $3) RETURNING id',
+                            [userId, subject, 'ai_smart']
+                        );
+                        albumId = albumInsert.rows[0].id;
+
+                        // Increment user albums_created count
+                        await db.query('UPDATE users SET albums_created = albums_created + 1 WHERE id = $1', [userId]);
+                    }
+
+                    // Link photo to album
+                    await db.query(
+                        'INSERT INTO album_photos (album_id, photo_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+                        [albumId, photoId]
+                    );
+
+                    console.log(`Photo ${photoId} successfully synced to database Album '${subject}' (ID: ${albumId})`);
+                } catch (albumErr) {
+                    console.error(`Failed to assign photo ${photoId} to database smart album:`, albumErr);
+                    // Non-fatal error, photo was still processed successfully
+                }
+
             } catch (bgError) {
                 console.error(`Background processing failed for photo ${photoId}:`, bgError);
                 await db.query(`UPDATE photos SET status = 'failed' WHERE id = $1`, [photoId]);
@@ -430,29 +462,27 @@ router.post('/enhance', async (req, res) => {
     }
 });
 
-// 2. Mock Checkout Endpoint
-router.get('/checkout', (req, res) => {
-    const tier = req.query.tier;
+// 2. Interactive Subscription Endpoint
+router.post('/subscribe', isAuthenticated, async (req, res) => {
+    try {
+        const { tier } = req.body;
+        const validTiers = ['free', 'weekly', 'monthly', 'yearly'];
 
-    // In a real application, the backend would create a Stripe Checkout Session here
-    // and return the Session ID or URL to redirect to.
-    // For now, we simulate the redirect with a simple HTML response.
-    res.send(`
-        <html>
-            <head>
-                <title>Redirecting to Secure Checkout...</title>
-                <script src="https://cdn.tailwindcss.com"></script>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            </head>
-            <body class="bg-gray-900 text-white flex flex-col items-center justify-center h-screen font-sans">
-                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange mb-6"></div>
-                <h1 class="text-2xl md:text-4xl font-bold mb-4">Secure Checkout</h1>
-                <p class="text-gray-400 text-lg text-center px-4">Redirecting you to the payment gateway for the <span class="text-white font-bold capitalize">${tier || 'selected'}</span> plan...</p>
-                <p class="text-sm text-gray-500 mt-8">(This is a simulated endpoint for testing purposes)</p>
-                <button onclick="window.history.back()" class="mt-8 text-orange hover:text-white underline">Go Back</button>
-            </body>
-        </html>
-    `);
+        if (!validTiers.includes(tier)) {
+            return res.status(400).json({ error: "Invalid subscription tier." });
+        }
+
+        // Update database
+        await db.query('UPDATE users SET subscription_tier = $1 WHERE id = $2', [tier, req.user.id]);
+
+        // Update passport session
+        req.user.subscription_tier = tier;
+
+        res.json({ success: true, newTier: tier });
+    } catch (err) {
+        console.error("Subscription Error:", err);
+        res.status(500).json({ error: "Failed to process subscription." });
+    }
 });
 
 module.exports = router;

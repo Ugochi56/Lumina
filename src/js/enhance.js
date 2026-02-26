@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgHeight = document.getElementById('img-height');
 
     // Limits
+    const tierCurrent = document.getElementById('tier-current') || document.querySelector('#tier-limit-text span');
     const tierMax = document.getElementById('tier-max');
     const tierProgressBar = document.getElementById('tier-progress-bar');
     const errorContainer = document.getElementById('error-state-container');
@@ -158,9 +159,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fetch User details for limits
             fetchUserData();
 
-            // Populate the filmstrip with ONLY the initial session photo
+            // Populate the filmstrip with Session storage logic
+            let sessionPhotos = JSON.parse(sessionStorage.getItem('lumina_session_photos') || '[]');
+
+            // Check if active photo is already in session
+            const existingIndex = sessionPhotos.findIndex(p => p.id == activePhoto.id);
+            if (existingIndex === -1) {
+                // Prepend so latest clicked is on top
+                sessionPhotos.unshift(activePhoto);
+                sessionStorage.setItem('lumina_session_photos', JSON.stringify(sessionPhotos));
+            } else {
+                // Update photo data just in case URL changed
+                sessionPhotos[existingIndex] = activePhoto;
+                sessionStorage.setItem('lumina_session_photos', JSON.stringify(sessionPhotos));
+            }
+
             if (thumbnailFilmstrip) {
-                thumbnailFilmstrip.innerHTML = renderThumbnail(activePhoto, true);
+                thumbnailFilmstrip.innerHTML = sessionPhotos.map(p => renderThumbnail(p, p.id == activePhoto.id)).join('');
                 bindThumbnailClicks();
             }
 
@@ -300,6 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (tierCurrent) tierCurrent.textContent = user.photos_uploaded;
                 if (tierMax) tierMax.textContent = limit === Infinity ? '∞' : limit;
+
+                // Update Header Subscription Button
+                const subscribeBtn = document.getElementById('open-subscription-desktop');
+                if (subscribeBtn && user.subscription_tier) {
+                    const tierName = user.subscription_tier === 'free' ? 'Free' : user.subscription_tier.charAt(0).toUpperCase() + user.subscription_tier.slice(1);
+                    subscribeBtn.innerHTML = `<span class="text-pink-500">💎</span> ${tierName} Plan`;
+                }
 
                 if (tierProgressBar && limit !== Infinity) {
                     const percent = Math.min((user.photos_uploaded / limit) * 100, 100);
@@ -487,18 +509,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Switch main view
             updateEditorView(newPhoto);
 
-            // Re-fetch filmstrip to include new photo at top, or just prepend HTML
-            const newThumbHtml = renderThumbnail(newPhoto, true);
-            if (thumbnailFilmstrip) {
-                // Change old active thumbnail to inactive
-                const oldActive = thumbnailFilmstrip.querySelector('.border-amber_flame');
-                if (oldActive) {
-                    const oldId = oldActive.getAttribute('data-id');
-                    oldActive.outerHTML = renderThumbnail({ id: oldId, enhanced_url: oldActive.querySelector('img').src }, false);
-                }
+            // Session Storage Logic for seamless filmstrip
+            let currentSession = JSON.parse(sessionStorage.getItem('lumina_session_photos') || '[]');
+            currentSession.unshift(newPhoto);
+            sessionStorage.setItem('lumina_session_photos', JSON.stringify(currentSession));
 
-                // Prepend new active upload
-                thumbnailFilmstrip.insertAdjacentHTML('afterbegin', newThumbHtml);
+            // Re-render filmstrip with all session history
+            if (thumbnailFilmstrip) {
+                thumbnailFilmstrip.innerHTML = currentSession.map(p => renderThumbnail(p, p.id == newPhoto.id)).join('');
                 bindThumbnailClicks();
             }
 
@@ -557,6 +575,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 11. Subscription Update Listener
+    window.addEventListener('subscriptionUpdated', () => {
+        console.log("Subscription updated! Refreshing user tier UI...");
+        fetchUserData(); // Instantly refresh the progress bar and header badge
+    });
 
     // Init Page
     loadPhotoData();
