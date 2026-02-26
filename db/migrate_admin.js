@@ -22,7 +22,7 @@ async function migrateAdmin() {
         console.log('is_admin column successfully added.');
 
         // Set specific user as admin
-        const adminEmail = process.env.ADMIN_EMAIL || 'uofuzor72@gmail.com';
+        const adminEmail = process.env.ADMIN_EMAIL;
 
         const updateRes = await dbClient.query(`
             UPDATE users SET is_admin = true WHERE email = $1 RETURNING id;
