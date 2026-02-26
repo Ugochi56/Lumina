@@ -49,6 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         accountTier.textContent = data.user.subscription_tier;
                     }
                 }
+            })
+            .catch(err => {
+                console.error("Failed to fetch account status:", err);
             });
     }
 

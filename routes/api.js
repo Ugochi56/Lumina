@@ -44,7 +44,10 @@ const uploadToCloudinary = (buffer) => {
         const uploadStream = cloudinary.uploader.upload_stream(
             { folder: 'lumina_uploads' },
             (error, result) => {
-                if (error) return reject(error);
+                if (error) {
+                    console.error("Cloudinary upload failed:", error);
+                    return reject(new Error("Image upload failed at cloud provider."));
+                }
                 resolve(result);
             }
         );
@@ -367,6 +370,12 @@ router.post('/enhance', async (req, res) => {
         if (tier === 'free' || tier === 'weekly') {
             // Apply a Cloudinary Watermark via transformation
             try {
+                // Must handle fetch errors if Replicate's output URL is instantly 404
+                const response = await fetch(finalImageUrl);
+                if (!response.ok) throw new Error(`Fetch failed with status: ${response.status}`);
+                const arrayBuffer = await response.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+
                 // We must upload the Replicate output to Cloudinary to apply the transformation
                 const uploadStream = cloudinary.uploader.upload_stream(
                     {
@@ -391,17 +400,23 @@ router.post('/enhance', async (req, res) => {
                     }
                 );
 
-                // Fetch image from Replicate and pipe to Cloudinary
-                const response = await fetch(finalImageUrl);
-                const arrayBuffer = await response.arrayBuffer();
-                const buffer = Buffer.from(arrayBuffer);
+                // Handle stream write errors directly
+                uploadStream.on('error', (streamErr) => {
+                    console.error("Upload stream error:", streamErr);
+                });
+
                 uploadStream.end(buffer);
                 return; // End execution here as response is sent inside callback
             } catch (wmError) {
                 console.error("Watermarking failed:", wmError);
                 // Fallback to non-watermarked if it fails for some reason
-                await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
-                return res.json({ output: finalImageUrl });
+                try {
+                    await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
+                    return res.json({ output: finalImageUrl });
+                } catch (dbErr) {
+                    console.error("DB Fallback error:", dbErr);
+                    return res.status(500).json({ error: "Failed to save final image." });
+                }
             }
         }
 

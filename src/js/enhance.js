@@ -333,9 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     aiStatusIndicator.classList.remove('flex');
                 }
 
-                // Show Handle
-                if (sliderHandle) sliderHandle.classList.remove('hidden');
-
             } else if (statusData.status === 'failed') {
                 if (aiStatusIndicator) {
                     aiStatusIndicator.innerHTML = `<span class="text-red-500 font-bold p-2 text-center text-xs">AI analysis failed. Manually select tool.</span>`;
@@ -414,8 +411,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Enhancement Error:", error);
             // Hide slider, show error state
-            if (sliderBox) {
-                sliderBox.classList.add('hidden');
+            if (sliderContainer) {
+                sliderContainer.classList.add('hidden');
+            }
+            const errorMsgEl = document.getElementById('error-message');
+            if (errorMsgEl) {
+                errorMsgEl.textContent = error.message;
             }
             if (errorContainer) {
                 errorContainer.classList.remove('hidden');
