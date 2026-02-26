@@ -1,6 +1,6 @@
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255),
     provider VARCHAR(50) NOT NULL, -- 'google', 'facebook', 'apple'
@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Photos Table
 CREATE TABLE IF NOT EXISTS photos (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     cloudinary_url VARCHAR(255) NOT NULL,
     enhanced_url VARCHAR(255),
     status VARCHAR(50) DEFAULT 'processing', -- 'processing', 'ready', 'failed'
@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS photos (
 
 -- Albums Table
 CREATE TABLE IF NOT EXISTS albums (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     theme_tag VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS albums (
 
 -- Album_Photos Table (Many-to-Many)
 CREATE TABLE IF NOT EXISTS album_photos (
-    album_id INTEGER REFERENCES albums(id) ON DELETE CASCADE,
-    photo_id INTEGER REFERENCES photos(id) ON DELETE CASCADE,
+    album_id UUID REFERENCES albums(id) ON DELETE CASCADE,
+    photo_id UUID REFERENCES photos(id) ON DELETE CASCADE,
     PRIMARY KEY (album_id, photo_id)
 );
 

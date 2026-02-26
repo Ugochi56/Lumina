@@ -36,3 +36,4 @@ fix_seq.js
 models.json
 check_db.js
 temp_enhance.html
+db/wipe.js
