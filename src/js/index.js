@@ -67,12 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- C. Demo Switcher Logic ---
     const demos = {
         portrait: {
-            before: "../images/before.jpg",
-            after: "../images/after.jpg"
+            before: "../images/after.jpg",
+            after: "../images/lumina3.jpg"
         },
         landscape: {
-            before: "../images/blur.jpg",
-            after: "../images/download.jpg"
+            before: "../images/download.jpg",
+            after: "../images/lumina4.jpg"
         },
         old: {
             before: "../images/noise.jpg",
