@@ -32,7 +32,7 @@ async function setupDatabase() {
             await rootClient.query(`CREATE DATABASE "${dbName}"`);
             console.log(`Database '${dbName}' created.`);
         } else {
-            console.log(`ℹDatabase '${dbName}' already exists.`);
+            console.log(`Database '${dbName}' already exists.`);
         }
     } catch (err) {
         console.error('Error connecting to Postgres root:', err.message);
