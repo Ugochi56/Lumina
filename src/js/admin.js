@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const kpiEnhanced = document.getElementById('kpi-enhanced');
     const kpiRate = document.getElementById('kpi-rate');
 
+    // Evaluation KPIs
+    const kpiLatency = document.getElementById('kpi-latency');
+    const kpiBrisque = document.getElementById('kpi-brisque');
+    const kpiSatisfaction = document.getElementById('kpi-satisfaction');
+
     const tierBreakdownContainer = document.getElementById('tier-breakdown-container');
     const toolBreakdownContainer = document.getElementById('tool-breakdown-container');
     const recentPhotosGrid = document.getElementById('recent-photos-grid');
@@ -38,6 +43,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             kpiRate.textContent = `0%`;
         }
+
+        // Evaluation Framework Populate
+        if (kpiLatency) kpiLatency.textContent = stats.avgProcessingTime ? `${stats.avgProcessingTime.toLocaleString()} ms` : 'N/A';
+        if (kpiBrisque) kpiBrisque.textContent = stats.avgBrisqueScore ? stats.avgBrisqueScore : 'N/A';
+        if (kpiSatisfaction) kpiSatisfaction.textContent = stats.satisfactionRate ? `${stats.satisfactionRate}%` : '0%';
 
         // 2. Populate Tier Breakdown
         const tiers = ['free', 'weekly', 'monthly', 'yearly'];

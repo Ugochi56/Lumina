@@ -426,6 +426,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
                     if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
+
+                    // Show Rating Widget
+                    const ratingWidget = document.getElementById('rating-widget');
+                    const ratingThanks = document.getElementById('rating-thanks');
+                    const ratingButtons = document.getElementById('rating-buttons');
+
+                    if (ratingWidget) {
+                        // Reset state in case they are enhancing multiple times
+                        ratingThanks.classList.add('hidden');
+                        ratingButtons.classList.remove('hidden');
+                        ratingButtons.classList.add('flex');
+
+                        ratingWidget.classList.remove('hidden');
+                        ratingWidget.classList.add('flex');
+                        setTimeout(() => {
+                            ratingWidget.classList.remove('translate-y-4', 'opacity-0');
+                        }, 50);
+                    }
                 };
                 newImg.src = enhanceData.output;
             }
@@ -580,6 +598,46 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('subscriptionUpdated', () => {
         console.log("Subscription updated! Refreshing user tier UI...");
         fetchUserData(); // Instantly refresh the progress bar and header badge
+    });
+
+    // 12. Rating Widget Listener
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.rate-btn');
+        if (btn) {
+            const rating = parseInt(btn.dataset.rate, 10);
+            const ratingWidget = document.getElementById('rating-widget');
+            const ratingThanks = document.getElementById('rating-thanks');
+            const ratingButtons = document.getElementById('rating-buttons');
+
+            try {
+                const res = await fetch(`/api/photos/${currentPhotoId}/rate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rating })
+                });
+
+                if (res.ok) {
+                    if (ratingButtons) {
+                        ratingButtons.classList.add('hidden');
+                        ratingButtons.classList.remove('flex');
+                    }
+                    if (ratingThanks) ratingThanks.classList.remove('hidden');
+
+                    // Hide entire widget after 3 seconds
+                    setTimeout(() => {
+                        if (ratingWidget) {
+                            ratingWidget.classList.add('translate-y-4', 'opacity-0');
+                            setTimeout(() => {
+                                ratingWidget.classList.add('hidden');
+                                ratingWidget.classList.remove('flex');
+                            }, 500);
+                        }
+                    }, 3000);
+                }
+            } catch (err) {
+                console.error("Failed to submit rating:", err);
+            }
+        }
     });
 
     // Init Page

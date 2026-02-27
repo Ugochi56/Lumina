@@ -39,3 +39,10 @@ temp_enhance.html
 db/wipe.js
 revert_logo.js
 revert_footer.js
+update_logo.js
+
+# Evaluation Framework Outputs
+reports/
+temp_eval/
+__pycache__/
+*.whl

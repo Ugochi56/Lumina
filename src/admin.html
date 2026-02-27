@@ -83,6 +83,26 @@
             </div>
         </div>
 
+        <!-- Evaluation Metrics KPI Cards -->
+        <h2 class="font-display text-2xl font-bold mb-4 mt-8">AI Quality & Performance</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Latency -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                <div class="text-gray-400 text-sm font-medium mb-1">Avg. Processing Time</div>
+                <div class="text-4xl font-display font-bold text-[#ffba08]" id="kpi-latency">- ms</div>
+            </div>
+            <!-- BRISQUE -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                <div class="text-gray-400 text-sm font-medium mb-1">Avg. BRISQUE Score</div>
+                <div class="text-4xl font-display font-bold text-blue-400" id="kpi-brisque">-</div>
+            </div>
+            <!-- Satisfaction -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                <div class="text-gray-400 text-sm font-medium mb-1">User Satisfaction</div>
+                <div class="text-4xl font-display font-bold text-green-400" id="kpi-satisfaction">-%</div>
+            </div>
+        </div>
+
         <!-- Charts / Breakdowns -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <!-- Subscription Breakdown -->

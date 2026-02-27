@@ -1,0 +1,10 @@
+psycopg2-binary
+requests
+opencv-python
+scikit-image
+numpy
+pandas
+matplotlib
+reportlab
+python-dotenv
+imutils

@@ -372,6 +372,8 @@ router.post('/enhance', async (req, res) => {
         let retryCount = 0;
         let output;
 
+        const startTime = performance.now();
+
         while (retryCount < 2) {
             try {
                 output = await replicate.run(modelString, { input: inputData });
@@ -388,6 +390,10 @@ router.post('/enhance', async (req, res) => {
             }
         }
 
+        const endTime = performance.now();
+        const processingTimeMs = Math.round(endTime - startTime);
+        console.log(`Model execution completed in ${processingTimeMs}ms`);
+
         // Extract URL string from Replicate V1.x ReadableStream or older string/array outputs
         if (Array.isArray(output)) {
             const lastItem = output[output.length - 1];
@@ -398,70 +404,63 @@ router.post('/enhance', async (req, res) => {
             finalImageUrl = output; // Fallback string
         }
 
-        // --- WATERMARKING LOGIC (Free/Weekly) ---
-        if (tier === 'free' || tier === 'weekly') {
-            // Apply a Cloudinary Watermark via transformation
-            try {
-                // Must handle fetch errors if Replicate's output URL is instantly 404
-                const response = await fetch(finalImageUrl);
-                if (!response.ok) throw new Error(`Fetch failed with status: ${response.status}`);
-                const arrayBuffer = await response.arrayBuffer();
-                const buffer = Buffer.from(arrayBuffer);
+        // --- CLOUDINARY PERMANENT HOSTING & WATERMARKING ---
+        // We MUST upload to Cloudinary because Replicate URLs expire after a short time!
+        try {
+            const response = await fetch(finalImageUrl);
+            if (!response.ok) throw new Error(`Fetch failed with status: ${response.status}`);
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
 
-                // We must upload the Replicate output to Cloudinary to apply the transformation
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: 'lumina_results',
-                        transformation: [
-                            { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
-                            { width: 300, crop: "scale" },
-                            { flags: "layer_apply", gravity: "bottom_right", x: 20, y: 20, opacity: 60 }
-                        ]
-                    },
-                    async (error, result) => {
-                        try {
-                            if (error) {
-                                console.error("Cloudinary Watermark Stream Error:", error);
-                                // Fallback to saving/returning non-watermarked image rather than crashing
-                                await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
-                                return res.json({ output: finalImageUrl });
-                            }
-                            // Save the watermarked image URL to database
-                            await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [result.secure_url, photoId]);
-                            // Return transformed URL
-                            res.json({ output: result.secure_url });
-                        } catch (cbErr) {
-                            console.error("DB error in watermark callback:", cbErr);
-                            if (!res.headersSent) {
-                                res.status(500).json({ error: "Failed to save final watermarked image." });
-                            }
+            // Determine if watermark is needed
+            const uploadOptions = { folder: 'lumina_results' };
+            if (tier === 'free' || tier === 'weekly') {
+                uploadOptions.transformation = [
+                    { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
+                    { width: 300, crop: "scale" },
+                    { flags: "layer_apply", gravity: "bottom_right", x: 20, y: 20, opacity: 60 }
+                ];
+            }
+
+            const uploadStream = cloudinary.uploader.upload_stream(
+                uploadOptions,
+                async (error, result) => {
+                    try {
+                        if (error) {
+                            console.error("Cloudinary Upload Stream Error:", error);
+                            await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [finalImageUrl, processingTimeMs, photoId]);
+                            return res.json({ output: finalImageUrl });
+                        }
+
+                        // Save the permanent Cloudinary URL to database
+                        await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [result.secure_url, processingTimeMs, photoId]);
+                        res.json({ output: result.secure_url });
+                    } catch (cbErr) {
+                        console.error("DB error in upload callback:", cbErr);
+                        if (!res.headersSent) {
+                            res.status(500).json({ error: "Failed to save final image." });
                         }
                     }
-                );
-
-                // Handle stream write errors directly
-                uploadStream.on('error', (streamErr) => {
-                    console.error("Upload stream error:", streamErr);
-                });
-
-                uploadStream.end(buffer);
-                return; // End execution here as response is sent inside callback
-            } catch (wmError) {
-                console.error("Watermarking failed:", wmError);
-                // Fallback to non-watermarked if it fails for some reason
-                try {
-                    await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
-                    return res.json({ output: finalImageUrl });
-                } catch (dbErr) {
-                    console.error("DB Fallback error:", dbErr);
-                    return res.status(500).json({ error: "Failed to save final image." });
                 }
+            );
+
+            uploadStream.on('error', (streamErr) => {
+                console.error("Upload stream error:", streamErr);
+            });
+
+            uploadStream.end(buffer);
+            return;
+        } catch (uploadError) {
+            console.error("Cloudinary Hosting failed:", uploadError);
+            // Fallback to Replicate URL if it fails
+            try {
+                await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [finalImageUrl, processingTimeMs, photoId]);
+                return res.json({ output: finalImageUrl });
+            } catch (dbErr) {
+                console.error("DB Fallback error:", dbErr);
+                return res.status(500).json({ error: "Failed to save final image." });
             }
         }
-
-        // If Monthly/Yearly, save and return directly
-        await db.query('UPDATE photos SET enhanced_url = $1 WHERE id = $2', [finalImageUrl, photoId]);
-        res.json({ output: finalImageUrl });
 
     } catch (error) {
         console.error('Enhancement Error:', error);
@@ -469,7 +468,35 @@ router.post('/enhance', async (req, res) => {
     }
 });
 
-// 2. Interactive Subscription Endpoint
+// 4. Rate Photo Output
+router.post('/photos/:id/rate', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const photoId = req.params.id;
+        const userId = req.user.id;
+        const { rating } = req.body; // should be 1 or -1
+
+        if (rating !== 1 && rating !== -1) {
+            return res.status(400).json({ error: 'Invalid rating. Must be 1 or -1.' });
+        }
+
+        const result = await db.query(
+            'UPDATE photos SET user_rating = $1 WHERE id = $2 AND user_id = $3 RETURNING id',
+            [rating, photoId, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Photo not found or unauthorized' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Rating Error:', error);
+        res.status(500).json({ error: 'Failed to submit rating.' });
+    }
+});
+
+// 5. Interactive Subscription Endpoint
 router.post('/subscribe', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'Unauthorized' });

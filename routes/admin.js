@@ -71,12 +71,45 @@ router.get('/stats', async (req, res) => {
             LIMIT 6
         `);
 
+        // --- EVALUATION FRAMEWORK METRICS ---
+
+        // 1. Average Processing Time
+        const latencyRes = await db.query(`
+            SELECT AVG(processing_time_ms) as avg_time 
+            FROM photos 
+            WHERE processing_time_ms IS NOT NULL AND processing_time_ms > 0
+        `);
+        const avgProcessingTime = latencyRes.rows[0].avg_time ? Math.round(latencyRes.rows[0].avg_time) : 0;
+
+        // 2. Average BRISQUE Score
+        const brisqueRes = await db.query(`
+            SELECT AVG(brisque_score) as avg_score 
+            FROM photos 
+            WHERE brisque_score IS NOT NULL
+        `);
+        const avgBrisqueScore = brisqueRes.rows[0].avg_score ? parseFloat(brisqueRes.rows[0].avg_score).toFixed(2) : "N/A";
+
+        // 3. User Satisfaction Rate
+        const ratingRes = await db.query(`
+            SELECT 
+                SUM(CASE WHEN user_rating = 1 THEN 1 ELSE 0 END) as thumbs_up,
+                COUNT(user_rating) as total_ratings
+            FROM photos 
+            WHERE user_rating != 0
+        `);
+        const thumbsUp = parseInt(ratingRes.rows[0].thumbs_up || 0, 10);
+        const totalRatings = parseInt(ratingRes.rows[0].total_ratings || 0, 10);
+        const satisfactionRate = totalRatings > 0 ? Math.round((thumbsUp / totalRatings) * 100) : 0;
+
         res.json({
             totalUsers,
             totalPhotos,
             totalEnhanced,
             tierBreakdown,
             toolBreakdown,
+            avgProcessingTime,
+            avgBrisqueScore,
+            satisfactionRate,
             recentPhotos: recentPhotosRes.rows
         });
     } catch (err) {
