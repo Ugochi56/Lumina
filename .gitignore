@@ -37,3 +37,5 @@ models.json
 check_db.js
 temp_enhance.html
 db/wipe.js
+revert_logo.js
+revert_footer.js
