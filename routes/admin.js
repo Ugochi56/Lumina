@@ -133,4 +133,22 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// 3. Delete a User
+router.delete('/users/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        // The foreign keys have ON DELETE CASCADE, so deleting the user will cleanly delete their photos & albums.
+        const deleteRes = await db.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
+
+        if (deleteRes.rowCount === 0) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        res.json({ message: "User deleted successfully." });
+    } catch (err) {
+        console.error("Admin Delete User Error:", err);
+        res.status(500).json({ error: "Failed to delete user." });
+    }
+});
+
 module.exports = router;

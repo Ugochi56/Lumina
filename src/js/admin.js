@@ -148,8 +148,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td class="px-6 py-4 font-mono">${user.photos_uploaded}</td>
                     <td class="px-6 py-4 text-gray-400 text-sm">${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="delete-user-btn text-red-500/70 hover:text-red-500 transition cursor-pointer" data-id="${user.id}" title="Delete User">
+                            <svg class="w-5 h-5 inline pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
+
+            // Attach Delete User Event Listeners
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const userId = e.currentTarget.getAttribute('data-id');
+                    if (confirm('Are you certain you want to permanently delete this user account? All of their photos, albums, and metadata will be permanently erased.')) {
+                        try {
+                            const res = await fetch('/admin/users/' + userId, { method: 'DELETE' });
+                            const data = await res.json();
+                            if (res.ok) {
+                                window.location.reload();
+                            } else {
+                                alert(data.error || 'Failed to delete user.');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert('A network error occurred.');
+                        }
+                    }
+                });
+            });
+
         } else {
             usersTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">No users found.</td></tr>`;
         }
