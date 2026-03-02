@@ -22,21 +22,14 @@ The application utilizes a sleek, responsive, glass-morphic Tailwind CSS fronten
 
 ## Key Features
 
-* 🔐 **Secure OAuth Authentication:** Complete Google & Apple OAuth implementation via Passport.js mapped to secure PostgreSQL UUID records.
-* ✨ **The "Big Four" AI Suite:** Includes `Real-ESRGAN` (Upscaling/Facial Enhancement), `CodeFormer` (Scratch/Damage Restoration), and `Night-Enhancement` (Underexposed Shadow Fixes).
-* 🧠 **LLaMA-3 Smart Albums:** Uploaded photos are first sent through `Salesforce BLIP` for visual auto-captioning, then parsed by `Meta LLaMA-3` to intelligently group images into dynamic "Smart Albums" (e.g. 'Nature', 'Portraits').
-* 💳 **Dynamic Subscription Gateway:** An interactive pricing modal that natively communicates with the backend, allowing instant, visually satisfying tier upgrades (Free -> Weekly/Monthly) without page reloads.
-* ☁️ **Permanent Cloud Storage:** All user uploads and Replicate AI outputs are strictly proxied and permanently stored on a secure **Cloudinary** bucket to prevent ephemeral link 404 rotting. Free tier images automatically receive branded watermarks upon rendering.
-* 📊 **Command Center Dashboard:** An isolated, secure `/admin.html` admin panel featuring Data Visualizations of real-time KPIs, Subscription Tiers, Model Latency, and an interactive User Directory. 
+* 🔐 **Secure OAuth Authentication:** Google OAuth via Passport.js & PostgreSQL.
+* ✨ **AI Suite:** `Real-ESRGAN` (Upscaling), `CodeFormer` (Restoration), and `Night-Enhancement`.
+* 🧠 **Smart Albums:** Salesforce BLIP & Meta LLaMA-3 intelligently auto-tag and group images.
+* 💳 **Subscription Gateway:** Interactive pricing modal mapped to user limits.
+* ☁️ **Permanent Cloud Storage:** Images proxied securely to Cloudinary with automatic watermarking.
+* 📊 **Admin Dashboard:** Secure `/admin.html` tracking real-time KPIs and system telemetry. 
 
-## AI Architecture
 
-Lumina was designed with a complex multi-model pipeline:
-
-1. **Auto-Tagging:** The user uploads an image to Cloudinary. The secure URL is fired as a webhook to `salesforce/blip`, instantly returning a natural language caption of the photo's contents.
-2. **Algorithmic Routing:** The `routes/api.js` endpoint checks the tags to dynamically recommend the best tool. (e.g., If "dark", "night", or "shadows" are detected in the caption, it routes the image to the *Low Light Fix* model).
-3. **Enhancement Execution:** The image is asynchronously processed by Replicate's high-GPU A100 clusters. The frontend `enhance.js` polls the backend until the status is flagged entirely `ready`.
-4. **Cloudinary Pipeline Catch:** To circumvent Replicate's extremely short data-retention window, the backend instantly issues a fetch request the millisecond the model finishes, downloads the buffer, and re-uploads it permanently to Cloudinary.
 
 ## Tech Stack
 
@@ -119,13 +112,11 @@ pip install -r scripts/requirements.txt
 ```bash
 python scripts/eval_quality.py
 ```
-This script connects directly to PostgreSQL, downloads new photos not yet assessed, and calculates their identical **SSIM (Structural Similarity)** and **BRISQUE (Distortion)** Natural Scene Statistics against the unedited raw photo. 
 
 **Compile PDF Report:**
 ```bash
 python scripts/generate_report.py
 ```
-This script grabs the data from the database using Pandas and outputs a professional, colorful PDF graph (`reports/lumina_eval_report.pdf`) using Matplotlib displaying Latency vs Algorithm Distortion.
 
 ---
 
