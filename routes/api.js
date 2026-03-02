@@ -418,7 +418,7 @@ router.post('/enhance', async (req, res) => {
                 uploadOptions.transformation = [
                     { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
                     { width: 300, crop: "scale" },
-                    { flags: "layer_apply", gravity: "bottom_right", x: 20, y: 20, opacity: 60 }
+                    { flags: "layer_apply", gravity: "south_east", x: 20, y: 20, opacity: 60 }
                 ];
             }
 
