@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS photos (
     recommended_tool VARCHAR(50), -- 'upscale', 'restore', 'edit'
     tags JSONB,
     subject VARCHAR(100) DEFAULT 'General',
+    processing_time_ms INTEGER,
+    user_rating SMALLINT DEFAULT 0,
+    ssim_score NUMERIC(5,4),
+    brisque_score NUMERIC(5,4),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
