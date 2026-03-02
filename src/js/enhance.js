@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgUrl = photo.enhanced_url || photo.cloudinary_url;
 
         return `
-            <div class="thumbnail-item relative w-full aspect-video bg-black rounded-lg overflow-hidden border-2 ${borderClass} shadow-lg cursor-pointer transition-all duration-200" data-id="${photo.id}">
+            <div class="thumbnail-item relative w-full aspect-video shrink-0 bg-black rounded-lg overflow-hidden border-2 ${borderClass} shadow-lg cursor-pointer transition-all duration-200" data-id="${photo.id}">
                 <img src="${imgUrl}" class="w-full h-full object-cover" alt="Thumbnail">
                 ${checkMark}
             </div>
