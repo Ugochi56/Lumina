@@ -8,7 +8,6 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#ai-architecture">AI Architecture</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#installation--setup">Installation</a> •
   <a href="#evaluation-framework">Evaluation Framework</a>
