@@ -1,7 +1,5 @@
 <h1 align="center">
   <br>
-  <img src="https://i.ibb.co/6RmS59Q/lumina-logo.png" alt="Lumina Web" width="200">
-  <br>
   Lumina AI Photo Enhancer
   <br>
 </h1>
