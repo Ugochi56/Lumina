@@ -48,3 +48,4 @@ __pycache__/
 *.whl
 images/Sub Logo.png
 test_watermark.js
+scripts/fix_type.js
