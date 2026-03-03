@@ -12,8 +12,8 @@ import time
 # This implementation calculates the spatial Natural Scene Statistics (NSS) features 
 # to estimate distortions. Lower is better.
 def compute_brisque(image):
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Convert to grayscale and cast to float64 to prevent uint8 multiplication overflow
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).astype(np.float64)
     
     # Calculate local mean and variance (MSCN coefficients)
     mu = cv2.GaussianBlur(gray, (7, 7), 1.166)
@@ -29,6 +29,8 @@ def compute_brisque(image):
     
     # We invert it slightly so a "lower" score is still a "better" natural image proxy 
     brisque_proxy = abs(40 - distortion_score)
+    # Clamp to prevent PostgreSQL NUMERIC(7, 4) overflow (max 999.9999)
+    brisque_proxy = min(brisque_proxy, 999.9999)
     return round(float(brisque_proxy), 4)
 
 def compute_ssim(img1_path, img2_path):
