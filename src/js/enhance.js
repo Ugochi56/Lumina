@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loaderOverlay.classList.remove('hidden');
             loaderOverlay.classList.add('flex');
             const loaderTitle = loaderOverlay.querySelector('h2');
-            if (loaderTitle) loaderTitle.textContent = "Uploading your photo...";
+            if (loaderTitle) loaderTitle.textContent = "Enhancing your photo...";
         }
 
         const formData = new FormData();
