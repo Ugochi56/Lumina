@@ -3,6 +3,7 @@ const router = express.Router();
 const Replicate = require('replicate');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
+const sharp = require('sharp');
 const db = require('../db'); // Assuming standard db connection export
 
 // Configure Cloudinary
@@ -330,9 +331,50 @@ router.post('/enhance', async (req, res) => {
             return res.status(403).json({ error: `The ${tool} tool requires a Monthly or Yearly subscription.` });
         }
 
+        // --- AUTOMATIC IMAGE RESIZING (PREVENT REPLICATE GPU CRASH) ---
+        let replicateImageUrl = imageUrl;
+        try {
+            console.log(`Checking dimensions for ${replicateImageUrl}...`);
+            const imageRes = await fetch(replicateImageUrl);
+            if (!imageRes.ok) throw new Error("Failed to fetch image for resizing check.");
+            const arrayBuffer = await imageRes.arrayBuffer();
+            const imageBuffer = Buffer.from(arrayBuffer);
+
+            const metadata = await sharp(imageBuffer).metadata();
+            const totalPixels = metadata.width * metadata.height;
+
+            if (totalPixels > 2000000) {
+                console.log(`Image exceeds 2M pixels (${totalPixels}). Resizing proportionally...`);
+                // Calculate scale factor down to exactly 2M pixels
+                const scale = Math.sqrt(2000000 / totalPixels);
+                const newWidth = Math.floor(metadata.width * scale);
+
+                const resizedBuffer = await sharp(imageBuffer)
+                    .resize({ width: newWidth })
+                    .toBuffer();
+
+                // Upload resized buffer to a temporary 'lumina_resized' Cloudinary folder
+                const uploadPromise = new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'lumina_resized' },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result.secure_url);
+                        }
+                    );
+                    stream.end(resizedBuffer);
+                });
+
+                replicateImageUrl = await uploadPromise;
+                console.log(`Resized image uploaded to: ${replicateImageUrl}`);
+            }
+        } catch (resizeError) {
+            console.warn("Image resizing check failed, proceeding with original URL:", resizeError.message);
+        }
+
         // --- MODEL ROUTING ---
         let modelString = "";
-        let inputData = { image: imageUrl };
+        let inputData = { image: replicateImageUrl };
 
         switch (tool) {
             case 'upscale':
