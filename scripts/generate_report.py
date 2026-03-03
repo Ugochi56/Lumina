@@ -22,6 +22,7 @@ def generate_visual_report():
         
     try:
         conn = psycopg2.connect(DATABASE_URL)
+        cur = conn.cursor()
         
         # Pull Data into Pandas DataFrame
         query = """
@@ -29,7 +30,12 @@ def generate_visual_report():
             FROM photos 
             WHERE recommended_tool IS NOT NULL
         """
-        df = pd.read_sql_query(query, conn)
+        cur.execute(query)
+        rows = cur.fetchall()
+        cols = [desc[0] for desc in cur.description]
+        df = pd.DataFrame(rows, columns=cols)
+        
+        cur.close()
         conn.close()
         
         if df.empty:
