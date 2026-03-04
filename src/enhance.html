@@ -29,9 +29,9 @@
 </head>
 
 <body class="bg-black text-white h-screen flex flex-col overflow-hidden font-sans antialiased">
-    <!-- Navbar -->
+    <!-- Navbar (Hidden on Mobile) -->
     <header
-        class="h-16 flex flex-wrap sm:flex-nowrap items-center justify-between px-6 bg-[#0a0a0a] border-b border-white/10 shrink-0 z-50">
+        class="h-16 hidden md:flex flex-wrap sm:flex-nowrap items-center justify-between px-6 bg-[#0a0a0a] border-b border-white/10 shrink-0 z-50">
         <div class="text-xl font-bold tracking-tight cursor-pointer" onclick="window.location.href='index.html'">
             Lumina <span class="text-gray-400 font-light text-sm italic">Web</span>
         </div>
@@ -150,37 +150,57 @@
         </aside>
 
         <!-- Center: Canvas / Split Slider -->
-        <section class="order-1 md:order-2 flex-1 bg-[#050505] relative flex flex-col min-w-0">
+        <section class="order-1 md:order-2 flex-1 bg-[#050505] relative flex flex-col min-w-0 pb-4 md:pb-0">
+            <!-- Mobile Overlay Nav (Absolute position inside canvas) -->
+            <div
+                class="absolute top-4 left-4 right-4 flex justify-between items-center z-30 md:hidden pointer-events-none">
+                <div class="pointer-events-auto bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white font-bold text-sm cursor-pointer shadow-lg"
+                    onclick="window.location.href='index.html'">
+                    Lumina
+                </div>
+                <div class="flex gap-2 pointer-events-auto">
+                    <button
+                        class="bg-black/50 backdrop-blur-md w-8 h-8 rounded-full border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition shadow-lg"
+                        id="mobile-my-account-btn-overlay" onclick="window.location.href='myalbums.html'">
+                        📁
+                    </button>
+                    <button
+                        class="bg-black/50 backdrop-blur-md w-8 h-8 rounded-full border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition shadow-lg shrink-0"
+                        id="open-subscription-mobile">
+                        💎
+                    </button>
+                </div>
+            </div>
+
             <!-- Labels -->
             <div
-                class="absolute top-6 left-1/4 -translate-x-1/2 text-xs font-bold text-white z-10 pointer-events-none hidden md:block drop-shadow-md">
+                class="absolute top-16 md:top-6 left-1/4 -translate-x-1/2 text-xs font-bold text-white z-10 pointer-events-none drop-shadow-md bg-black/50 px-2 py-0.5 rounded-full md:bg-transparent md:px-0">
                 Before</div>
             <div
-                class="absolute top-6 right-1/4 translate-x-1/2 text-xs font-bold text-white z-10 pointer-events-none hidden md:block drop-shadow-md">
+                class="absolute top-16 md:top-6 right-1/4 translate-x-1/2 text-xs font-bold text-white z-10 pointer-events-none drop-shadow-md bg-black/50 px-2 py-0.5 rounded-full md:bg-transparent md:px-0">
                 After</div>
 
             <!-- Slider Container -->
-            <div class="flex-1 relative overflow-hidden flex items-center justify-center p-2 md:p-12 select-none min-h-[45vh] md:min-h-0"
+            <div class="flex-1 relative overflow-hidden flex flex-col items-center justify-center p-0 pt-10 md:p-12 select-none min-h-[60vh] md:min-h-0"
                 id="canvas-area">
-                <div class="relative w-fit h-fit max-w-full max-h-[45vh] md:max-h-[75vh] rounded-2xl overflow-hidden slider-container group shadow-2xl"
+                <div class="relative w-full md:w-fit h-full md:h-fit max-w-full max-h-[60vh] md:max-h-[75vh] md:rounded-2xl overflow-hidden slider-container group shadow-2xl flex items-center justify-center bg-black/20"
                     id="slider-box">
 
                     <!-- After Image (Base) -->
                     <img id="img-after" src="../images/placeholder.jpg"
-                        class="block max-w-full max-h-[45vh] md:max-h-[75vh] object-contain pointer-events-none rounded-2xl"
+                        class="block max-w-full max-h-full md:max-h-[75vh] object-contain pointer-events-none md:rounded-2xl mx-auto"
                         alt="After">
 
                     <!-- Before Image (Overlay) -->
-                    <div class="img-comp-overlay absolute top-0 left-0 h-full overflow-hidden" id="overlay"
-                        style="pointer-events: none; width: 50%;">
+                    <div class="img-comp-overlay absolute top-0 left-0 h-full overflow-hidden flex items-center justify-start bg-black/20"
+                        id="overlay" style="pointer-events: none; width: 50%;">
                         <img id="img-before" src="../images/placeholder.jpg"
-                            class="absolute top-0 left-0 h-full object-cover pointer-events-none rounded-2xl origin-top-left"
-                            alt="Before" style="width: 200%; max-width: none;">
+                            class="absolute h-full object-contain pointer-events-none md:rounded-2xl origin-left min-w-[200vw] md:min-w-[200%]"
+                            alt="Before" style="width: 200vw; max-width: 200vw;">
                     </div>
 
                     <!-- Slider Handle -->
-                    <div class="slider-handle hidden md:flex" id="slider-handle"
-                        style="left: 50%; pointer-events: none;">
+                    <div class="slider-handle flex" id="slider-handle" style="left: 50%; pointer-events: none;">
                         <svg class="w-5 h-5 text-cayenne_red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
@@ -308,14 +328,15 @@
             class="order-3 md:order-3 w-full md:w-[280px] bg-[#121212] border-t md:border-t-0 border-l border-white/5 flex flex-col shrink-0 relative">
             <div class="p-3 md:p-6 flex flex-col md:flex-col gap-3 md:gap-5 flex-1 min-h-0">
 
-                <div class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 md:hidden">
+                <div
+                    class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 md:hidden hidden">
                     <span>Recent Uploads</span>
                     <span>1/<span class="mobile-tier-max">15</span></span>
                 </div>
 
                 <!-- Scrollable Filmstrip Container -->
                 <div id="thumbnail-filmstrip"
-                    class="flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto pb-1 md:pb-0 md:pr-1 custom-scrollbar">
+                    class="hidden md:flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar">
                     <!-- Thumbnails will be injected here by enhance.js -->
                 </div>
 
@@ -329,13 +350,21 @@
 
                 <div class="flex gap-2">
                     <button id="add-photos-btn"
-                        class="flex-1 md:w-full bg-white/10 hover:bg-white/20 text-white py-2 md:py-2.5 rounded-full font-bold text-sm transition shadow-sm shrink-0">
+                        class="hidden md:block w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-full font-bold text-sm transition shadow-sm shrink-0">
                         Add photos
                     </button>
                     <!-- Show "New Upload" beside Add Photos on mobile to save vertical space -->
                     <button id="new-upload-btn-mobile"
-                        class="flex-1 md:hidden bg-transparent border border-white/20 text-gray-300 py-2 rounded-full font-bold text-sm transition shadow-sm shrink-0">
-                        New upload
+                        class="flex-1 md:hidden bg-transparent border border-white/20 text-gray-100 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
+                        Upload
+                    </button>
+                    <!-- Replace apply button in bottom row -->
+                    <button id="apply-btn-mobile"
+                        class="flex-1 md:hidden bg-[#ff4d6d]/80 hover:bg-[#ff4d6d] text-white py-3 rounded-md text-sm font-bold transition shadow-sm shrink-0 flex items-center justify-center gap-2">
+                        Download <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -343,7 +372,14 @@
             <!-- Bottom Action (Desktop only) -->
             <div class="p-6 border-t border-white/5 bg-[#0a0a0a] hidden md:block">
                 <button id="new-upload-btn"
-                    class="w-full bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-gray-300 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
+                    class="w-full bg-[#ff4d6d]/80 hover:bg-[#ff4d6d] text-white py-3.5 rounded-full text-sm font-bold transition-all shadow-md flex justify-center items-center gap-2">
+                    Download <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                </button>
+                <button id="desktop-upload-btn"
+                    class="w-full mt-3 bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-gray-300 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
                     New upload
                 </button>
             </div>

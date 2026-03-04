@@ -484,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPhotosBtn = document.getElementById('add-photos-btn');
     const newUploadBtn = document.getElementById('new-upload-btn');
     const newUploadBtnMobile = document.getElementById('new-upload-btn-mobile');
+    const desktopUploadBtn = document.getElementById('desktop-upload-btn');
 
     // Create a persistent hidden file input
     const hiddenFileInput = document.createElement('input');
@@ -496,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addPhotosBtn) addPhotosBtn.addEventListener('click', triggerUpload);
     if (newUploadBtn) newUploadBtn.addEventListener('click', triggerUpload);
     if (newUploadBtnMobile) newUploadBtnMobile.addEventListener('click', triggerUpload);
+    if (desktopUploadBtn) desktopUploadBtn.addEventListener('click', triggerUpload);
 
     hiddenFileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -565,9 +567,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 10. Download Logic
-    const downloadBtn = document.querySelector('button.bg-\\[\\#ff4d6d\\]');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', async () => {
+    const downloadBtns = [
+        document.querySelector('button.bg-\\[\\#ff4d6d\\]'), // Desktop Top Nav Download
+        document.getElementById('apply-btn-mobile'),         // Mobile Bottom Action Download
+        document.getElementById('new-upload-btn')            // Desktop Bottom Action Download (ID reused in HTML replacing apply)
+    ].filter(Boolean);
+
+    downloadBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
             if (!imgAfter || !imgAfter.src || imgAfter.src.includes('placeholder.jpg')) {
                 alert("Please enhance an image first.");
                 return;
@@ -594,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Failed to download image. You can right-click the image and select 'Save Image As...'");
             }
         });
-    }
+    });
 
     // 11. Subscription Update Listener
     window.addEventListener('subscriptionUpdated', () => {
