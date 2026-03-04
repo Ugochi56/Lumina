@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgUrl = photo.enhanced_url || photo.cloudinary_url;
 
         return `
-            <div class="thumbnail-item relative w-full aspect-video shrink-0 bg-black rounded-lg overflow-hidden border-2 ${borderClass} shadow-lg cursor-pointer transition-all duration-200" data-id="${photo.id}">
+            <div class="thumbnail-item relative w-32 md:w-full aspect-video shrink-0 bg-black rounded-lg overflow-hidden border-2 ${borderClass} shadow-lg cursor-pointer transition-all duration-200" data-id="${photo.id}">
                 <img src="${imgUrl}" class="w-full h-full object-cover" alt="Thumbnail">
                 ${checkMark}
             </div>
@@ -483,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 9. New In-Page Upload Logic
     const addPhotosBtn = document.getElementById('add-photos-btn');
     const newUploadBtn = document.getElementById('new-upload-btn');
+    const newUploadBtnMobile = document.getElementById('new-upload-btn-mobile');
 
     // Create a persistent hidden file input
     const hiddenFileInput = document.createElement('input');
@@ -494,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const triggerUpload = () => hiddenFileInput.click();
     if (addPhotosBtn) addPhotosBtn.addEventListener('click', triggerUpload);
     if (newUploadBtn) newUploadBtn.addEventListener('click', triggerUpload);
+    if (newUploadBtnMobile) newUploadBtnMobile.addEventListener('click', triggerUpload);
 
     hiddenFileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];

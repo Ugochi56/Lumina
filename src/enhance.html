@@ -59,14 +59,15 @@
 
         <!-- Left Sidebar: AI TOOLBAR -->
         <aside
-            class="w-full md:w-[320px] bg-[#121212] flex flex-col border-r border-white/5 shadow-2xl shrink-0 z-10 relative">
-            <div class="p-5 flex items-center justify-between border-b border-white/5">
+            class="w-full md:w-[320px] bg-[#121212] flex flex-col border-b md:border-r border-white/5 shadow-2xl shrink-0 z-10 relative">
+            <div class="p-4 md:p-5 flex items-center justify-between border-b border-white/5 hidden md:flex">
                 <span class="text-xs font-bold text-gray-500 tracking-widest uppercase">AI Toolbar</span>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div
+                class="flex-none md:flex-1 overflow-x-auto md:overflow-y-auto p-3 md:p-4 flex flex-row md:flex-col gap-3 md:gap-4 no-scrollbar">
 
-                <div class="bg-white/10 rounded-xl p-3 border border-white cursor-pointer tool-selector transition-all shadow-lg select-none"
+                <div class="bg-white/10 rounded-xl p-3 border border-white cursor-pointer tool-selector transition-all shadow-lg select-none shrink-0 min-w-[150px] md:min-w-0 md:w-full"
                     data-tool="upscale">
                     <div class="flex items-center gap-4">
                         <div
@@ -80,66 +81,69 @@
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none"
+                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none shrink-0 min-w-[150px] md:min-w-0 md:w-full"
                     data-tool="restore">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 md:gap-4">
                         <div
-                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-inner">
+                            class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-inner">
                             <span class="text-xl">🕰️</span>
                         </div>
                         <div>
                             <h4 class="font-bold text-sm text-gray-200 tool-title">Photo Restorer</h4>
-                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc">Fix scratches & damage</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc hidden md:block">Fix scratches & damage
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none"
+                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none shrink-0 min-w-[150px] md:min-w-0 md:w-full"
                     data-tool="edit">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 md:gap-4">
                         <div
-                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-inner">
+                            class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-inner">
                             <span class="text-xl">🎨</span>
                         </div>
                         <div>
                             <h4 class="font-bold text-sm text-gray-200 tool-title">Image Editor</h4>
-                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc">Enhance lighting & color</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc hidden md:block">Enhance lighting &
+                                color</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none"
+                <div class="bg-white/5 rounded-xl p-3 border border-transparent hover:border-white/20 cursor-pointer tool-selector transition-all select-none shrink-0 min-w-[150px] md:min-w-0 md:w-full"
                     data-tool="lowlight">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 md:gap-4">
                         <div
-                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-inner">
+                            class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-inner">
                             <span class="text-xl">💡</span>
                         </div>
                         <div>
                             <h4 class="font-bold text-sm text-gray-200 tool-title">Low Light Fix</h4>
-                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc">Brighten dark photos</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5 tool-desc hidden md:block">Brighten dark photos
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <div id="ai-status-indicator"
-                    class="mt-4 flex flex-col items-center justify-center p-4 bg-amber_flame/10 rounded-xl border border-amber_flame/30 hidden">
-                    <svg class="animate-spin h-6 w-6 text-amber_flame mb-2" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 24 24">
+                    class="mt-0 md:mt-4 flex flex-row md:flex-col shrink-0 min-w-[150px] md:min-w-0 md:w-full items-center justify-center p-3 md:p-4 bg-amber_flame/10 rounded-xl border border-amber_flame/30 hidden">
+                    <svg class="animate-spin h-5 w-5 md:h-6 md:w-6 text-amber_flame mb-0 md:mb-2 mr-2 md:mr-0"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                         </circle>
                         <path class="opacity-75" fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                         </path>
                     </svg>
-                    <span class="text-xs text-amber_flame font-bold text-center">AI is analyzing...</span>
+                    <span class="text-xs text-amber_flame font-bold text-center">Analyzing...</span>
                 </div>
 
             </div>
 
-            <div class="p-5 border-t border-white/5 bg-[#0a0a0a]">
+            <div class="p-3 md:p-5 border-t border-white/5 bg-[#0a0a0a]">
                 <button id="apply-btn"
-                    class="w-full bg-[#ff4d6d]/80 hover:bg-[#ff4d6d] text-white py-3.5 rounded-full text-sm font-bold transition-all shadow-md">
+                    class="w-full bg-[#ff4d6d]/80 hover:bg-[#ff4d6d] text-white py-2.5 md:py-3.5 rounded-full text-sm font-bold transition-all shadow-md">
                     Apply
                 </button>
             </div>
@@ -300,29 +304,44 @@
         </section>
 
         <!-- Right Sidebar: Thumbnails and Actions -->
-        <aside class="w-full md:w-[280px] bg-[#121212] border-l border-white/5 flex flex-col shrink-0 relative">
-            <div class="p-6 flex flex-col gap-5 flex-1 min-h-0">
+        <aside
+            class="w-full md:w-[280px] bg-[#121212] border-t md:border-t-0 border-l border-white/5 flex flex-col shrink-0 relative">
+            <div class="p-3 md:p-6 flex flex-col md:flex-col gap-3 md:gap-5 flex-1 min-h-0">
+
+                <div class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 md:hidden">
+                    <span>Recent Uploads</span>
+                    <span>1/<span class="mobile-tier-max">15</span></span>
+                </div>
 
                 <!-- Scrollable Filmstrip Container -->
-                <div id="thumbnail-filmstrip" class="flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar">
+                <div id="thumbnail-filmstrip"
+                    class="flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto pb-1 md:pb-0 md:pr-1 custom-scrollbar">
                     <!-- Thumbnails will be injected here by enhance.js -->
                 </div>
 
-                <div class="flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 mt-auto">
+                <div
+                    class="hidden md:flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 mt-auto">
                     <span id="tier-limit-text">1/<span id="tier-max">15</span></span>
                     <div class="flex-1 h-1 bg-gray-800 rounded-full mx-3 overflow-hidden">
                         <div id="tier-progress-bar" class="h-full bg-white w-[6%]"></div>
                     </div>
                 </div>
 
-                <button id="add-photos-btn"
-                    class="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-full font-bold text-sm transition shadow-sm shrink-0">
-                    Add photos
-                </button>
+                <div class="flex gap-2">
+                    <button id="add-photos-btn"
+                        class="flex-1 md:w-full bg-white/10 hover:bg-white/20 text-white py-2 md:py-2.5 rounded-full font-bold text-sm transition shadow-sm shrink-0">
+                        Add photos
+                    </button>
+                    <!-- Show "New Upload" beside Add Photos on mobile to save vertical space -->
+                    <button id="new-upload-btn-mobile"
+                        class="flex-1 md:hidden bg-transparent border border-white/20 text-gray-300 py-2 rounded-full font-bold text-sm transition shadow-sm shrink-0">
+                        New upload
+                    </button>
+                </div>
             </div>
 
-            <!-- Bottom Action -->
-            <div class="p-6 border-t border-white/5 bg-[#0a0a0a]">
+            <!-- Bottom Action (Desktop only) -->
+            <div class="p-6 border-t border-white/5 bg-[#0a0a0a] hidden md:block">
                 <button id="new-upload-btn"
                     class="w-full bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-gray-300 hover:text-white py-3 rounded-md text-sm font-bold transition flex items-center justify-center gap-2">
                     New upload
