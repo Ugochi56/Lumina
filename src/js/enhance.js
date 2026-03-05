@@ -43,23 +43,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectTool(toolName) {
         selectedTool = toolName;
         tools.forEach(el => {
+            const circle = el.firstElementChild;
+            const icon = circle ? circle.firstElementChild : null;
+            const title = el.querySelector('.tool-title');
+
             if (el.dataset.tool === toolName) {
                 // Active styles
-                el.classList.remove('bg-white/5', 'border-transparent', 'text-gray-200');
-                el.classList.add('bg-white/10', 'border-white', 'text-white', 'shadow-lg');
-                const title = el.querySelector('.tool-title');
+                el.classList.remove('bg-white/5', 'border-transparent', 'text-gray-200', 'text-gray-400');
+                if (circle && circle.classList.contains('rounded-full')) {
+                    // Mobile circular tool active
+                    circle.className = 'w-14 h-14 rounded-full bg-[#ff4d6d] flex items-center justify-center shadow-[0_0_20px_rgba(255,77,109,0.4)] transition-all';
+                    if (icon) icon.classList.replace('text-[#ff4d6d]', 'text-white');
+                } else {
+                    // Desktop tool active
+                    el.classList.add('bg-white/10', 'border-white', 'text-white', 'shadow-lg');
+                }
                 if (title) {
-                    title.classList.remove('text-gray-200');
+                    title.classList.remove('text-gray-200', 'text-gray-400');
                     title.classList.add('text-white');
                 }
             } else {
                 // Inactive styles
-                el.classList.add('bg-white/5', 'border-transparent', 'text-gray-200');
                 el.classList.remove('bg-white/10', 'border-white', 'text-white', 'shadow-lg');
-                const title = el.querySelector('.tool-title');
+                if (circle && circle.classList.contains('rounded-full')) {
+                    // Mobile circular tool inactive
+                    circle.className = 'w-14 h-14 rounded-full bg-[#2a1b22] border border-white/5 flex items-center justify-center transition-all group-hover:bg-[#3d2732]';
+                    if (icon) icon.classList.replace('text-white', 'text-[#ff4d6d]');
+                } else {
+                    // Desktop tool inactive
+                    el.classList.add('bg-white/5', 'border-transparent', 'text-gray-200');
+                }
                 if (title) {
                     title.classList.remove('text-white');
-                    title.classList.add('text-gray-200');
+                    title.classList.add('text-gray-400'); // Or text-gray-200 for desktop
                 }
             }
         });
@@ -484,9 +500,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (applyBtn) {
-        applyBtn.addEventListener('click', processEnhancement);
-    }
+    const applyBtnDesktop = document.getElementById('apply-btn');
+    const applyBtnMobile = document.getElementById('apply-btn-mobile');
+    if (applyBtnDesktop) applyBtnDesktop.addEventListener('click', processEnhancement);
+    if (applyBtnMobile) applyBtnMobile.addEventListener('click', processEnhancement);
 
     const retryBtn = document.getElementById('retry-btn');
     if (retryBtn) {
@@ -495,8 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 9. New In-Page Upload Logic
     const addPhotosBtn = document.getElementById('add-photos-btn');
-    const newUploadBtn = document.getElementById('new-upload-btn');
-    const newUploadBtnMobile = document.getElementById('new-upload-btn-mobile');
+    const addPhotosBtnMobile = document.getElementById('add-photos-btn-mobile');
     const desktopUploadBtn = document.getElementById('desktop-upload-btn');
 
     // Create a persistent hidden file input
@@ -508,8 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const triggerUpload = () => hiddenFileInput.click();
     if (addPhotosBtn) addPhotosBtn.addEventListener('click', triggerUpload);
-    if (newUploadBtn) newUploadBtn.addEventListener('click', triggerUpload);
-    if (newUploadBtnMobile) newUploadBtnMobile.addEventListener('click', triggerUpload);
+    if (addPhotosBtnMobile) addPhotosBtnMobile.addEventListener('click', triggerUpload);
     if (desktopUploadBtn) desktopUploadBtn.addEventListener('click', triggerUpload);
 
     hiddenFileInput.addEventListener('change', async (e) => {
@@ -581,9 +596,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 10. Download Logic
     const downloadBtns = [
-        document.querySelector('button.bg-\\[\\#ff4d6d\\]'), // Desktop Top Nav Download
-        document.getElementById('apply-btn-mobile'),         // Mobile Bottom Action Download
-        document.getElementById('new-upload-btn')            // Desktop Bottom Action Download (ID reused in HTML replacing apply)
+        document.querySelector('header button.bg-\\[\\#ff4d6d\\]'), // Desktop Top Nav Download
+        document.getElementById('save-btn-mobile'),         // Mobile Bottom Action Download
+        document.getElementById('new-upload-btn')            // Desktop Bottom Action Download Button
     ].filter(Boolean);
 
     downloadBtns.forEach(btn => {
