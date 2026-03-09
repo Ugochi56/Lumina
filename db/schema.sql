@@ -2,8 +2,9 @@
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255),
     name VARCHAR(255),
-    provider VARCHAR(50) NOT NULL, -- 'google', 'facebook', 'apple'
+    provider VARCHAR(50) NOT NULL, -- 'google', 'facebook', 'apple', 'local'
     provider_id VARCHAR(255) NOT NULL,
     subscription_tier VARCHAR(50) DEFAULT 'free', -- 'free', 'weekly', 'monthly', 'yearly'
     photos_uploaded INTEGER DEFAULT 0,
@@ -23,8 +24,8 @@ CREATE TABLE IF NOT EXISTS photos (
     subject VARCHAR(100) DEFAULT 'General',
     processing_time_ms INTEGER,
     user_rating SMALLINT DEFAULT 0,
-    ssim_score NUMERIC(5,4),
-    brisque_score NUMERIC(5,4),
+    ssim_score NUMERIC(10,4),
+    brisque_score NUMERIC(10,4),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
