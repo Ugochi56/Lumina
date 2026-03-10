@@ -5,6 +5,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const sharp = require('sharp');
 const db = require('../db'); // Assuming standard db connection export
+const { notifyUser } = require('../websocket');
 
 // Configure Cloudinary
 cloudinary.config({
@@ -224,6 +225,15 @@ router.post('/upload', uploadSingle, async (req, res) => {
                     console.error(`Failed to assign photo ${photoId} to database smart album:`, albumErr);
                     // Non-fatal error, photo was still processed successfully
                 }
+
+                // --- WEBSOCKET NOTIFICATION ---
+                notifyUser(userId, {
+                    type: 'phase2_complete',
+                    photoId: photoId,
+                    subject: subject,
+                    tags: tagsArray,
+                    recommendedTool: recommendedTool
+                });
 
             } catch (bgError) {
                 console.error(`Background processing failed for photo ${photoId}:`, bgError);
@@ -476,6 +486,16 @@ router.post('/enhance', async (req, res) => {
 
                         // Save the permanent Cloudinary URL to database
                         await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [result.secure_url, processingTimeMs, photoId]);
+
+                        // --- WEBSOCKET NOTIFICATION ---
+                        notifyUser(userId, {
+                            type: 'enhancement_complete',
+                            photoId: photoId,
+                            enhancedUrl: result.secure_url,
+                            tool: tool,
+                            processingTime: processingTimeMs
+                        });
+
                         res.json({ output: result.secure_url });
                     } catch (cbErr) {
                         console.error("DB error in upload callback:", cbErr);
@@ -497,6 +517,16 @@ router.post('/enhance', async (req, res) => {
             // Fallback to Replicate URL if it fails
             try {
                 await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [finalImageUrl, processingTimeMs, photoId]);
+
+                // --- WEBSOCKET NOTIFICATION ---
+                notifyUser(userId, {
+                    type: 'enhancement_complete',
+                    photoId: photoId,
+                    enhancedUrl: finalImageUrl,
+                    tool: tool,
+                    processingTime: processingTimeMs
+                });
+
                 return res.json({ output: finalImageUrl });
             } catch (dbErr) {
                 console.error("DB Fallback error:", dbErr);

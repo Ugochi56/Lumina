@@ -54,6 +54,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/login.html')); // Entry point
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+// Initialize WebSocket Server
+const { initWebSocketServer } = require('./websocket');
+initWebSocketServer(server);

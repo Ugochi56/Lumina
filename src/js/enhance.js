@@ -208,9 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 bindThumbnailClicks();
             }
 
-            // Start polling AI status
-            pollRecommendationStatus();
-
+            // Connect WebSocket logic is triggered by fetchUserData which is called on page load
+            // or we will call it when switching photos and we already have the user data.
+            // (Handled down below in bindThumbnailClicks)
         } catch (error) {
             console.error(error);
             alert("Could not load your image. Redirecting...");
@@ -311,8 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     bindThumbnailClicks(); // Rebind since outerHTML replaces elements
 
-                    // Restart AI polling for the new active photo
-                    pollRecommendationStatus();
+                    // Retrigger fetchUserData to re-establish WS connection for new photo
+                    fetchUserData();
 
                 } catch (err) {
                     console.error("Switch error:", err);
@@ -365,12 +365,92 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Error fetching user stats", e); }
     }
 
-    // 7. Poll AI Status
-    async function pollRecommendationStatus() {
-        if (!currentPhotoId) return;
+    // 7. WebSocket Connection
+    let activeWs = null;
+    let fallbackPollTimeout = null;
+
+    function connectWebSocket(userId, photoId) {
+        if (activeWs) {
+            activeWs.close(); // Close any existing connection
+        }
+        if (fallbackPollTimeout) {
+            clearTimeout(fallbackPollTimeout);
+        }
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}?userId=${userId}`);
+        activeWs = ws;
+
+        ws.onopen = () => {
+            console.log('WebSocket connected — listening for updates...');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("WebSocket received:", data);
+
+            if (data.type === 'enhancement_complete' && data.photoId == currentPhotoId) {
+                // Update the UI immediately after manual enhancement
+                if (imgAfter) {
+                    const newImg = new Image();
+                    newImg.onload = () => {
+                        imgAfter.src = data.enhancedUrl;
+                        if (sliderHandle) sliderHandle.style.left = '50%';
+                        if (overlay) document.getElementById('overlay').style.width = '50%';
+                        if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
+                        if (imgHeight) imgHeight.textContent = newImg.naturalHeight + ' px';
+
+                        // Show Rating
+                        const ratingWidget = document.getElementById('rating-widget');
+                        const ratingThanks = document.getElementById('rating-thanks');
+                        const ratingButtons = document.getElementById('rating-buttons');
+                        if (ratingWidget) {
+                            if (ratingThanks) ratingThanks.classList.add('hidden');
+                            if (ratingButtons) {
+                                ratingButtons.classList.remove('hidden');
+                                ratingButtons.classList.add('flex');
+                            }
+                            ratingWidget.classList.remove('hidden');
+                            ratingWidget.classList.add('flex');
+                            setTimeout(() => ratingWidget.classList.remove('translate-y-4', 'opacity-0'), 50);
+                        }
+                    };
+                    newImg.src = data.enhancedUrl;
+                }
+                isProcessing = false;
+                if (loaderOverlay) {
+                    loaderOverlay.classList.add('hidden');
+                    loaderOverlay.classList.remove('flex');
+                }
+            }
+
+            if (data.type === 'phase2_complete' && data.photoId == currentPhotoId) {
+                const tool = data.recommendedTool || 'upscale';
+                selectTool(tool);
+
+                if (aiStatusIndicator) {
+                    aiStatusIndicator.classList.add('hidden');
+                    aiStatusIndicator.classList.remove('flex');
+                }
+            }
+        };
+
+        ws.onerror = () => {
+            console.warn('WebSocket failed, falling back to polling');
+            startPolling(photoId);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket closed');
+        };
+    }
+
+    // 7b. Fallback Polling (if WS fails)
+    async function startPolling(photoId) {
+        if (!photoId || photoId != currentPhotoId) return;
 
         try {
-            const statusRes = await fetch(`/api/photos/${currentPhotoId}/status`);
+            const statusRes = await fetch(`/api/photos/${photoId}/status`);
             if (!statusRes.ok) return;
 
             const statusData = await statusRes.json();
@@ -394,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     aiStatusIndicator.classList.remove('hidden');
                     aiStatusIndicator.classList.add('flex');
                 }
-                setTimeout(pollRecommendationStatus, 1500);
+                fallbackPollTimeout = setTimeout(() => startPolling(photoId), 1500);
             }
         } catch (error) {
             console.error("Polling Error:", error);
@@ -570,11 +650,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 bindThumbnailClicks();
             }
 
-            // Refresh tier count now that upload succeeded
+            // Refresh tier count now that upload succeeded. This also reconnects WS.
             fetchUserData();
-
-            // Restart AI polling for the new upload
-            pollRecommendationStatus();
 
             if (loaderOverlay) {
                 loaderOverlay.classList.add('hidden');
