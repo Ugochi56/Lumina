@@ -456,81 +456,74 @@ router.post('/enhance', async (req, res) => {
             finalImageUrl = output; // Fallback string
         }
 
-        // --- CLOUDINARY PERMANENT HOSTING & WATERMARKING ---
-        // We MUST upload to Cloudinary because Replicate URLs expire after a short time!
-        try {
-            const response = await fetch(finalImageUrl);
-            if (!response.ok) throw new Error(`Fetch failed with status: ${response.status}`);
-            const arrayBuffer = await response.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
+        // --- OPTIMISTIC UI: PREVIEW NOTIFICATION ---
+        let previewUrl = finalImageUrl;
+        const uploadOptions = {
+            folder: 'lumina_results'
+        };
 
-            // Determine if watermark is needed
-            const uploadOptions = { folder: 'lumina_results' };
-            if (tier === 'free' || tier === 'weekly') {
-                uploadOptions.transformation = [
-                    { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
-                    { width: 300, crop: "scale" },
-                    { flags: "layer_apply", gravity: "south_east", x: 20, y: 20, opacity: 60 }
-                ];
-            }
+        if (tier === 'free' || tier === 'weekly') {
+            const transformationItem = [
+                { overlay: "My%20Brand:Sub_Logo_ukbwbq" },
+                { width: 300, crop: "scale" },
+                { flags: "layer_apply", gravity: "south_east", x: 20, y: 20, opacity: 60 }
+            ];
 
-            const uploadStream = cloudinary.uploader.upload_stream(
-                uploadOptions,
-                async (error, result) => {
-                    try {
-                        if (error) {
-                            console.error("Cloudinary Upload Stream Error:", error);
-                            await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [finalImageUrl, processingTimeMs, photoId]);
-                            return res.json({ output: finalImageUrl });
-                        }
-
-                        // Save the permanent Cloudinary URL to database
-                        await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [result.secure_url, processingTimeMs, photoId]);
-
-                        // --- WEBSOCKET NOTIFICATION ---
-                        notifyUser(userId, {
-                            type: 'enhancement_complete',
-                            photoId: photoId,
-                            enhancedUrl: result.secure_url,
-                            tool: tool,
-                            processingTime: processingTimeMs
-                        });
-
-                        res.json({ output: result.secure_url });
-                    } catch (cbErr) {
-                        console.error("DB error in upload callback:", cbErr);
-                        if (!res.headersSent) {
-                            res.status(500).json({ error: "Failed to save final image." });
-                        }
-                    }
-                }
-            );
-
-            uploadStream.on('error', (streamErr) => {
-                console.error("Upload stream error:", streamErr);
+            // Generate a Cloudinary Fetch URL to instantly preview the watermarked image
+            previewUrl = cloudinary.url(finalImageUrl, {
+                type: 'fetch',
+                sign_url: true,
+                transformation: transformationItem
             });
 
-            uploadStream.end(buffer);
-            return;
-        } catch (uploadError) {
-            console.error("Cloudinary Hosting failed:", uploadError);
-            // Fallback to Replicate URL if it fails
-            try {
-                await db.query('UPDATE photos SET enhanced_url = $1, processing_time_ms = $2 WHERE id = $3', [finalImageUrl, processingTimeMs, photoId]);
+            uploadOptions.transformation = transformationItem;
+        }
 
-                // --- WEBSOCKET NOTIFICATION ---
-                notifyUser(userId, {
+        // 1. Notify frontend immediately so user sees the result without waiting
+        notifyUser(String(userId), {
+            type: 'enhancement_preview',
+            photoId: photoId,
+            previewUrl: previewUrl,
+            tool: tool
+        });
+
+        // Close the HTTP request early so the UI feels instantly responsive
+        res.json({ output: previewUrl });
+
+        // --- CLOUDINARY PERMANENT HOSTING (BACKGROUND) ---
+        // We MUST upload to Cloudinary because Replicate URLs expire!
+        try {
+            // Cloudinary's uploader.upload automatically handles fetching from a remote URL. 
+            // Do NOT add `type: 'fetch'` here, as it crashes the uploader config.
+            const result = await cloudinary.uploader.upload(finalImageUrl, uploadOptions);
+
+            // Save the permanent Cloudinary URL to database
+            await db.query('UPDATE photos SET enhanced_url = $1, status = $2, processing_time_ms = $3 WHERE id = $4', [result.secure_url, 'completed', processingTimeMs, photoId]);
+
+            // 2. Notify frontend to silently swap preview URL to permanent Cloudinary URL
+            notifyUser(String(userId), {
+                type: 'enhancement_complete',
+                photoId: photoId,
+                enhancedUrl: result.secure_url,
+                tool: tool,
+                processingTime: processingTimeMs
+            });
+
+        } catch (uploadError) {
+            console.error("Cloudinary Fetch Hosting failed:", uploadError);
+            // Fallback to Replicate URL if upload fails completely
+            try {
+                await db.query('UPDATE photos SET enhanced_url = $1, status = $2, processing_time_ms = $3 WHERE id = $4', [finalImageUrl, 'completed', processingTimeMs, photoId]);
+
+                notifyUser(String(userId), {
                     type: 'enhancement_complete',
                     photoId: photoId,
                     enhancedUrl: finalImageUrl,
                     tool: tool,
                     processingTime: processingTimeMs
                 });
-
-                return res.json({ output: finalImageUrl });
             } catch (dbErr) {
                 console.error("DB Fallback error:", dbErr);
-                return res.status(500).json({ error: "Failed to save final image." });
             }
         }
 

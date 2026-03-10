@@ -389,12 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = JSON.parse(event.data);
             console.log("WebSocket received:", data);
 
-            if (data.type === 'enhancement_complete' && data.photoId == currentPhotoId) {
-                // Update the UI immediately after manual enhancement
+            if (data.type === 'enhancement_preview' && data.photoId == currentPhotoId) {
+                // Update the UI immediately after Replicate finishes (before Cloudinary upload finishes)
                 if (imgAfter) {
                     const newImg = new Image();
                     newImg.onload = () => {
-                        imgAfter.src = data.enhancedUrl;
+                        imgAfter.src = data.previewUrl;
                         if (sliderHandle) sliderHandle.style.left = '50%';
                         if (overlay) document.getElementById('overlay').style.width = '50%';
                         if (imgWidth) imgWidth.textContent = newImg.naturalWidth + ' px';
@@ -415,13 +415,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => ratingWidget.classList.remove('translate-y-4', 'opacity-0'), 50);
                         }
                     };
-                    newImg.src = data.enhancedUrl;
+                    newImg.src = data.previewUrl;
                 }
                 isProcessing = false;
                 if (loaderOverlay) {
                     loaderOverlay.classList.add('hidden');
                     loaderOverlay.classList.remove('flex');
                 }
+            }
+
+            // Second notification — silently swap to permanent Cloudinary URL
+            if (data.type === 'enhancement_complete' && data.photoId == currentPhotoId) {
+                swapImageUrl(data.enhancedUrl);
             }
 
             if (data.type === 'phase2_complete' && data.photoId == currentPhotoId) {
@@ -443,6 +448,24 @@ document.addEventListener('DOMContentLoaded', () => {
         ws.onclose = () => {
             console.log('WebSocket closed');
         };
+    }
+
+    // Helper to silently swap Replicate URL for Cloudinary URL when background upload finishes
+    function swapImageUrl(permanentUrl) {
+        // Update main image source
+        if (imgAfter) imgAfter.src = permanentUrl;
+
+        // Update stored photo data in session storage
+        let sessionPhotos = JSON.parse(sessionStorage.getItem('lumina_session_photos') || '[]');
+        const index = sessionPhotos.findIndex(p => p.id == currentPhotoId);
+        if (index !== -1) {
+            sessionPhotos[index].enhanced_url = permanentUrl;
+            sessionStorage.setItem('lumina_session_photos', JSON.stringify(sessionPhotos));
+
+            // Re-render thumbnail without triggering a click
+            const activeThumb = document.querySelector(`.thumbnail-item[data-id="${currentPhotoId}"] img`);
+            if (activeThumb) activeThumb.src = permanentUrl;
+        }
     }
 
     // 7b. Fallback Polling (if WS fails)
