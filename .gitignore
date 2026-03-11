@@ -49,3 +49,7 @@ __pycache__/
 images/Sub Logo.png
 test_watermark.js
 scripts/fix_type.js
+scripts/fix_index.js
+scripts/fix_index2.js
+scripts/center_demo.js
+scripts/mobile_demo.js
