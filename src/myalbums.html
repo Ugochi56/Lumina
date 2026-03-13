@@ -145,17 +145,15 @@
     <!-- DASHBOARD GALLERY -->
     <main class="max-w-7xl mx-auto px-4 pb-20">
 
-        <!-- Tabs / Filters (Visual Only) -->
-        <div class="flex justify-center flex-wrap items-center gap-3 mb-8 w-full max-w-2xl mx-auto px-4 hide-scrollbar">
-            <button class="bg-white text-black px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap">All
-                Photos</button>
-            <button
-                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Upscaled</button>
-            <button
-                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Restored</button>
-            <button
-                class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap">Edited</button>
+        
+        <!-- Tabs / Filters -->
+        <div id="filter-tabs" class="flex justify-center flex-wrap items-center gap-3 mb-8 w-full max-w-2xl mx-auto px-4 hide-scrollbar">
+            <button data-filter="all" class="filter-btn bg-white text-black px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors">All Photos</button>
+            <button data-filter="upscale" class="filter-btn bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap">Upscaled</button>
+            <button data-filter="restore" class="filter-btn bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap">Restored</button>
+            <button data-filter="edit" class="filter-btn bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap">Edited</button>
         </div>
+
 
         <div class="flex flex-col gap-10" id="gallery-container">
             <!-- Dynamic gallery items will be injected here -->
@@ -296,6 +294,102 @@
                         albumView.classList.remove('flex', 'flex-col');
                         foldersView.classList.remove('hidden');
                         foldersView.classList.add('grid');
+                    };
+
+                    
+                    // --- FILTERING LOGIC ---
+                    const filterBtns = document.querySelectorAll('.filter-btn');
+
+                    let activeFilter = 'all';
+
+                    function renderFilteredGrid(filter) {
+                        // Hide folders
+                        foldersView.classList.add('hidden');
+                        foldersView.classList.remove('grid');
+                        // Show raw grid
+                        albumView.classList.remove('hidden');
+                        albumView.classList.add('flex', 'flex-col');
+                        
+                        // Change Title
+                        if (filter === 'all') {
+                            albumTitle.textContent = 'ALL PHOTOS';
+                            backBtn.classList.remove('hidden'); // Allow going back to folders if coming from 'all'
+                        } else {
+                            albumTitle.textContent = filter.toUpperCase() + ' PHOTOS';
+                            backBtn.classList.remove('hidden'); 
+                        }
+
+                        albumGrid.innerHTML = '';
+
+                        // Filter photos globally
+                        const filteredPhotos = filter === 'all' 
+                            ? photos 
+                            : photos.filter(p => p.recommended_tool && p.recommended_tool.toLowerCase().includes(filter.toLowerCase()));
+
+                        if (filteredPhotos.length === 0) {
+                            albumGrid.innerHTML = '<p class="text-gray-500 text-center w-full mt-8">No photos found for this category.</p>';
+                            return;
+                        }
+
+                        filteredPhotos.forEach((photo, index) => {
+                            const item = document.createElement('div');
+                            item.className = 'bg-[#121212] rounded-2xl overflow-hidden border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col shadow-xl hover:-translate-y-1 duration-300 break-inside-avoid relative inline-block w-full';
+                            item.onclick = () => window.open(photo.enhanced_url || photo.cloudinary_url, '_blank');
+
+                            item.style.animation = `slideUpBounceMobile 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards ${index * 0.05}s`;
+                            item.style.opacity = '0';
+
+                            const imageSrc = photo.enhanced_url || photo.cloudinary_url;
+                            const isEnhanced = photo.enhanced_url ? true : false;
+
+                            item.innerHTML = `
+                                <div class="relative bg-black w-full">
+                                    <img src="${imageSrc}" class="w-full h-auto block group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100">
+                                    ${isEnhanced ? '<div class="absolute bottom-3 left-3 bg-gradient-to-r from-amber_flame to-cayenne_red px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-widest shadow-lg">Enhanced</div>' : ''}
+                                </div>
+                            `;
+                            albumGrid.appendChild(item);
+                        });
+                    }
+
+                    filterBtns.forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            // Update UI active state
+                            filterBtns.forEach(b => {
+                                b.classList.remove('bg-white', 'text-black');
+                                b.classList.add('bg-white/5', 'text-white');
+                            });
+                            e.target.classList.remove('bg-white/5', 'text-white');
+                            e.target.classList.add('bg-white', 'text-black');
+
+                            activeFilter = e.target.getAttribute('data-filter');
+                            
+                            if (activeFilter === 'all') {
+                                // If "All Photos" is clicked, revert to the Folder view
+                                albumView.classList.add('hidden');
+                                albumView.classList.remove('flex', 'flex-col');
+                                foldersView.classList.remove('hidden');
+                                foldersView.classList.add('grid');
+                            } else {
+                                // Render flat grid for specific filters
+                                renderFilteredGrid(activeFilter);
+                            }
+                        });
+                    });
+
+                    backBtn.onclick = () => {
+                        albumView.classList.add('hidden');
+                        albumView.classList.remove('flex', 'flex-col');
+                        foldersView.classList.remove('hidden');
+                        foldersView.classList.add('grid');
+                        
+                        // Reset filter buttons UI visually back to "All"
+                        filterBtns.forEach(b => {
+                             b.classList.remove('bg-white', 'text-black');
+                             b.classList.add('bg-white/5', 'text-white');
+                        });
+                        document.querySelector('[data-filter="all"]').classList.remove('bg-white/5', 'text-white');
+                        document.querySelector('[data-filter="all"]').classList.add('bg-white', 'text-black');
                     };
 
                     let folderDelay = 0;

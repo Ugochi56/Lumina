@@ -171,19 +171,17 @@
         <!-- Center: Canvas / Split Slider -->
         <section class="order-1 md:order-2 bg-[#050505] relative flex flex-col min-w-0 flex-1 pb-0 z-0 justify-center">
 
-            <!-- Labels -->
-            <div
-                class="absolute top-4 md:top-6 left-4 md:left-1/4 md:-translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-10 pointer-events-none drop-shadow-lg bg-black/60 px-3 md:px-2 py-1 md:py-0.5 rounded-full md:bg-transparent">
-                BEFORE</div>
-            <div
-                class="absolute top-4 md:top-6 right-4 md:right-1/4 md:translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-10 pointer-events-none drop-shadow-lg bg-[#ff4d6d] px-3 md:px-2 py-1 md:py-0.5 rounded-full md:bg-transparent">
-                AFTER</div>
+
 
             <!-- Slider Container -->
             <div class="flex flex-col items-center justify-center p-0 pt-16 md:p-12 select-none h-full md:h-auto md:flex-1 md:min-h-0 relative overflow-hidden flex-1"
                 id="canvas-area">
                 <div class="absolute inset-0 md:relative md:w-fit h-full md:h-fit max-w-full md:max-h-[75vh] md:rounded-2xl overflow-hidden slider-container group shadow-2xl flex items-center justify-center bg-black"
                     id="slider-box">
+
+                    <!-- Dynamic Labels -->
+                    <div id="label-before" class="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-black/60 px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">BEFORE</div>
+                    <div id="label-after" class="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-[#ff4d6d] px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">AFTER</div>
 
                     <!-- After Image (Base) -->
                     <img id="img-after" src="../images/placeholder.jpg"

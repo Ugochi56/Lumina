@@ -33,6 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Slide the overlay to reveal the image underneath
         if (overlay) overlay.style.width = pos + "px";
         if (handle) handle.style.left = pos + "px";
+
+        // Slider Labels Dynamic Centering
+        const labelBefore = document.getElementById('label-before');
+        const labelAfter = document.getElementById('label-after');
+        let p = (pos / rect.width) * 100;
+        
+        if (labelBefore) {
+            labelBefore.style.left = (p / 2) + '%';
+            labelBefore.style.opacity = p < 10 ? '0' : '1'; // Hide if too squeezed
+        }
+        if (labelAfter) {
+            labelAfter.style.left = p + (100 - p) / 2 + '%';
+            labelAfter.style.opacity = p > 90 ? '0' : '1';
+        }
+
     }
 
     if (sliderBox) {

@@ -116,6 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
             sliderHandle.style.left = p + '%';
             overlay.style.width = p + '%';
 
+            // Slider Labels Dynamic Centering
+            const labelBefore = document.getElementById('label-before');
+            const labelAfter = document.getElementById('label-after');
+            if (labelBefore) {
+                labelBefore.style.left = (p / 2) + '%';
+                labelBefore.style.opacity = p < 10 ? '0' : '1';
+            }
+            if (labelAfter) {
+                labelAfter.style.left = p + (100 - p) / 2 + '%';
+                labelAfter.style.opacity = p > 90 ? '0' : '1';
+            }
+
+
             // Keep the inner image visually stationary
             if (imgBefore && imgAfter) {
                 // Determine exact rendered size of the after image inside flexbox

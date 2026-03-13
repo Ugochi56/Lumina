@@ -53,3 +53,5 @@ scripts/fix_index.js
 scripts/fix_index2.js
 scripts/center_demo.js
 scripts/mobile_demo.js
+scripts/fix_slider_labels.js
+scripts/fix_myalbums_filters.js
