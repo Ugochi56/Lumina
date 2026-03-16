@@ -180,8 +180,12 @@
                     id="slider-box">
 
                     <!-- Dynamic Labels -->
-                    <div id="label-before" class="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-black/60 px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">BEFORE</div>
-                    <div id="label-after" class="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-[#ff4d6d] px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">AFTER</div>
+                    <div id="label-before"
+                        class="absolute top-4 md:top-6 left-[25%] -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-black/60 px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">
+                        BEFORE</div>
+                    <div id="label-after"
+                        class="absolute top-4 md:top-6 left-[75%] -translate-x-1/2 text-[9px] md:text-xs tracking-widest font-bold text-white z-20 pointer-events-none drop-shadow-lg bg-[#ff4d6d] px-3 md:px-2 py-1 md:py-0.5 rounded-full transition-opacity">
+                        AFTER</div>
 
                     <!-- After Image (Base) -->
                     <img id="img-after" src="../images/placeholder.jpg"
@@ -334,7 +338,7 @@
 
                 <div
                     class="hidden md:flex items-center justify-between px-2 text-[11px] font-bold text-gray-300 mt-auto">
-                    <span id="tier-limit-text">1/<span id="tier-max">15</span></span>
+                    <span id="tier-limit-text"><span id="tier-current">1</span>/<span id="tier-max">15</span></span>
                     <div class="flex-1 h-1 bg-gray-800 rounded-full mx-3 overflow-hidden">
                         <div id="tier-progress-bar" class="h-full bg-white w-[6%]"></div>
                     </div>

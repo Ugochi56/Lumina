@@ -132,29 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Keep the inner image visually stationary
             if (imgBefore && imgAfter) {
                 // Determine exact rendered size of the after image inside flexbox
-                const imgRect = imgAfter.getBoundingClientRect();
-                imgBefore.style.width = imgRect.width + 'px';
-                imgBefore.style.height = imgRect.height + 'px';
+                imgBefore.style.width = sliderContainer.offsetWidth + 'px';
+                imgBefore.style.height = sliderContainer.offsetHeight + 'px';
                 imgBefore.style.maxWidth = 'none';
             }
         };
 
         const resetSliderDimensions = () => {
             if (imgBefore && imgAfter) {
-                const imgRect = imgAfter.getBoundingClientRect();
-                imgBefore.style.width = imgRect.width + 'px';
-                imgBefore.style.height = imgRect.height + 'px';
+                imgBefore.style.width = sliderContainer.offsetWidth + 'px';
+                imgBefore.style.height = sliderContainer.offsetHeight + 'px';
                 imgBefore.style.maxWidth = 'none';
 
-                // Also explicitly set overlay boundaries if the image doesn't fill the container
-                const containerRect = sliderContainer.getBoundingClientRect();
-                const vOffset = (containerRect.height - imgRect.height) / 2;
-                const hOffset = (containerRect.width - imgRect.width) / 2;
-
                 if (overlay) {
-                    overlay.style.top = Math.max(0, vOffset) + 'px';
-                    overlay.style.bottom = Math.max(0, vOffset) + 'px';
-                    overlay.style.left = Math.max(0, hOffset) + 'px';
+                    overlay.style.top = '0px';
+                    overlay.style.bottom = '0px';
+                    overlay.style.left = '0px';
                 }
             }
         };
@@ -406,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update the UI immediately after Replicate finishes (before Cloudinary upload finishes)
                 if (imgAfter) {
                     const newImg = new Image();
-                    newImg.onload = () => {
+                    const applyLoadedImg = () => {
                         imgAfter.src = data.previewUrl;
                         if (sliderHandle) sliderHandle.style.left = '50%';
                         if (overlay) document.getElementById('overlay').style.width = '50%';
@@ -428,6 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => ratingWidget.classList.remove('translate-y-4', 'opacity-0'), 50);
                         }
                     };
+                    newImg.onload = applyLoadedImg;
+                    newImg.onerror = applyLoadedImg;
                     newImg.src = data.previewUrl;
                 }
                 isProcessing = false;
@@ -563,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (imgAfter) {
                 // Preload the image so it doesn't blink
                 const newImg = new Image();
-                newImg.onload = () => {
+                const applyLoadedImg = () => {
                     imgAfter.src = enhanceData.output;
                     // Move handle to center if it was moved
                     if (sliderHandle) sliderHandle.style.left = '50%';
@@ -590,6 +585,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }, 50);
                     }
                 };
+                newImg.onload = applyLoadedImg;
+                newImg.onerror = applyLoadedImg;
                 newImg.src = enhanceData.output;
             }
 
