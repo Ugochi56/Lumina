@@ -176,7 +176,7 @@
             <!-- Slider Container -->
             <div class="flex flex-col items-center justify-center p-0 pt-16 md:p-12 select-none h-full md:h-auto md:flex-1 md:min-h-0 relative overflow-hidden flex-1"
                 id="canvas-area">
-                <div class="absolute inset-0 md:relative md:w-fit h-full md:h-fit max-w-full md:max-h-[75vh] md:rounded-2xl overflow-hidden slider-container group shadow-2xl flex items-center justify-center bg-black"
+                <div class="absolute inset-0 md:relative md:w-fit h-full md:h-fit max-w-full md:max-h-[75vh] md:rounded-2xl overflow-hidden group shadow-2xl flex items-center justify-center bg-black"
                     id="slider-box">
 
                     <!-- Dynamic Labels -->
@@ -188,20 +188,20 @@
                         AFTER</div>
 
                     <!-- After Image (Base) -->
-                    <img id="img-after" src="../images/placeholder.jpg"
+                    <img id="enhance-img-after" src="../images/placeholder.jpg"
                         class="block w-full h-full object-contain pointer-events-none md:rounded-2xl mx-auto"
                         alt="After">
 
                     <!-- Before Image (Overlay) -->
                     <div class="img-comp-overlay absolute top-0 left-0 h-full overflow-hidden flex items-center justify-start bg-black/20"
                         id="overlay" style="pointer-events: none; width: 50%;">
-                        <img id="img-before" src="../images/placeholder.jpg"
+                        <img id="enhance-img-before" src="../images/placeholder.jpg"
                             class="absolute top-0 left-0 w-[200vw] h-full object-contain pointer-events-none md:rounded-2xl max-w-none md:w-[200%] md:max-w-none"
                             alt="Before">
                     </div>
 
                     <!-- Slider Handle -->
-                    <div class="slider-handle flex flex-col items-center justify-center" id="slider-handle"
+                    <div class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center justify-center" id="slider-handle"
                         style="left: 50%; pointer-events: none;">
                         <div
                             class="w-6 h-10 bg-white rounded-full flex flex-col items-center justify-center gap-1 shadow-xl">

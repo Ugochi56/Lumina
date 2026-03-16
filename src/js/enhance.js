@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. DOM Elements
-    const imgBefore = document.getElementById('img-before');
-    const imgAfter = document.getElementById('img-after');
+    const imgBefore = document.getElementById('enhance-img-before');
+    const imgAfter = document.getElementById('enhance-img-after');
     const thumbnailFilmstrip = document.getElementById('thumbnail-filmstrip');
     const sliderContainer = document.getElementById('slider-box');
     const sliderHandle = document.getElementById('slider-handle');
