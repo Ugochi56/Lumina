@@ -4,7 +4,7 @@ const Replicate = require('replicate');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const sharp = require('sharp');
-const db = require('../db'); // Assuming standard db connection export
+const db = require('../db'); 
 const { notifyUser } = require('../websocket');
 
 // Configure Cloudinary
@@ -391,7 +391,7 @@ router.post('/enhance', async (req, res) => {
                 // Super Resolution & Face Unblurring (e.g., Real-ESRGAN)
                 modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
                 inputData.scale = 2; // Default scale
-                inputData.face_enhance = true; // CRITICAL: This was missing, causing blurred images to just get upscaled blur!
+                inputData.face_enhance = true;
                 break;
             case 'restore':
                 // Face / Photo Restoration (e.g., CodeFormer)
@@ -403,8 +403,8 @@ router.post('/enhance', async (req, res) => {
             case 'edit':
                 // Fast Image Enhancement & Retouching
                 modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
-                inputData.scale = 1; // Keep original size, just enhance
-                inputData.face_enhance = true; // Use GFPGAN under the hood for retouching
+                inputData.scale = 1; 
+                inputData.face_enhance = true; 
                 break;
             case 'lowlight':
                 // Low-Light Enhancer
@@ -491,10 +491,7 @@ router.post('/enhance', async (req, res) => {
         res.json({ output: previewUrl });
 
         // --- CLOUDINARY PERMANENT HOSTING (BACKGROUND) ---
-        // We MUST upload to Cloudinary because Replicate URLs expire!
         try {
-            // Cloudinary's uploader.upload automatically handles fetching from a remote URL. 
-            // Do NOT add `type: 'fetch'` here, as it crashes the uploader config.
             const result = await cloudinary.uploader.upload(finalImageUrl, uploadOptions);
 
             // Save the permanent Cloudinary URL to database

@@ -62,12 +62,13 @@ router.get('/facebook/callback',
     (req, res) => res.redirect('/login.html')
 );
 
-// 5. Apple
+/* 5. Apple
 router.get('/apple', passport.authenticate('apple'));
 router.post('/apple/callback', // Apple uses POST
     passport.authenticate('apple', { failureRedirect: '/login.html' }),
     (req, res) => res.redirect('/login.html')
 );
+*/
 
 // 6. Logout
 router.get('/logout', (req, res, next) => {
