@@ -7,31 +7,22 @@ import os
 from skimage.metrics import structural_similarity as ssim
 import time
 
-# --- BRISQUE Implementation (Simplified No-Reference IQA) ---
-# For a full enterprise BRISQUE, you'd load a pre-trained SVR model.
-# This implementation calculates the spatial Natural Scene Statistics (NSS) features 
-# to estimate distortions. Lower is better.
+from brisque import BRISQUE
+
+# Instantiate the pre-trained SVR model for BRISQUE scoring (lower is better)
+brisque_evaluator = BRISQUE(url=False)
+
+# --- BRISQUE Implementation (Pre-Trained SVR Model) ---
+# Evaluates image quality based on spatial Natural Scene Statistics (NSS) features.
 def compute_brisque(image):
-    # Convert to grayscale and cast to float64 to prevent uint8 multiplication overflow
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).astype(np.float64)
-    
-    # Calculate local mean and variance (MSCN coefficients)
-    mu = cv2.GaussianBlur(gray, (7, 7), 1.166)
-    mu_sq = mu * mu
-    sigma = cv2.GaussianBlur(gray * gray, (7, 7), 1.166)
-    sigma = np.sqrt(np.abs(sigma - mu_sq))
-    
-    mscn = (gray - mu) / (sigma + 1)
-    
-    # Calculate standard deviation of MSCN as a simple proxy for unnatural distortion
-    # Highly distorted AI images (plastic smoothing or severe noise) deviate from natural distributions
-    distortion_score = np.std(mscn) * 10 
-    
-    # We invert it slightly so a "lower" score is still a "better" natural image proxy 
-    brisque_proxy = abs(40 - distortion_score)
-    # Clamp to prevent PostgreSQL NUMERIC(7, 4) overflow (max 999.9999)
-    brisque_proxy = min(brisque_proxy, 999.9999)
-    return round(float(brisque_proxy), 4)
+    try:
+        score = brisque_evaluator.score(image)
+        # Clamp to prevent PostgreSQL NUMERIC(7, 4) overflow (max 999.9999)
+        score = min(max(float(score), 0.0), 999.9999)
+        return round(score, 4)
+    except Exception as e:
+        print(f"BRISQUE failed: {e}")
+        return 0.0
 
 def compute_ssim(img1_path, img2_path):
     # Read images

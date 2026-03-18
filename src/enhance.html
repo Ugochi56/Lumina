@@ -297,17 +297,16 @@
                     <span>Height: <span id="img-height" class="text-gray-300">- px</span></span>
                 </div>
                 <div class="flex items-center gap-4 hidden md:flex text-gray-200">
-                    <span class="cursor-pointer hover:text-white">100%</span>
-                    <button class="hover:text-white"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                    <span id="zoom-percentage-label" class="cursor-pointer hover:text-white">100%</span>
+                    <button id="zoom-out-btn" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                         </svg></button>
-                    <div class="w-32 h-1 bg-gray-700 rounded-full relative cursor-pointer">
-                        <div
-                            class="absolute left-1/2 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white rounded-full shadow-md">
+                    <div id="zoom-slider-track" class="w-32 h-1 bg-gray-700 rounded-full relative cursor-pointer">
+                        <div id="zoom-slider-handle" class="absolute left-1/2 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white rounded-full shadow-md">
                         </div>
                     </div>
-                    <button class="hover:text-white"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                    <button id="zoom-in-btn" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
                             </path>
@@ -315,7 +314,7 @@
                 </div>
                 <!-- Right placeholder -->
                 <div class="w-32 hidden md:block text-right">
-                    <button class="hover:text-white"><svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor"
+                    <button id="fullscreen-btn" class="hover:text-white"><svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4">

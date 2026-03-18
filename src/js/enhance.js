@@ -787,6 +787,207 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 13. Zoom and Pan UI & Logic
+    const zoomPercentageLabel = document.getElementById('zoom-percentage-label');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+    const zoomInBtn = document.getElementById('zoom-in-btn');
+    const zoomSliderTrack = document.getElementById('zoom-slider-track');
+    const zoomSliderHandle = document.getElementById('zoom-slider-handle');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const canvasArea = document.getElementById('canvas-area');
+
+    let currentZoom = 1;
+    let panX = 0;
+    let panY = 0;
+    
+    let isPanning = false;
+    let isSpacebarDown = false;
+    let startPanX = 0;
+    let startPanY = 0;
+    let initialPanX = 0;
+    let initialPanY = 0;
+
+    const MIN_ZOOM = 0.1;
+    const MAX_ZOOM = 5;
+
+    function applyZoomAndPan() {
+        if (!sliderContainer) return;
+
+        // Keep translation percentages so dragging feels 1:1 regardless of zoom level
+        sliderContainer.style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`;
+        
+        if (zoomPercentageLabel) {
+            zoomPercentageLabel.textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        if (zoomSliderTrack && zoomSliderHandle) {
+            // Map zoom log scale (roughly) for slider or just linear for simplicity
+            // Let's do linear between MIN_ZOOM and MAX_ZOOM
+            const trackRect = zoomSliderTrack.getBoundingClientRect();
+            let percent = ((currentZoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            zoomSliderHandle.style.left = percent + '%';
+        }
+    }
+
+    function setZoom(newZoom) {
+        currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+        applyZoomAndPan();
+    }
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            setZoom(currentZoom + 0.25);
+        });
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            setZoom(currentZoom - 0.25);
+        });
+    }
+
+    // Zoom slider logic
+    if (zoomSliderTrack) {
+        let isDraggingZoom = false;
+
+        const handleZoomDrag = (e) => {
+            const rect = zoomSliderTrack.getBoundingClientRect();
+            // Get x position relative to track
+            let clientX = e.clientX;
+            if (e.touches && e.touches.length > 0) clientX = e.touches[0].clientX;
+            
+            let x = clientX - rect.left;
+            x = Math.max(0, Math.min(rect.width, x));
+            
+            const percent = x / rect.width;
+            const newZoom = MIN_ZOOM + percent * (MAX_ZOOM - MIN_ZOOM);
+            setZoom(newZoom);
+        };
+
+        zoomSliderTrack.addEventListener('mousedown', (e) => {
+            isDraggingZoom = true;
+            handleZoomDrag(e);
+        });
+        
+        zoomSliderTrack.addEventListener('touchstart', (e) => {
+            isDraggingZoom = true;
+            handleZoomDrag(e);
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingZoom) handleZoomDrag(e);
+        });
+        
+        window.addEventListener('touchmove', (e) => {
+            if (isDraggingZoom) handleZoomDrag(e);
+        });
+        
+        window.addEventListener('mouseup', () => isDraggingZoom = false);
+        window.addEventListener('touchend', () => isDraggingZoom = false);
+    }
+    
+    // Reset zoom when clicking 100% text
+    if (zoomPercentageLabel) {
+        zoomPercentageLabel.addEventListener('click', () => {
+            panX = 0;
+            panY = 0;
+            setZoom(1);
+        });
+    }
+
+    // Canvas Scroll to Zoom
+    if (canvasArea) {
+        canvasArea.addEventListener('wheel', (e) => {
+            // Prevent default page scroll
+            e.preventDefault();
+            
+            const zoomDelta = e.deltaY < 0 ? 0.1 : -0.1;
+            setZoom(currentZoom + zoomDelta);
+        }, { passive: false });
+
+        // Spacebar tracking
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                isSpacebarDown = true;
+                canvasArea.style.cursor = 'grab';
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isSpacebarDown = false;
+                canvasArea.style.cursor = 'default';
+            }
+        });
+
+        // Panning logic
+        canvasArea.addEventListener('mousedown', (e) => {
+            // Middle click (button 1) OR Spacebar + Left click
+            if (e.button === 1 || (e.button === 0 && isSpacebarDown)) {
+                e.preventDefault();
+                isPanning = true;
+                startPanX = e.clientX;
+                startPanY = e.clientY;
+                initialPanX = panX;
+                initialPanY = panY;
+                canvasArea.style.cursor = 'grabbing';
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                // Adjust translation relative to zoom scale so it sticks precisely to mouse movement
+                const deltaX = (e.clientX - startPanX) / currentZoom;
+                const deltaY = (e.clientY - startPanY) / currentZoom;
+                
+                panX = initialPanX + deltaX;
+                panY = initialPanY + deltaY;
+                
+                applyZoomAndPan();
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (isPanning) {
+                isPanning = false;
+                canvasArea.style.cursor = isSpacebarDown ? 'grab' : 'default';
+            }
+        });
+        
+        // Prevent middle-click scroll opening a weird cursor
+        window.addEventListener('mousedown', (e) => {
+             if(e.button === 1) e.preventDefault();
+        });
+    }
+
+    // Fullscreen Toggle
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                if (canvasArea.requestFullscreen) {
+                    canvasArea.requestFullscreen();
+                } else if (canvasArea.webkitRequestFullscreen) { /* Safari */
+                    canvasArea.webkitRequestFullscreen();
+                } else if (canvasArea.msRequestFullscreen) { /* IE11 */
+                    canvasArea.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+        });
+    }
+
+    // Init Zoom UI matching defaults
+    applyZoomAndPan();
+
     // Init Page
     loadPhotoData();
 });
