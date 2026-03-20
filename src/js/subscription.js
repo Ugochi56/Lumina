@@ -88,7 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: selectedTier })
+                    body: JSON.stringify({ 
+                        tier: selectedTier, 
+                        paymentToken: 'tok_mock_' + Math.random().toString(36).substr(2, 9) 
+                    })
                 })
                     .then(res => res.json())
                     .then(data => {

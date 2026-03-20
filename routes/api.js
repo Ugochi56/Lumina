@@ -333,6 +333,11 @@ router.post('/enhance', async (req, res) => {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
+        // Validate that the imageUrl is from Cloudinary (SSRF Mitigation)
+        if (!imageUrl.startsWith('https://res.cloudinary.com/')) {
+            return res.status(403).json({ error: 'Forbidden. Image URL must belong to the trusted Cloudinary domain.' });
+        }
+
         // --- CHECK TIER & VALIDATE TOOL ---
         const userRes = await db.query('SELECT subscription_tier FROM users WHERE id = $1', [userId]);
         const tier = userRes.rows[0].subscription_tier;
@@ -564,11 +569,18 @@ router.post('/subscribe', async (req, res) => {
     }
 
     try {
-        const { tier } = req.body;
+        const { tier, paymentToken } = req.body;
         const validTiers = ['free', 'weekly', 'monthly', 'yearly'];
 
         if (!validTiers.includes(tier)) {
             return res.status(400).json({ error: "Invalid subscription tier." });
+        }
+
+        // Mock payment token validation (Simulating Stripe/Braintree)
+        if (tier !== 'free') {
+            if (!paymentToken || !paymentToken.startsWith('tok_mock_')) {
+                return res.status(402).json({ error: "Payment Required. Invalid or missing payment token." });
+            }
         }
 
         // Update database

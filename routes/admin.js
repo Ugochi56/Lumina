@@ -85,7 +85,7 @@ router.get('/stats', async (req, res) => {
         const brisqueRes = await db.query(`
             SELECT AVG(brisque_score) as avg_score 
             FROM photos 
-            WHERE brisque_score IS NOT NULL
+            WHERE brisque_score IS NOT NULL AND brisque_score > 0
         `);
         const avgBrisqueScore = brisqueRes.rows[0].avg_score ? parseFloat(brisqueRes.rows[0].avg_score).toFixed(2) : "N/A";
 

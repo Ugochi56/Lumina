@@ -68,6 +68,7 @@ def generate_reports():
             WHERE recommended_tool IS NOT NULL 
                 AND ssim_score IS NOT NULL 
                 AND brisque_score IS NOT NULL
+                AND brisque_score > 0
         """
         cur.execute(query)
         rows = cur.fetchall()
