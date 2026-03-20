@@ -9,15 +9,13 @@ import time
 
 from brisque import BRISQUE
 
-# Instantiate the pre-trained SVR model for BRISQUE scoring (lower is better)
 brisque_evaluator = BRISQUE(url=False)
 
-# --- BRISQUE Implementation (Pre-Trained SVR Model) ---
+# BRISQUE Implementation using a Pre-Trained SVR Model
 # Evaluates image quality based on spatial Natural Scene Statistics (NSS) features.
 def compute_brisque(image):
     try:
         score = brisque_evaluator.score(image)
-        # Clamp to prevent PostgreSQL NUMERIC(7, 4) overflow (max 999.9999)
         score = min(max(float(score), 0.0), 999.9999)
         return round(score, 4)
     except Exception as e:

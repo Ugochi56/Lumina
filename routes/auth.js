@@ -55,12 +55,13 @@ router.get('/google/callback',
     (req, res) => res.redirect('/login.html') // Successful auth: go to app
 );
 
-// 4. Facebook
+/* 4. Facebook
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 router.get('/facebook/callback',
     passport.authenticate('facebook', { failureRedirect: '/login.html' }),
     (req, res) => res.redirect('/login.html')
 );
+*/
 
 /* 5. Apple
 router.get('/apple', passport.authenticate('apple'));

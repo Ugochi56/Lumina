@@ -4,7 +4,7 @@ const Replicate = require('replicate');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const sharp = require('sharp');
-const db = require('../db'); 
+const db = require('../db');
 const { notifyUser } = require('../websocket');
 
 // Configure Cloudinary
@@ -403,13 +403,12 @@ router.post('/enhance', async (req, res) => {
             case 'edit':
                 // Fast Image Enhancement & Retouching
                 modelString = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
-                inputData.scale = 1; 
-                inputData.face_enhance = true; 
+                inputData.scale = 1;
+                inputData.face_enhance = true;
                 break;
             case 'lowlight':
                 // Low-Light Enhancer
                 modelString = "cjwbw/night-enhancement:4328e402cfedafa70ad7cec04412e86ab61832204deccd94108ae5222c9b1ae1";
-                // This specialized model only requires the image input, no prompts or guidance scale needed.
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid tool selected' });
@@ -592,13 +591,13 @@ router.delete('/photos/:id', async (req, res) => {
 
     try {
         const photoId = req.params.id;
-        
+
         // 1. Verify Ownership
         const verifyResp = await db.query('SELECT user_id FROM photos WHERE id = $1', [photoId]);
         if (verifyResp.rows.length === 0) {
             return res.status(404).json({ error: 'Photo not found' });
         }
-        
+
         if (verifyResp.rows[0].user_id != req.user.id) {
             return res.status(403).json({ error: 'Forbidden. You do not own this photo.' });
         }
@@ -611,8 +610,6 @@ router.delete('/photos/:id', async (req, res) => {
         }
         await db.query('DELETE FROM photos WHERE id = $1', [photoId]);
 
-        // (We skip Cloudinary API delete for now to speed up response, just orphan the file or rely on Cloudinary lifecycle rules)
-        
         res.json({ success: true, message: 'Photo deleted successfully' });
     } catch (err) {
         console.error("Delete Error:", err);
