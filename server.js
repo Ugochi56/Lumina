@@ -23,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'src'))); // Serve static files from 'src'
 app.use('/images', express.static(path.join(__dirname, 'images'))); // Serve images from root 'images' folder
 
+app.set('trust proxy', 1);
+
 // Session Setup
 app.use(session({
     store: new pgSession({
