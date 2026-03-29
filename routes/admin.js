@@ -4,6 +4,13 @@ const db = require('../db');
 
 // Secure Middleware: Verify User is Authenticated AND an Admin
 const isAdmin = async (req, res, next) => {
+    console.log("Checking Admin Access for:", req.user);
+
+    if (req.isAuthenticated() && req.user && req.user.is_admin === true) {
+        return next();
+    }
+    console.log("Access Denied. Redirecting to login.");
+    res.redirect('/login');
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Unauthorized. Please log in." });
     }
